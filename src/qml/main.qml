@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.3
 
 ApplicationWindow {
     visible: true
-    width: 1024
+    width: 1280
     height: 800
     title: qsTr("Companies")
 
@@ -16,8 +16,7 @@ ApplicationWindow {
 
         Page {
             id: page
-            property variant colW: [40, 300, 300]
-
+            property variant colW: [40, 300, 200, 80, 400]
             ListView {
                 id: companiesView
                 clip: true
@@ -27,61 +26,43 @@ ApplicationWindow {
                 boundsBehavior: Flickable.StopAtBounds
                 headerPositioning: ListView.OverlayHeader
                 header: Rectangle {
-                    width: parent.width
-                    height: 40
+                    width: page.width
+                    height: 20
                     color: "#345791"
                     z:100
                     Row {
                         id: row
                         spacing: 10
                         anchors.fill: parent
-                        Text {
-                            clip: true
-                            font.pixelSize: 24
-                            width: page.colW[0]
-                            color: "#ffffff"
-                            text: companiesModel.headerData(0, companiesView.orientation, 0)
-                        }
-                        Text {
-                            clip: true
-                            font.pixelSize: 24
-                            width: page.colW[1]
-                            color: "#ffffff"
-                            text: companiesModel.headerData(0, companiesView.orientation, 1)
-                        }
-                        Text {
-                            clip: true
-                            font.pixelSize: 24
-                            width: page.colW[2]
-                            color: "#ffffff"
-                            text: companiesModel.headerData(0, companiesView.orientation, 2)
+                        Repeater {
+                            model: page.colW
+                            delegate: Text {
+                                clip: true
+                                maximumLineCount: 1
+                                font.pixelSize: 18
+                                width: page.colW[index]
+                                color: "#ffffff"
+                                text: companiesModel.headerData(0, companiesView.orientation, index)
+                            }
                         }
                     }
                 }
                 delegate: Rectangle {
-                    width: parent.width
+                    width: page.width
                     height: 20
                     color: "transparent"
                     Row {
                         width: parent.width
                         spacing: 10
-                        Text {
-                            clip: true
-                            width: page.colW[0]
-                            font.pixelSize: 18
-                            text: row
-                        }
-                        Text {
-                            clip: true
-                            width: page.colW[1]
-                            font.pixelSize: 18
-                            text: name
-                        }
-                        Text {
-                            clip: true
-                            width: page.colW[2]
-                            font.pixelSize: 18
-                            text: list
+                        Repeater {
+                            model: [row, name, list, watch, type]
+                            delegate: Text {
+                                clip: true
+                                maximumLineCount: 1
+                                width: page.colW[index]
+                                font.pixelSize: 18
+                                text: modelData
+                            }
                         }
                     }
                     MouseArea {
@@ -99,6 +80,10 @@ ApplicationWindow {
                     radius: 2
                 }
                 highlightFollowsCurrentItem: false
+
+                ScrollBar.vertical: ScrollBar {
+
+                }
             }
         }
 

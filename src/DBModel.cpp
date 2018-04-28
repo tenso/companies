@@ -11,6 +11,8 @@ DBModel::DBModel(QObject *parent)
     _roles[Roles::Row] = "row";
     _roles[Roles::Name] = "name";
     _roles[Roles::List] = "list";
+    _roles[Roles::Watch] = "watch";
+    _roles[Roles::Type] = "type";
 }
 
 bool DBModel::load(const QString &file)
@@ -78,6 +80,12 @@ QVariant DBModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Roles::List) {
         query.prepare("select list.name from list, companies where companies.lId=list.id and companies.id=:id");
+    }
+    else if (role == Roles::Watch) {
+        query.prepare("select watch from companies where id=:id");
+    }
+    else if (role == Roles::Type) {
+        query.prepare("select type.name from type, companies where companies.tId=type.id and companies.id=:id");
     }
     query.bindValue(":id", index.row() + 1 );
     query.exec();

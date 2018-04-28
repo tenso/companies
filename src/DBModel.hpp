@@ -7,7 +7,7 @@
 class DBModel : public QAbstractListModel
 {
     Q_OBJECT
-    enum Roles {Row, Name, List};
+    enum Roles {Row, Name, List, Watch, Type};
 public:
     explicit DBModel(QObject *parent = nullptr);
     bool load( const QString& file );
