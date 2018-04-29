@@ -18,7 +18,7 @@ Rectangle {
                 width: modelData
                 height: parent.height
                 color: "#ffffff"
-                text: companiesModel.headerData(0, Qt.Horizontal, index)
+                text: index //companiesModel.headerData(0, Qt.Horizontal, index)
             }
         }
     }

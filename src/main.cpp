@@ -5,7 +5,7 @@
 #include <QDir>
 
 #include "Log.hpp"
-#include "DBModel.hpp"
+#include "SqlTableModel.hpp"
 
 bool loadDB(const QString &file)
 {
@@ -34,9 +34,15 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    SqlTableModel companyModel("companies");
+    companyModel.setRelation(2, QSqlRelation("lists", "id", "name"));
+    companyModel.setRelation(3, QSqlRelation("types", "id", "name"));
+    companyModel.select();
+    SqlTableModel typesModel("types");
+
     QQmlApplicationEngine engine;
-    DBModel dbModel;
-    engine.rootContext()->setContextProperty("companiesModel", &dbModel );
+    engine.rootContext()->setContextProperty("companiesModel", &companyModel );
+    engine.rootContext()->setContextProperty("typesModel", &typesModel );
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;

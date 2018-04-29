@@ -17,7 +17,7 @@ ApplicationWindow {
         Page {
             id: page
             property int rowH: 30
-            property variant colW: [40, 300, 200, 80, 400]
+            property variant colW: [40, 300, 180, 300, 70, 300]
             ListView {
                 id: companiesView
                 clip: true
@@ -39,7 +39,9 @@ ApplicationWindow {
                     colW: page.colW
 
                     onSelect: {
+                        companiesView.currentItem.showEdit = false
                         companiesView.currentIndex = index;
+                        companiesView.currentItem.showEdit = true
                     }
                 }
 
@@ -51,7 +53,9 @@ ApplicationWindow {
                 }
 
                 ScrollBar.vertical: ScrollBar {
-
+                }
+                Component.onCompleted: {
+                    positionViewAtBeginning()
                 }
             }
         }
@@ -59,6 +63,7 @@ ApplicationWindow {
         Page {
             ComboBox {
                 currentIndex: 1
+                editable: true
                 model: ["one", "two", "three"]
             }
             Label {

@@ -3,7 +3,7 @@ QT += qml quick sql
 CONFIG += c++11
 
 SOURCES += src/main.cpp \
-    src/DBModel.cpp
+    src/SqlTableModel.cpp
 
 RESOURCES += src/qml.qrc
 
@@ -14,5 +14,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    src/DBModel.hpp \
-    src/Log.hpp
+    src/Log.hpp \
+    src/SqlTableModel.hpp
