@@ -6,7 +6,7 @@ SqlTableModel::SqlTableModel(const QString &table, QObject *parent)
     : QSqlRelationalTableModel(parent)
 {
     setTable(table);
-    //setEditStrategy();
+    setEditStrategy(EditStrategy::OnManualSubmit);
     select();
 
     for (int i = 0; i < record().count(); i++) {
@@ -30,7 +30,7 @@ int SqlTableModel::rowToId(int index) const
         return -1;
     }
     QModelIndex modelIndex = this->index(index, _idColumn);
-    return QSqlTableModel::data(modelIndex, Qt::DisplayRole).toInt();
+    return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
 }
 
 QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -48,11 +48,11 @@ QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 
     if (index.isValid()) {
         if (role < Qt::UserRole) {
-            value = QSqlTableModel::data(index, role);
+            value = QSqlRelationalTableModel::data(index, role);
         } else {
             int columnIdx = role - Qt::UserRole - 1;
             QModelIndex modelIndex = this->index(index.row(), columnIdx);
-            value = QSqlTableModel::data(modelIndex, Qt::DisplayRole);
+            value = QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole);
         }
     }
     return value;
@@ -60,10 +60,21 @@ QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 
 bool SqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (data(index, role) != value) {
-        // FIXME: Implement me!
-        logStatus() << "update:" << rowToId(index.row()) << value.toInt() << role;
-        emit dataChanged(index, index, QVector<int>() << role);
+    if (index.isValid() && data(index, role) != value) {
+        if (role < Qt::UserRole) {
+            QSqlRelationalTableModel::setData(index, value);
+            emit dataChanged(index, index, QVector<int>() << role);
+        } else {
+            int columnIdx = role - Qt::UserRole - 1;
+            QModelIndex modelIndex = this->index(index.row(), columnIdx);
+
+            if (!QSqlRelationalTableModel::setData(modelIndex, value)) {
+                logError() << "setData failed" << modelIndex << value;
+                return false;
+            }
+            emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
+        }
+
         return true;
     }
     return false;

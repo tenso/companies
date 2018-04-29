@@ -1,5 +1,5 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 ApplicationWindow {
@@ -7,6 +7,8 @@ ApplicationWindow {
     width: 1280
     height: 800
     title: qsTr("Companies")
+    property string status: ""
+    header: MainMenu {}
 
     SwipeView {
         id: swipeView
@@ -73,14 +75,31 @@ ApplicationWindow {
         }
     }
 
-    footer: TabBar {
-        id: tabBar
-        currentIndex: swipeView.currentIndex
-        TabButton {
-            text: qsTr("List")
+    footer: Item {
+        width: parent.width
+        height: 40
+        TabBar {
+            height: 20
+            width: parent.width
+            id: tabBar
+            currentIndex: swipeView.currentIndex
+            TabButton {
+                height: parent.height
+                text: qsTr("List")
+            }
+            TabButton {
+                height: parent.height
+                text: qsTr("Details")
+            }
         }
-        TabButton {
-            text: qsTr("Details")
+        Text {
+            id: statusBar
+            anchors.top: tabBar.bottom
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            width: parent.width
+            text: status
         }
     }
 }
