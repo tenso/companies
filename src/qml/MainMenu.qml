@@ -8,13 +8,13 @@ Item {
     function save()
     {
         companiesModel.submitAll();
-        status = qsTr("Save complete");
+        addStatus(qsTr("Save complete"))
     }
 
     function revert()
     {
         companiesModel.revertAll();
-        status = qsTr("Revert complete");
+        addStatus(qsTr("Revert complete"))
     }
 
     function quit()

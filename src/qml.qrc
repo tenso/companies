@@ -5,5 +5,8 @@
         <file>qml/CompanyHeaderDeligate.qml</file>
         <file>qml/CompanyRowDeligate.qml</file>
         <file>qml/MainMenu.qml</file>
+        <file>qml/CompanyCellText.qml</file>
+        <file>qml/CompanyCellDropDown.qml</file>
+        <file>qml/CompanyCellEditText.qml</file>
     </qresource>
 </RCC>

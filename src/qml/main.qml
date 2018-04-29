@@ -10,6 +10,10 @@ ApplicationWindow {
     property string status: ""
     header: MainMenu {}
 
+    function addStatus(text) {
+        status = "[" + new Date().toTimeString() + "] " + text;
+    }
+
     SwipeView {
         id: swipeView
         interactive: false
@@ -28,6 +32,12 @@ ApplicationWindow {
                 focus: true
                 boundsBehavior: Flickable.StopAtBounds
 
+                function setIndex(index) {
+                    currentItem.showEdit = false
+                    currentIndex = index;
+                    currentItem.showEdit = true
+                }
+
                 headerPositioning: ListView.OverlayHeader
                 header: CompanyHeaderDeligate {
                     width: page.width
@@ -40,24 +50,21 @@ ApplicationWindow {
                     height: page.rowH
                     colW: page.colW
 
-                    onSelect: {
-                        companiesView.currentItem.showEdit = false
-                        companiesView.currentIndex = index;
-                        companiesView.currentItem.showEdit = true
-                    }
+                    onSelect: companiesView.setIndex(index)
                 }
 
                 highlightFollowsCurrentItem: false
                 highlight: Rectangle {
                     anchors.fill: companiesView.currentItem
                     color: "#d0dcef"
-                    radius: 2
+                    radius: 0
                 }
 
                 ScrollBar.vertical: ScrollBar {
                 }
                 Component.onCompleted: {
                     positionViewAtBeginning()
+                    setIndex(0)
                 }
             }
         }
