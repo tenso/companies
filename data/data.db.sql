@@ -1,50 +1,50 @@
 BEGIN TRANSACTION;
-CREATE TABLE IF NOT EXISTS `type` (
+CREATE TABLE IF NOT EXISTS `types` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT
 );
-INSERT INTO `type` VALUES (0,NULL);
-INSERT INTO `type` VALUES (1,'Property');
-INSERT INTO `type` VALUES (2,'Bank & finance');
-INSERT INTO `type` VALUES (3,'Pharmacy');
-INSERT INTO `type` VALUES (4,'Biotech');
-INSERT INTO `type` VALUES (5,'Computer games');
-INSERT INTO `type` VALUES (6,'Betting');
-INSERT INTO `type` VALUES (7,'Construction');
-INSERT INTO `type` VALUES (8,'Service & education');
-INSERT INTO `type` VALUES (9,'Automotive');
-INSERT INTO `type` VALUES (10,'Industry & process equipment ');
-INSERT INTO `type` VALUES (11,'Food');
-INSERT INTO `type` VALUES (12,'Forest & paper');
-INSERT INTO `type` VALUES (13,'Ore and minig');
-INSERT INTO `type` VALUES (14,'Oil and gas');
-INSERT INTO `type` VALUES (15,'Investment');
-INSERT INTO `type` VALUES (16,'Transport');
-INSERT INTO `type` VALUES (17,'Clothes');
-INSERT INTO `type` VALUES (18,'Communications');
-INSERT INTO `type` VALUES (19,'Consumer goods');
-INSERT INTO `type` VALUES (20,'Construction and property services');
-INSERT INTO `type` VALUES (21,'Medical equipment & services');
-INSERT INTO `type` VALUES (22,'Industry goods & 
-parts');
-INSERT INTO `type` VALUES (23,'Construction goods & tools');
-INSERT INTO `type` VALUES (24,'Insurance');
-INSERT INTO `type` VALUES (25,'Conglamerate');
-INSERT INTO `type` VALUES (26,'Defens');
-INSERT INTO `type` VALUES (27,'Media');
-INSERT INTO `type` VALUES (28,'Security');
-INSERT INTO `type` VALUES (29,'Grocer');
-INSERT INTO `type` VALUES (30,'Consultants');
-INSERT INTO `type` VALUES (31,'Healt & personal products');
-INSERT INTO `type` VALUES (32,'Chemicals & plastics');
-INSERT INTO `type` VALUES (33,'Environment & Climate ');
-INSERT INTO `type` VALUES (34,'Energy');
-INSERT INTO `type` VALUES (35,'Hotell & Leasure');
-INSERT INTO `type` VALUES (36,'Electronics & computers');
-INSERT INTO `type` VALUES (37,'Advertising');
-INSERT INTO `type` VALUES (38,'Business services');
-INSERT INTO `type` VALUES (39,'Tech');
-INSERT INTO `type` VALUES (40,'Vanity');
+INSERT INTO `types` VALUES (0,NULL);
+INSERT INTO `types` VALUES (1,'Property');
+INSERT INTO `types` VALUES (2,'Bank & finance');
+INSERT INTO `types` VALUES (3,'Pharmacy');
+INSERT INTO `types` VALUES (4,'Biotech');
+INSERT INTO `types` VALUES (5,'Computer games');
+INSERT INTO `types` VALUES (6,'Betting');
+INSERT INTO `types` VALUES (7,'Construction');
+INSERT INTO `types` VALUES (8,'Service & education');
+INSERT INTO `types` VALUES (9,'Automotive');
+INSERT INTO `types` VALUES (10,'Industry & process equipment ');
+INSERT INTO `types` VALUES (11,'Food');
+INSERT INTO `types` VALUES (12,'Forest & paper');
+INSERT INTO `types` VALUES (13,'Ore and minig');
+INSERT INTO `types` VALUES (14,'Oil and gas');
+INSERT INTO `types` VALUES (15,'Investment');
+INSERT INTO `types` VALUES (16,'Transport');
+INSERT INTO `types` VALUES (17,'Clothes');
+INSERT INTO `types` VALUES (18,'Communications');
+INSERT INTO `types` VALUES (19,'Consumer goods');
+INSERT INTO `types` VALUES (20,'Construction and property services');
+INSERT INTO `types` VALUES (21,'Medical equipment & services');
+INSERT INTO `types` VALUES (22,'Industry goods & parts');
+INSERT INTO `types` VALUES (23,'Construction goods & tools');
+INSERT INTO `types` VALUES (24,'Insurance');
+INSERT INTO `types` VALUES (25,'Conglamerate');
+INSERT INTO `types` VALUES (26,'Defence');
+INSERT INTO `types` VALUES (27,'Media');
+INSERT INTO `types` VALUES (28,'Security');
+INSERT INTO `types` VALUES (29,'Grocer');
+INSERT INTO `types` VALUES (30,'Consultants');
+INSERT INTO `types` VALUES (31,'Healt & personal products');
+INSERT INTO `types` VALUES (32,'Chemicals & plastics');
+INSERT INTO `types` VALUES (33,'Environment & Climate ');
+INSERT INTO `types` VALUES (34,'Energy');
+INSERT INTO `types` VALUES (35,'Hotell & Leasure');
+INSERT INTO `types` VALUES (36,'Electronics & computers');
+INSERT INTO `types` VALUES (37,'Advertising');
+INSERT INTO `types` VALUES (38,'Business services');
+INSERT INTO `types` VALUES (39,'Tech');
+INSERT INTO `types` VALUES (40,'Vanity');
+INSERT INTO `types` VALUES (41,'Furniture & decoration');
 CREATE TABLE IF NOT EXISTS `tags` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT
@@ -64,18 +64,18 @@ CREATE TABLE IF NOT EXISTS `notes` (
 	`date`	TEXT,
 	`note`	TEXT
 );
-CREATE TABLE IF NOT EXISTS `list` (
+CREATE TABLE IF NOT EXISTS `lists` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT
 );
-INSERT INTO `list` VALUES (1,'First North Stockholm');
-INSERT INTO `list` VALUES (2,'Nordic MTF');
-INSERT INTO `list` VALUES (3,'AktieTorget');
-INSERT INTO `list` VALUES (4,'NGM');
-INSERT INTO `list` VALUES (5,'Xterna listan');
-INSERT INTO `list` VALUES (6,'Large Cap Stockholm');
-INSERT INTO `list` VALUES (7,'Mid Cap Stockholm');
-INSERT INTO `list` VALUES (8,'Small Cap Stockholm');
+INSERT INTO `lists` VALUES (1,'First North Stockholm');
+INSERT INTO `lists` VALUES (2,'Nordic MTF');
+INSERT INTO `lists` VALUES (3,'AktieTorget');
+INSERT INTO `lists` VALUES (4,'NGM');
+INSERT INTO `lists` VALUES (5,'Xterna listan');
+INSERT INTO `lists` VALUES (6,'Large Cap Stockholm');
+INSERT INTO `lists` VALUES (7,'Mid Cap Stockholm');
+INSERT INTO `lists` VALUES (8,'Small Cap Stockholm');
 CREATE TABLE IF NOT EXISTS `financials` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`cId`	INTEGER,
@@ -98,9 +98,9 @@ CREATE TABLE IF NOT EXISTS `companies` (
 	`lId`	INTEGER,
 	`tId`	INTEGER,
 	`watch`	INTEGER,
-	`desciption`	TEXT
+	`description`	TEXT
 );
-INSERT INTO `companies` VALUES (1,'Pegroco Invest',1,0,0,NULL);
+INSERT INTO `companies` VALUES (1,'Pegroco Invest (pref)',1,15,0,NULL);
 INSERT INTO `companies` VALUES (2,'hubbr B',1,0,0,NULL);
 INSERT INTO `companies` VALUES (3,'Implementa Hebe B',2,0,0,NULL);
 INSERT INTO `companies` VALUES (4,'ECOMB',3,0,0,NULL);
