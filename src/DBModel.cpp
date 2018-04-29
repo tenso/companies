@@ -1,6 +1,6 @@
 #include "DBModel.hpp"
 #include "Log.hpp"
-#include <QDir>
+#include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 #include "Log.hpp"
@@ -8,6 +8,8 @@
 DBModel::DBModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    _db = QSqlDatabase::database();
+    readNumCompanies();
     _roles[Roles::Row] = "row";
     _roles[Roles::Name] = "name";
     _roles[Roles::List] = "list";
@@ -15,23 +17,7 @@ DBModel::DBModel(QObject *parent)
     _roles[Roles::Type] = "type";
 }
 
-bool DBModel::load(const QString &file)
-{
-    QString absoluteFile = QDir::currentPath() + "/" + file;
-    if (!QFileInfo(absoluteFile).exists()) {
-        logError() << "file does not exist" << absoluteFile;
-        return false;
-    }
-    _db = QSqlDatabase::addDatabase("QSQLITE");
-    _db.setDatabaseName( file );
-    if (!_db.open()) {
-        logError() << "failed to open db" << absoluteFile;
-        return false;
-    }
-    logStatus() << "opened" << absoluteFile;
-    readNumCompanies();
-    return true;
-}
+
 
 QHash<int, QByteArray> DBModel::roleNames() const
 {
