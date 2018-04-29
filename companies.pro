@@ -13,6 +13,8 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+RCC_DIR += src/qml/
+
 OTHER_FILES += \
     src/qml/*.qml
 

@@ -31,10 +31,14 @@ ApplicationWindow {
                 anchors.fill: parent
                 focus: true
                 boundsBehavior: Flickable.StopAtBounds
+                keyNavigationEnabled: true
 
-                function setIndex(index) {
-                    currentItem.showEdit = false
-                    currentIndex = index;
+                property var lastItem: currentItem
+
+                onCurrentIndexChanged: {
+                    if (lastItem !== null) {
+                        lastItem.showEdit = false
+                    }
                     currentItem.showEdit = true
                 }
 
@@ -50,7 +54,7 @@ ApplicationWindow {
                     height: page.rowH
                     colW: page.colW
 
-                    onSelect: companiesView.setIndex(index)
+                    onSelect: companiesView.currentIndex = index;
                 }
 
                 highlightFollowsCurrentItem: false
@@ -63,9 +67,10 @@ ApplicationWindow {
                 ScrollBar.vertical: ScrollBar {
                 }
                 Component.onCompleted: {
-                    positionViewAtBeginning()
-                    setIndex(0)
+                    positionViewAtBeginning();
+                    currentIndex = 0;
                 }
+
             }
         }
 

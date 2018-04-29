@@ -1,9 +1,10 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.2
 
-Item {
+Rectangle {
     id: dropDown
     signal updated(int id)
+    color: showEdit ? "#b0c4e5" : "#ffffff"
 
     property bool showEdit: false
     height: parent.height
@@ -23,10 +24,8 @@ Item {
             anchors.fill: parent
             textRole: "name"
             font.pixelSize: 18
-            onCurrentIndexChanged: {
-                if (down) {
-                    updated(comboModel.rowToId(currentIndex));
-                }
+            onActivated: {
+                updated(comboModel.rowToId(currentIndex));
             }
             Component.onCompleted: {
                 currentIndex = find(currentItem);

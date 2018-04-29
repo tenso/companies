@@ -8,13 +8,6 @@ Rectangle {
     property variant colW: [0, 0, 0, 0, 0, 0]
     property bool showEdit: false
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            select(index);
-        }
-    }
-
     Row {
         anchors.fill: parent
         spacing: 10
@@ -39,7 +32,7 @@ Rectangle {
             item: tId
             onUpdated: {
                 tId = id;
-                addStatus(qsTr("id=" + idText.text + "set tId=" + id));
+                addStatus(qsTr("id=" + idText.text + " set tId=" + id));
             }
         }
         CompanyCellText {
@@ -52,8 +45,15 @@ Rectangle {
             enabled: companyRow.showEdit
             onEditingFinished: {
                 description = text;
-                addStatus(qsTr("id=" + idText.text + "set desc=" + text));
+                addStatus(qsTr("id=" + idText.text + " set desc=" + text));
             }
+        }
+    }
+    MouseArea {
+        anchors.fill: parent
+        enabled: !showEdit
+        onClicked: {
+            select(index);
         }
     }
 }
