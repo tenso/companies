@@ -37,6 +37,7 @@ Rectangle {
             }
         }
         CompanyCellDropDown {
+            id: typeSelect
             showEdit: companyRow.showEdit
             comboModel: typesModel
             width: colW[3]

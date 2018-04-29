@@ -36,9 +36,6 @@ ApplicationWindow {
                 focus: true
                 boundsBehavior: Flickable.StopAtBounds
                 keyNavigationEnabled: true
-                onFocusChanged: {
-                    console.log("foc!")
-                }
 
                 property var lastItem: currentItem
 
@@ -64,6 +61,7 @@ ApplicationWindow {
 
                     onSelect: {
                         companiesView.currentIndex = index;
+                        companiesView.forceActiveFocus();
                     }
                 }
 
@@ -82,6 +80,7 @@ ApplicationWindow {
                 Component.onCompleted: {
                     positionViewAtBeginning();
                     currentIndex = 0;
+                    forceActiveFocus(); //give list focus; who has it?
                 }
             }
         }
