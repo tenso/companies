@@ -40,7 +40,7 @@ QHash<int, QByteArray> DBModel::roleNames() const
 
 QVariant DBModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Orientation::Vertical) {
+    if (orientation == Qt::Orientation::Horizontal) {
         return _roles[ role ];
     }
     return section;
@@ -95,21 +95,22 @@ QVariant DBModel::data(const QModelIndex &index, int role) const
 
 bool DBModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (data(index, role) != value) {
+    //if (data(index, role) != value) {
         // FIXME: Implement me!
+        logStatus() << index.row() << value.toInt() << role;
         emit dataChanged(index, index, QVector<int>() << role);
         return true;
-    }
-    return false;
+    /*}
+    return false;*/
 }
 
 Qt::ItemFlags DBModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return Qt::NoItemFlags;
+    }
 
-    return Qt::NoItemFlags;
-    //return Qt::ItemIsEditable; // FIXME: Implement me!
+    return Qt::ItemIsEditable; // FIXME: Implement me!
 }
 
 void DBModel::readNumCompanies()

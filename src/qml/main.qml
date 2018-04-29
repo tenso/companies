@@ -16,6 +16,7 @@ ApplicationWindow {
 
         Page {
             id: page
+            property int rowH: 30
             property variant colW: [40, 300, 200, 80, 400]
             ListView {
                 id: companiesView
@@ -24,62 +25,30 @@ ApplicationWindow {
                 anchors.fill: parent
                 focus: true
                 boundsBehavior: Flickable.StopAtBounds
+
                 headerPositioning: ListView.OverlayHeader
-                header: Rectangle {
+                header: CompanyHeaderDeligate {
                     width: page.width
-                    height: 20
-                    color: "#345791"
-                    z:100
-                    Row {
-                        id: row
-                        spacing: 10
-                        anchors.fill: parent
-                        Repeater {
-                            model: page.colW
-                            delegate: Text {
-                                clip: true
-                                maximumLineCount: 1
-                                font.pixelSize: 18
-                                width: page.colW[index]
-                                color: "#ffffff"
-                                text: companiesModel.headerData(0, companiesView.orientation, index)
-                            }
-                        }
-                    }
+                    height: page.rowH
+                    model: page.colW
                 }
-                delegate: Rectangle {
+
+                delegate: CompanyRowDeligate {
                     width: page.width
-                    height: 20
-                    color: "transparent"
-                    Row {
-                        width: parent.width
-                        spacing: 10
-                        Repeater {
-                            model: [row, name, list, watch, type]
-                            delegate: Text {
-                                clip: true
-                                maximumLineCount: 1
-                                width: page.colW[index]
-                                font.pixelSize: 18
-                                text: modelData
-                            }
-                        }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            companiesView.currentIndex = index;
-                        }
+                    height: page.rowH
+                    colW: page.colW
+
+                    onSelect: {
+                        companiesView.currentIndex = index;
                     }
                 }
 
+                highlightFollowsCurrentItem: false
                 highlight: Rectangle {
-                    //y: companiesView.currentItem.y
                     anchors.fill: companiesView.currentItem
                     color: "#d0dcef"
                     radius: 2
                 }
-                highlightFollowsCurrentItem: false
 
                 ScrollBar.vertical: ScrollBar {
 
@@ -88,6 +57,10 @@ ApplicationWindow {
         }
 
         Page {
+            ComboBox {
+                currentIndex: 1
+                model: ["one", "two", "three"]
+            }
             Label {
                 text: qsTr("Second page")
                 anchors.centerIn: parent
