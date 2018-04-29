@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.7
 
 Rectangle {
     height: parent.height
@@ -10,11 +10,11 @@ Rectangle {
 
     TextInput {
         id: input
+        leftPadding: 12
         onEditingFinished: parent.editingFinished();
         verticalAlignment: Text.AlignVCenter
         clip: true
         anchors.fill: parent
-        anchors.leftMargin: 12
         font.pixelSize: 18
     }
 }

@@ -4,6 +4,7 @@ Item {
     height: parent.height
     width: 100
     property alias text: input.text
+    property alias color: input.color
     Text {
         id: input
         clip: true

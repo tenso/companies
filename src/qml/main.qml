@@ -36,6 +36,9 @@ ApplicationWindow {
                 focus: true
                 boundsBehavior: Flickable.StopAtBounds
                 keyNavigationEnabled: true
+                onFocusChanged: {
+                    console.log("foc!")
+                }
 
                 property var lastItem: currentItem
 
@@ -50,7 +53,8 @@ ApplicationWindow {
                 header: CompanyHeaderDeligate {
                     width: page.width
                     height: page.rowH
-                    model: page.colW
+                    colW: page.colW
+                    model: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
                 }
 
                 delegate: CompanyRowDeligate {
