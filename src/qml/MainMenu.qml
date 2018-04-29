@@ -36,6 +36,7 @@ Item {
     }
 
     Button {
+        flat: true
         height: parent.height
         text: qsTr("File")
         onClicked: menu.open()

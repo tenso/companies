@@ -14,6 +14,7 @@ Rectangle {
         verticalAlignment: Text.AlignVCenter
         clip: true
         anchors.fill: parent
+        anchors.leftMargin: 12
         font.pixelSize: 18
     }
 }

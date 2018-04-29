@@ -3,6 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 ApplicationWindow {
+    id: window
     visible: true
     width: 1280
     height: 800
@@ -22,8 +23,11 @@ ApplicationWindow {
 
         Page {
             id: page
+            property int totColW: window.width - 5*10
             property int rowH: 30
-            property variant colW: [40, 300, 180, 300, 70, 300]
+            property variant colW: [totColW * 0.05, totColW * 0.25,
+                totColW * 0.2, totColW * 0.2, totColW * 0.05, totColW * 0.25]
+
             ListView {
                 id: companiesView
                 clip: true
@@ -35,8 +39,8 @@ ApplicationWindow {
 
                 property var lastItem: currentItem
 
-                onCurrentIndexChanged: {
-                    if (lastItem !== null) {
+                onCurrentItemChanged: {
+                    if (lastItem) {
                         lastItem.showEdit = false
                     }
                     currentItem.showEdit = true
@@ -54,12 +58,17 @@ ApplicationWindow {
                     height: page.rowH
                     colW: page.colW
 
-                    onSelect: companiesView.currentIndex = index;
+                    onSelect: {
+                        companiesView.currentIndex = index;
+                    }
                 }
 
                 highlightFollowsCurrentItem: false
                 highlight: Rectangle {
-                    anchors.fill: companiesView.currentItem
+                    width: page.width
+                    height: page.rowH
+                    x: 0
+                    y: companiesView.currentItem.y
                     color: "#d0dcef"
                     radius: 0
                 }
@@ -70,16 +79,10 @@ ApplicationWindow {
                     positionViewAtBeginning();
                     currentIndex = 0;
                 }
-
             }
         }
 
         Page {
-            ComboBox {
-                currentIndex: 1
-                editable: true
-                model: ["one", "two", "three"]
-            }
             Label {
                 text: qsTr("Second page")
                 anchors.centerIn: parent

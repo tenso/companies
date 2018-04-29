@@ -39,10 +39,12 @@ int main(int argc, char *argv[])
     companyModel.setRelation(3, QSqlRelation("types", "id", "name"));
     companyModel.select();
     SqlTableModel typesModel("types");
+    SqlTableModel listsModel("lists");
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("companiesModel", &companyModel );
     engine.rootContext()->setContextProperty("typesModel", &typesModel );
+    engine.rootContext()->setContextProperty("listsModel", &listsModel );
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
