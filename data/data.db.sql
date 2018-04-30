@@ -1749,5 +1749,4 @@ INSERT INTO `calculated` VALUES (817,817,446982,30.69,4.1,1.8,14568);
 INSERT INTO `calculated` VALUES (818,818,485665,29.85,1.87,3.05,18235);
 INSERT INTO `calculated` VALUES (819,819,711592,24.65,3.93,4.34,15186);
 INSERT INTO `calculated` VALUES (820,820,1755802,21.91,4.13,3.8,1717);
-CREATE VIEW "all" AS select companies.id, companies.name, type.name as industry, companies.watch, list.name as list, calculated.mcap, calculated.pe, calculated.ps, calculated.dividend, calculated.owners from companies join list on companies.lId=list.id join type on companies.tId=type.id join calculated on companies.id=calculated.cId;
 COMMIT;
