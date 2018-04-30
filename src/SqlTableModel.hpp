@@ -33,10 +33,12 @@ public:
 
 public slots:
     int rowToId(int index) const;
+    void filterColumn(int index, const QString& filter);
 
 private:
     int _idColumn { -1 };
     QHash<int, QByteArray> _roles;
+    QHash<int, QString> _filters;
 };
 
 #endif // SQLTABLEMODEL_HPP

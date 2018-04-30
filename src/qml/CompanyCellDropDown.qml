@@ -2,9 +2,10 @@ import QtQuick 2.0
 import QtQuick.Controls 2.2
 
 Rectangle {
+    Theme {id: tm}
     id: dropDown
     signal updated(int id)
-    color: showEdit ? "#b0c4e5" : "#ffffff"
+    color: tm.editColor(showEdit)
 
     property bool showEdit: false
     height: parent.height

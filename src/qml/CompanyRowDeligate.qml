@@ -12,10 +12,18 @@ Rectangle {
         anchors.fill: parent
         spacing: 10
 
-        CompanyCellText {
-            id: idText
+        CompanyCellEditText {
             width: colW[0]
+            id: idText
             text: id
+            enabled: companyRow.showEdit
+            onEditingFinished: {
+                addStatus(qsTr("id is read-only"));
+                text = id;
+
+                //id = text;
+                //addStatus(qsTr("id=" + idText.text + " set id=" + text));
+            }
         }
         CompanyCellEditText {
             width: colW[1]

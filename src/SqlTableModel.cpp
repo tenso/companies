@@ -33,6 +33,30 @@ int SqlTableModel::rowToId(int index) const
     return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
 }
 
+void SqlTableModel::filterColumn(int index, const QString &filter)
+{
+    int roleIndex = index + Qt::UserRole + 1;
+
+    if (filter.size()) {
+        QString role =  _roles[roleIndex];
+        QString filterString = "companies." + role + " " + filter;
+        _filters[roleIndex] = filterString;
+    }
+    else {
+        _filters.remove(roleIndex);
+    }
+    QString totalFilter;
+    foreach(const QString& entry, _filters.values()) {
+        totalFilter += entry + " and ";
+    }
+    totalFilter.chop(5); //remove last " and "
+    setFilter(totalFilter);
+
+    if (!select()) {
+        logError() << "select failed" << selectStatement();
+    }
+}
+
 QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Orientation::Horizontal) {

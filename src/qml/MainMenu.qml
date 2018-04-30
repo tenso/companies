@@ -1,10 +1,11 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 
-Item {
+Rectangle {
+    Theme {id: tm}
     height: 30
     width: parent.width
-
+    color: tm.menuBg
     function save()
     {
         companiesModel.submitAll();
@@ -35,9 +36,9 @@ Item {
         onActivated: quit()
     }
 
-    Button {
-        flat: true
+    AButton {
         height: parent.height
+        width: 100
         text: qsTr("File")
         onClicked: menu.open()
         Menu {

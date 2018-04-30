@@ -16,7 +16,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RCC_DIR += src/qml/
 
 OTHER_FILES += \
-    src/qml/*.qml
+    src/qml/*.qml \
+    README.md
 
 HEADERS += \
     src/Log.hpp \

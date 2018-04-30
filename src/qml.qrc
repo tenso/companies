@@ -8,5 +8,8 @@
         <file>qml/CompanyCellText.qml</file>
         <file>qml/CompanyCellDropDown.qml</file>
         <file>qml/CompanyCellEditText.qml</file>
+        <file>qml/CompanyFilter.qml</file>
+        <file>qml/AButton.qml</file>
+        <file>qml/Theme.qml</file>
     </qresource>
 </RCC>

@@ -1,9 +1,11 @@
 import QtQuick 2.7
 
 Rectangle {
+    Theme {id: tm}
     height: parent.height
     width: 100
-    color: enabled ? "#b0c4e5" : "#ffffff"
+    color: tm.editColor(showEdit)
+
     signal editingFinished()
     property alias enabled: input.enabled
     property alias text: input.text
