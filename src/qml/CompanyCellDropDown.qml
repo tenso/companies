@@ -11,13 +11,13 @@ Rectangle {
     height: parent.height
     width: 100
     property var comboModel
-    property var item
+    property var text
 
     Component {
         id: editBox
 
         ComboBox {
-            property var currentItem: dropDown.item
+            property var currentUserText: dropDown.text
             id: comboBox
             model: comboModel
             flat: true
@@ -42,10 +42,10 @@ Rectangle {
                 updated(comboModel.rowToId(currentIndex));
             }
             Component.onCompleted: {
-                currentIndex = find(currentItem);
+                currentIndex = find(currentUserText);
             }
-            onCurrentItemChanged: {
-                currentIndex = find(currentItem);
+            onCurrentUserTextChanged: {
+                currentIndex = find(currentUserText);
             }
         }
     }
@@ -59,6 +59,6 @@ Rectangle {
     CompanyCellText {
         visible: !showEdit
         width: parent.width
-        text: parent.item
+        text: parent.text
     }
 }

@@ -12,5 +12,7 @@
         <file>qml/AButton.qml</file>
         <file>qml/Theme.qml</file>
         <file>qml/ATabButton.qml</file>
+        <file>qml/CompanyFilterText.qml</file>
+        <file>qml/CompanyFilterDropDown.qml</file>
     </qresource>
 </RCC>

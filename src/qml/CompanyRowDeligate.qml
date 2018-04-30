@@ -38,7 +38,7 @@ Rectangle {
             showEdit: companyRow.showEdit
             comboModel: listsModel
             width: colW[2]
-            item: lId
+            text: lId
             onUpdated: {
                 lId = id;
                 addStatus(qsTr("id=" + idText.text + " set lId=" + id));
@@ -49,7 +49,7 @@ Rectangle {
             showEdit: companyRow.showEdit
             comboModel: typesModel
             width: colW[3]
-            item: tId
+            text: tId
             onUpdated: {
                 tId = id;
                 addStatus(qsTr("id=" + idText.text + " set tId=" + id));

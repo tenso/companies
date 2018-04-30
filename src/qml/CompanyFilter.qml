@@ -7,116 +7,70 @@ Rectangle {
     color: "transparent"
     property variant colW: [0, 0, 0, 0, 0, 0]
 
-    property string lId: ""
-    onLIdChanged: {
-        var filter = "=" + lId;
-        companiesModel.filterColumn(2, filter)
-        addStatus("list filter:" + filter);
-    }
-    property string tId: ""
-
     Row {
         anchors.fill: parent
         spacing: 10
 
-        CompanyCellEditText {
-            width: colW[0]
-            color: tm.inActive
-            onEditingFinished: {
-                var filter = text;
-                companiesModel.filterColumn(0, filter)
-                addStatus("id filter:" + filter);
+        CompanyFilterText {
+            index: 0
+            width: colW[index]
+            onTextUpdate: {
+                filter = text;
             }
         }
-        CompanyCellEditText {
-            width: colW[1]
-            color: tm.inActive
-            onEditingFinished: {
-                var filter = "";
+        CompanyFilterText {
+            index: 1
+            width: colW[index]
+            onTextUpdate: {
                 if (text) {
                     filter = "like '%" + text + "%'";
-                }
-                companiesModel.filterColumn(1, filter)
-                addStatus("name filter:" + filter);
-            }
-        }
-        Row {
-            CompanyCellDropDown {
-                id: listSelect
-                comboModel: listsModel
-                color: tm.inActive
-                width: colW[2] - clearList.width
-                showEdit: true
-                item: ""
-                onUpdated: {
-                    var filter = "=" + id;
-                    companiesModel.filterColumn(2, filter)
-                    addStatus("list filter:" + filter);
-                }
-            }
-            AButton {
-                id: clearList
-                width: 15
-                height: 30
-                anchors.verticalCenter: listSelect.verticalCenter
-                font: tm.buttonFont
-                text: "x"
-                onPressed: {
-                    listSelect.item = ""
-                    var filter = "";
-                    companiesModel.filterColumn(2, filter)
-                    addStatus("list filter:" + filter);
+                } else {
+                    filter = "";
                 }
             }
         }
-        Row {
-            CompanyCellDropDown {
-                id: typeSelect
-                color: tm.inActive
-                comboModel: typesModel
-                width: colW[3] - clearType.width
-                item: tId
-                showEdit: true
-                onUpdated: {
-                    var filter = "=" + id;
-                    companiesModel.filterColumn(3, filter)
-                    addStatus("type filter:" + filter);
+        CompanyFilterDropDown {
+            model: listsModel
+            index: 2
+            width: colW[index]
+            onIdUpdate: {
+                if (id) {
+                    filter = "=" + id;
                 }
-            }
-            AButton {
-                id: clearType
-                width: 15
-                height: 30
-                anchors.verticalCenter: typeSelect.verticalCenter
-                font: tm.buttonFont
-                text: "x"
-                onPressed: {
-                    typeSelect.item = ""
-                    var filter = "";
-                    companiesModel.filterColumn(3, filter)
-                    addStatus("type filter:" + filter);
+                else {
+                    filter = "";
                 }
             }
         }
-        CompanyCellEditText {
-            color: tm.inActive
-            width: colW[4]
-            onEditingFinished: {
-                var filter = text;
-                companiesModel.filterColumn(4, filter)
-                addStatus("watch filter:" + filter);
+        CompanyFilterDropDown {
+            model: typesModel
+            index: 3
+            width: colW[index]
+            onIdUpdate: {
+                if (id) {
+                    filter = "=" + id;
+                }
+                else {
+                    filter = "";
+                }
             }
         }
-        CompanyCellEditText {
-            color: tm.inActive
-            width: colW[5]
-            onEditingFinished: {
-                var filter = "";
+        CompanyFilterText {
+            index: 4
+            width: colW[index]
+            onTextUpdate: {
+                filter = text;
+            }
+        }
+        CompanyFilterText {
+            index: 5
+            width: colW[index]
+            onTextUpdate: {
                 if (text) {
                     filter = "like '%" + text + "%'";
+                } else {
+                    filter = "";
                 }
-                companiesModel.filterColumn(5, filter)
-                addStatus("desc filter:" + filter);
             }
         }
     }
