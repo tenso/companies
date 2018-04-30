@@ -5,7 +5,8 @@ CONFIG += c++11
 SOURCES += src/main.cpp \
     src/SqlTableModel.cpp
 
-RESOURCES += src/qml.qrc
+RESOURCES += src/qml.qrc \
+    fonts.qrc
 
 DEFINES += QT_DEPRECATED_WARNINGS
 

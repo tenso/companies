@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.7
 import QtQuick.Controls 2.2
 
 Rectangle {
@@ -24,7 +24,20 @@ Rectangle {
             visible: showEdit
             anchors.fill: parent
             textRole: "name"
-            font.pixelSize: 18
+            font: tm.font
+            delegate: ItemDelegate {
+                width: comboBox.width
+                height: tm.selectRowH
+                contentItem: Text {
+                    text: name
+                    color: tm.textFg
+                    font: tm.selectFont
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+                }
+                highlighted: comboBox.highlightedIndex === index
+            }
+
             onActivated: {
                 updated(comboModel.rowToId(currentIndex));
             }

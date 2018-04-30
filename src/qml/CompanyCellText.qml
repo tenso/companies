@@ -1,10 +1,11 @@
-import QtQuick 2.0
+import QtQuick 2.7
 
 Item {
     height: parent.height
     width: 100
     property alias text: input.text
     property alias color: input.color
+    property alias font: input.font
     Text {
         id: input
         clip: true
@@ -12,6 +13,6 @@ Item {
         anchors.leftMargin: 12
         maximumLineCount: 1
         verticalAlignment: Text.AlignVCenter
-        font.pixelSize: 18
+        font: tm.font
     }
 }

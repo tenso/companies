@@ -6,20 +6,22 @@ Rectangle {
     height: 30
     width: parent.width
     color: tm.menuBg
-    function save()
-    {
-        companiesModel.submitAll();
-        addStatus(qsTr("Save complete"))
+
+    function save() {
+        if (companiesModel.submitAll()) {
+            addStatus(qsTr("Save complete"))
+        }
+        else {
+            addStatus(qsTr("Save failed"))
+        }
     }
 
-    function revert()
-    {
+    function revert() {
         companiesModel.revertAll();
-        addStatus(qsTr("Revert complete"))
+        addStatus(qsTr("Revert complete"));
     }
 
-    function quit()
-    {
+    function quit() {
         Qt.quit();
     }
 
@@ -41,12 +43,15 @@ Rectangle {
         width: 100
         text: qsTr("File")
         onClicked: menu.open()
+        font: tm.font
         Menu {
             id: menu
 
             MenuItem {
+                font: tm.font
                 text: qsTr("Save")
                 ToolTip {
+                    font: tm.font
                     text: qsTr("Ctrl+S")
                     delay: 500
                     visible: parent.hovered
@@ -54,7 +59,9 @@ Rectangle {
                 onTriggered: save()
             }
             MenuItem {
+                font: tm.font
                 ToolTip {
+                    font: tm.font
                     text: qsTr("Ctrl+Z")
                     delay: 500
                     visible: parent.hovered
@@ -63,8 +70,10 @@ Rectangle {
                 onTriggered: revert()
             }
             MenuItem {
+                font: tm.font
                 text: qsTr("Quit")
                 ToolTip {
+                    font: tm.font
                     text: qsTr("Ctrl+Q")
                     delay: 500
                     visible: parent.hovered

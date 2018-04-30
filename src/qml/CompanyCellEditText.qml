@@ -9,6 +9,7 @@ Rectangle {
     signal editingFinished()
     property alias enabled: input.enabled
     property alias text: input.text
+    property alias font: input.font
 
     TextInput {
         id: input
@@ -17,6 +18,6 @@ Rectangle {
         verticalAlignment: Text.AlignVCenter
         clip: true
         anchors.fill: parent
-        font.pixelSize: 18
+        font: tm.font
     }
 }

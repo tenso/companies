@@ -11,5 +11,6 @@
         <file>qml/CompanyFilter.qml</file>
         <file>qml/AButton.qml</file>
         <file>qml/Theme.qml</file>
+        <file>qml/ATabButton.qml</file>
     </qresource>
 </RCC>

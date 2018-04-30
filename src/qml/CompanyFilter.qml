@@ -1,5 +1,5 @@
-import QtQuick 2.2
-import QtQuick.Controls 2.1
+import QtQuick 2.7
+import QtQuick.Controls 2.2
 
 Rectangle {
     Theme {id: tm}
@@ -59,7 +59,7 @@ Rectangle {
                 width: 15
                 height: 30
                 anchors.verticalCenter: listSelect.verticalCenter
-                font.pixelSize: 24
+                font: tm.buttonFont
                 text: "x"
                 onPressed: {
                     listSelect.item = ""
@@ -88,7 +88,7 @@ Rectangle {
                 width: 15
                 height: 30
                 anchors.verticalCenter: typeSelect.verticalCenter
-                font.pixelSize: 24
+                font: tm.buttonFont
                 text: "x"
                 onPressed: {
                     typeSelect.item = ""

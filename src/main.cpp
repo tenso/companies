@@ -3,6 +3,7 @@
 #include <QQmlContext>
 #include <QSqlDatabase>
 #include <QDir>
+#include <QFontDatabase>
 
 #include "Log.hpp"
 #include "SqlTableModel.hpp"
@@ -25,10 +26,28 @@ bool loadDB(const QString &file)
     return true;
 }
 
+void loadFonts()
+{
+    QDir fonts(":/assets/fonts/");
+    fonts.setNameFilters(QStringList() << "*.ttf");
+    int loaded = 0;
+    foreach(const QString& file, fonts.entryList(QDir::Files | QDir::NoDotAndDotDot)) {
+        int id = QFontDatabase::addApplicationFont(fonts.absoluteFilePath(file));
+        if(id >= 0) {
+            //logStatus() << QFontDatabase::applicationFontFamilies(id);
+            loaded++;
+        }
+    }
+    logStatus() << "loaded" << loaded << "fonts";
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
+
+    loadFonts();
+    QGuiApplication::setFont( QFont("Roboto") );
 
     if (!loadDB( "../data/data.db" )) {
         return -1;

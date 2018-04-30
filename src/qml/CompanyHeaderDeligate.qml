@@ -20,6 +20,7 @@ Rectangle {
                 width: colW[index]
                 height: parent.height
                 CompanyCellText {
+                    font: tm.headFont
                     id: name
                     color: tm.headFg
                     width: colW[index]

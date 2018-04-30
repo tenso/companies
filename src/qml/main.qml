@@ -25,7 +25,7 @@ ApplicationWindow {
         Page {
             id: page
             property int totColW: window.width - 5*10
-            property int rowH: 30
+            property int rowH: tm.rowH
             property variant colW: [totColW * 0.05, totColW * 0.25,
                 totColW * 0.2, totColW * 0.2, totColW * 0.05, totColW * 0.25]
 
@@ -86,6 +86,7 @@ ApplicationWindow {
 
                 ScrollBar.vertical: ScrollBar {
                     clip:true
+                    width: 20
                 }
                 Component.onCompleted: {
                     positionViewAtBeginning();
@@ -97,9 +98,20 @@ ApplicationWindow {
         }
 
         Page {
-            Label {
-                text: qsTr("Second page")
+            ColumnLayout{
                 anchors.centerIn: parent
+                Row{
+                    Label {
+                        text: qsTr("Second page")
+                        font: tm.font
+                    }
+                }
+                Row {
+                    Label {
+                        text: qsTr("Second page")
+                        font: tm.buttonFont
+                    }
+                }
             }
         }
     }
@@ -113,12 +125,10 @@ ApplicationWindow {
             width: parent.width
             id: tabBar
             currentIndex: swipeView.currentIndex
-            TabButton {
-                height: parent.height
+            ATabButton {
                 text: qsTr("List")
             }
-            TabButton {
-                height: parent.height
+            ATabButton {
                 text: qsTr("Details")
             }
         }
@@ -131,6 +141,7 @@ ApplicationWindow {
             anchors.leftMargin: 10
             width: parent.width / 2
             text: companiesView.count
+            font: tm.font
         }
         Text {
             id: statusBar
@@ -142,6 +153,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.rightMargin: 10
             text: status
+            font: tm.font
         }
     }
 }
