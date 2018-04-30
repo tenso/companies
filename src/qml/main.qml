@@ -26,9 +26,7 @@ ApplicationWindow {
             id: page
             property int totColW: window.width - 5*10
             property int rowH: tm.rowH
-            property variant colW: [totColW * 0.05, totColW * 0.25,
-                totColW * 0.2, totColW * 0.2, totColW * 0.05, totColW * 0.25]
-
+            property variant colW: [60, 300, 200, 200, 70, totColW - 840]
 
             CompanyHeaderDeligate {
                 id: listHead
