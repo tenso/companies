@@ -11,6 +11,7 @@ Rectangle {
     Row {
         anchors.fill: parent
         spacing: 10
+        anchors.leftMargin: spacing
 
         CompanyCellEditText {
             width: colW[0]

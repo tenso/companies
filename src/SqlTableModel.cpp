@@ -98,7 +98,6 @@ bool SqlTableModel::setData(const QModelIndex &index, const QVariant &value, int
             }
             emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
         }
-
         return true;
     }
     return false;
@@ -120,14 +119,6 @@ bool SqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
     return false;
 }
 
-bool SqlTableModel::insertColumns(int column, int count, const QModelIndex &parent)
-{
-    beginInsertColumns(parent, column, column + count - 1);
-    // FIXME: Implement me!
-    endInsertColumns();
-    return false;
-}
-
 bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     beginRemoveRows(parent, row, row + count - 1);
@@ -136,10 +127,10 @@ bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
     return false;
 }
 
-bool SqlTableModel::removeColumns(int column, int count, const QModelIndex &parent)
+bool SqlTableModel::fetchAll()
 {
-    beginRemoveColumns(parent, column, column + count - 1);
-    // FIXME: Implement me!
-    endRemoveColumns();
-    return false;
+    while (canFetchMore()) {
+        fetchMore();
+    }
+    return true;
 }

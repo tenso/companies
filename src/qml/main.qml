@@ -13,7 +13,12 @@ ApplicationWindow {
     header: MainMenu {}
 
     function addStatus(text) {
-        status = "[" + new Date().toTimeString() + "] " + text;
+        status = text + " [" + new Date().toTimeString() + "]";
+    }
+
+    Component.onCompleted: {
+        addStatus("load all");
+        companiesModel.fetchAll();
     }
 
     SwipeView {
@@ -26,7 +31,7 @@ ApplicationWindow {
             id: page
             property int totColW: window.width - 5*10
             property int rowH: tm.rowH
-            property variant colW: [60, 300, 200, 200, 70, totColW - 840]
+            property variant colW: [60, 300, 240, 300, 70, totColW - 990]
 
             CompanyHeaderDeligate {
                 id: listHead
@@ -138,7 +143,7 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.leftMargin: 10
             width: parent.width / 2
-            text: companiesView.count
+            text: "Rows: " + companiesView.count
             font: tm.font
         }
         Text {

@@ -10,7 +10,7 @@ Rectangle {
     Row {
         anchors.fill: parent
         spacing: 10
-
+        anchors.leftMargin: spacing
         CompanyFilterText {
             index: 0
             width: colW[index]
