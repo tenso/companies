@@ -1,6 +1,7 @@
 import QtQuick 2.7
 
 Row {
+    Theme {id: tm}
     property int index: 0
 
     property string filter: ""
@@ -11,7 +12,7 @@ Row {
     }
 
     CompanyCellEditText {
-        id: edit
+        id: select
         color: tm.inActive
         width: parent.width - clear.width
         onEditingFinished: {
@@ -19,22 +20,27 @@ Row {
         }
     }
     AButton {
-        width: 15
-        height: 30
-        font: tm.buttonFont
         id: clear
-        anchors.verticalCenter: edit.verticalCenter
+        width: 20
+        height: 30
+        anchors.verticalCenter: select.verticalCenter
+        font: tm.buttonFont
+
+        background: Rectangle {
+            color: select.down ? tm.active : tm.inActive
+        }
 
         Image {
-            anchors.centerIn: parent
-            width: 10
-            height: 10
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            width: 12
+            height: 12
             source: "/assets/icons/x.svg"
         }
 
         onPressed: {
-            edit.text = "";
-            textUpdate(edit.text);
+            select.text = "";
+            textUpdate(undefined);
         }
     }
 }

@@ -1,6 +1,7 @@
 import QtQuick 2.7
 
 Row {
+    Theme {id: tm}
     property alias model: select.comboModel
     property int index: 0
     property string filter: ""
@@ -15,22 +16,28 @@ Row {
         color: tm.inActive
         width: parent.width - clear.width
         text: ""
-        showEdit: true
+        enabled: true
         onUpdated: {
             idUpdate(id);
         }
     }
+
     AButton {
         id: clear
-        width: 15
+        width: 20
         height: 30
         anchors.verticalCenter: select.verticalCenter
         font: tm.buttonFont
 
+        background: Rectangle {
+            color: select.down ? tm.active : tm.inActive
+        }
+
         Image {
-            anchors.centerIn: parent
-            width: 10
-            height: 10
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            width: 12
+            height: 12
             source: "/assets/icons/x.svg"
         }
 
@@ -39,5 +46,4 @@ Row {
             idUpdate(undefined);
         }
     }
-
 }

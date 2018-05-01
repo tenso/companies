@@ -7,27 +7,26 @@ Rectangle {
 
     property variant colW: [0, 0, 0, 0, 0, 0]
     property bool showEdit: false
-
+    property int wComp: 20
     Row {
         anchors.fill: parent
-        spacing: 10
-        anchors.leftMargin: spacing
+        spacing: 30
+        anchors.leftMargin: 10
 
         CompanyCellEditText {
-            width: colW[0]
+            width: colW[0] - wComp
             id: idText
             text: id
             enabled: companyRow.showEdit
             onEditingFinished: {
                 addStatus(qsTr("id is read-only"));
                 text = id;
-
                 //id = text;
                 //addStatus(qsTr("id=" + idText.text + " set id=" + text));
             }
         }
         CompanyCellEditText {
-            width: colW[1]
+            width: colW[1] - wComp
             text: name
             enabled: companyRow.showEdit
             onEditingFinished: {
@@ -36,9 +35,9 @@ Rectangle {
             }
         }
         CompanyCellDropDown {
-            showEdit: companyRow.showEdit
+            enabled: companyRow.showEdit
             comboModel: listsModel
-            width: colW[2]
+            width: colW[2] - wComp
             text: lId
             onUpdated: {
                 lId = id;
@@ -47,9 +46,9 @@ Rectangle {
         }
         CompanyCellDropDown {
             id: typeSelect
-            showEdit: companyRow.showEdit
+            enabled: companyRow.showEdit
             comboModel: typesModel
-            width: colW[3]
+            width: colW[3] - wComp
             text: tId
             onUpdated: {
                 tId = id;
@@ -57,7 +56,7 @@ Rectangle {
             }
         }
         CompanyCellEditText {
-            width: colW[4]
+            width: colW[4] - wComp
             text: watch
             enabled: companyRow.showEdit
             onEditingFinished: {
@@ -66,7 +65,7 @@ Rectangle {
             }
         }
         CompanyCellEditText {
-            width: colW[5]
+            width: colW[5] - wComp
             text: description
             enabled: companyRow.showEdit
             onEditingFinished: {

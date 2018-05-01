@@ -5,9 +5,9 @@ Rectangle {
     Theme {id: tm}
     id: dropDown
     signal updated(int id)
-    color: tm.editColor(showEdit)
-
-    property bool showEdit: false
+    color: tm.editBg(enabled)
+    enabled: false
+    property bool down: false
     height: parent.height
     width: 100
     property var comboModel
@@ -21,13 +21,18 @@ Rectangle {
             id: comboBox
             model: comboModel
             flat: true
-            visible: showEdit
+            visible: dropDown.enabled
             anchors.fill: parent
             textRole: "name"
             font: tm.font
+            onDownChanged: {
+                dropDown.down = down;
+            }
+
             delegate: ItemDelegate {
                 width: comboBox.width
                 height: tm.selectRowH
+
                 contentItem: Text {
                     text: name
                     color: tm.textFg
@@ -37,6 +42,7 @@ Rectangle {
                 }
                 highlighted: comboBox.highlightedIndex === index
             }
+
 
             onActivated: {
                 updated(comboModel.rowToId(currentIndex));
@@ -51,13 +57,13 @@ Rectangle {
     }
     Loader {
         id: loader
-        active: showEdit
+        active: parent.enabled
         anchors.fill: parent
         sourceComponent: editBox
     }
 
     CompanyCellText {
-        visible: !showEdit
+        visible: !parent.enabled
         width: parent.width
         text: parent.text
     }

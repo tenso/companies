@@ -4,7 +4,7 @@ Rectangle {
     Theme {id: tm}
     height: parent.height
     width: 100
-    color: tm.editColor(showEdit)
+    color: tm.editBg(enabled)
 
     signal editingFinished()
     property alias enabled: input.enabled
@@ -13,11 +13,12 @@ Rectangle {
 
     TextInput {
         id: input
-        leftPadding: 12
         onEditingFinished: parent.editingFinished();
         verticalAlignment: Text.AlignVCenter
+        color: tm.editFg(parent.enabled)
         clip: true
         anchors.fill: parent
+        anchors.leftMargin: 12
         font: tm.font
     }
 }

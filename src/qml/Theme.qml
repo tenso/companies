@@ -31,9 +31,14 @@ QtObject {
     property color menuFg: "#ffffff"
     property color active: "#cccccc"
     property color inActive: "#ffffff"
-    property color selectColor: "#aaaaaa"
+    property color selectBg: "#aaaaaa"
+    property color selectHighlightBg: "#717171"
+    property color selectFg: "#ffffff"
 
-    function editColor(enabled) {
+    function editBg(enabled) {
         return enabled ? active : inActive;
+    }
+    function editFg(enabled) {
+        return enabled ? textFg : textFg;
     }
 }

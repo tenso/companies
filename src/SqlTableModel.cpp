@@ -55,6 +55,7 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
     if (!select()) {
         logError() << "select failed" << selectStatement();
     }
+    fetchAll();
 }
 
 QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const

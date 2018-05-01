@@ -10,7 +10,7 @@ ApplicationWindow {
     height: 800
     title: qsTr("Companies")
     property string status: ""
-    property variant statusLog: ""
+    property string statusLog: ""
     property int selectedRow: 0
     property int selectedY: 0
     property int reSelectList: 0
@@ -42,7 +42,7 @@ ApplicationWindow {
             id: page
             property int totColW: window.width - 5*10
             property int rowH: tm.rowH
-            property variant colW: [60, 300, 240, 300, 70, totColW - 990]
+            property variant colW: [70, 300, 300, 300, 70, totColW - 1060]
 
             CompanyHeaderDeligate {
                 id: listHead
@@ -94,7 +94,7 @@ ApplicationWindow {
                     height: page.rowH
                     x: 0
                     y: companiesView.currentItem.y
-                    color: tm.selectColor
+                    color: tm.selectBg
                     radius: 0
                 }
 
