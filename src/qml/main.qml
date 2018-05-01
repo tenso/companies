@@ -11,6 +11,9 @@ ApplicationWindow {
     title: qsTr("Companies")
     property string status: ""
     property variant statusLog: ""
+    property int selectedRow: 0
+    property int selectedY: 0
+    property int reSelectList: 0
     header: MainMenu {}
 
     function addStatus(text) {
@@ -22,6 +25,11 @@ ApplicationWindow {
     Component.onCompleted: {
         addStatus("load all");
         companiesModel.fetchAll();
+    }
+
+    onReSelectListChanged: {
+        companiesView.currentIndex = selectedRow;
+        companiesView.contentY = selectedY;
     }
 
     SwipeView {
@@ -95,12 +103,11 @@ ApplicationWindow {
                     width: 20
                 }
                 Component.onCompleted: {
-                    positionViewAtBeginning();
                     currentIndex = 0;
+                    contentY = 0;
                     forceActiveFocus(); //give list focus; who has it?
                 }
             }
-
         }
 
         Page {

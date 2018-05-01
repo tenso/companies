@@ -8,6 +8,8 @@ Rectangle {
     color: tm.menuBg
 
     function save() {
+        selectedRow = companiesView.currentIndex
+        selectedY = companiesView.contentY
         if (companiesModel.submitAll()) {
             addStatus(qsTr("Save complete"));
             companiesModel.fetchAll();
@@ -15,6 +17,7 @@ Rectangle {
         else {
             addStatus(qsTr("Save failed"));
         }
+        reSelectList++;
     }
 
     function revert() {
