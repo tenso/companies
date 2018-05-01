@@ -26,7 +26,14 @@ Row {
         height: 30
         anchors.verticalCenter: select.verticalCenter
         font: tm.buttonFont
-        text: "x"
+
+        Image {
+            anchors.centerIn: parent
+            width: 10
+            height: 10
+            source: "/assets/icons/x.svg"
+        }
+
         onPressed: {
             select.text = "";
             idUpdate(undefined);

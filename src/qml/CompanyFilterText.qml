@@ -22,9 +22,16 @@ Row {
         width: 15
         height: 30
         font: tm.buttonFont
-        text: "x"
         id: clear
         anchors.verticalCenter: edit.verticalCenter
+
+        Image {
+            anchors.centerIn: parent
+            width: 10
+            height: 10
+            source: "/assets/icons/x.svg"
+        }
+
         onPressed: {
             edit.text = "";
             textUpdate(edit.text);

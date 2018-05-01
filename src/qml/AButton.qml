@@ -4,7 +4,7 @@ import QtQuick.Controls 2.2
 Button {
     Theme {id:tm}
     id: control
-    text: qsTr("Button")
+    text: ""
     font: tm.buttonFont
 
     contentItem: Text {
