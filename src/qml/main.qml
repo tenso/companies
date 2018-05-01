@@ -10,10 +10,13 @@ ApplicationWindow {
     height: 800
     title: qsTr("Companies")
     property string status: ""
+    property variant statusLog: ""
     header: MainMenu {}
 
     function addStatus(text) {
-        status = text + " [" + new Date().toTimeString() + "]";
+        var dateTag = "[" + new Date().toTimeString() + "]";
+        status = text + " " + dateTag;
+        statusLog = statusLog + "\n" + dateTag + " " + text;
     }
 
     Component.onCompleted: {
@@ -157,6 +160,39 @@ ApplicationWindow {
             anchors.rightMargin: 10
             text: status
             font: tm.font
+            clip: true
+            elide: Text.ElideRight
+            MouseArea {
+                anchors.fill: parent
+                onPressed: {
+                    statusPopup.open();
+                }
+            }
+        }
+    }
+    Popup {
+        id: statusPopup
+        visible: false
+
+        height: parent.height / 2
+        width: 400
+        x: parent.width - width
+        y: parent.height - height
+
+        Flickable {
+            anchors.fill: parent
+            contentHeight: logTextArea.height
+            contentWidth: logTextArea.width
+            boundsBehavior: Flickable.StopAtBounds
+            clip:true
+            TextArea {
+                id: logTextArea
+                font: tm.font
+                readOnly: true
+                text: statusLog
+            }
+            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.horizontal: ScrollBar {}
         }
     }
 }

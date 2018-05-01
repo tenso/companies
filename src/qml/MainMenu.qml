@@ -9,10 +9,11 @@ Rectangle {
 
     function save() {
         if (companiesModel.submitAll()) {
-            addStatus(qsTr("Save complete"))
+            addStatus(qsTr("Save complete"));
+            companiesModel.fetchAll();
         }
         else {
-            addStatus(qsTr("Save failed"))
+            addStatus(qsTr("Save failed"));
         }
     }
 
