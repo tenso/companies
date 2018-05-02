@@ -6,14 +6,14 @@ Rectangle {
     width: 100
     color: tm.editBg(enabled)
 
-    signal editingFinished()
+    signal updated()
     property alias enabled: input.enabled
     property alias text: input.text
     property alias font: input.font
 
     TextInput {
         id: input
-        onEditingFinished: parent.editingFinished();
+        onEditingFinished: parent.updated();
         verticalAlignment: Text.AlignVCenter
         color: tm.editFg(parent.enabled)
         clip: true

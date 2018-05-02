@@ -15,7 +15,7 @@ Row {
         id: select
         color: tm.inActive
         width: parent.width - clear.width
-        onEditingFinished: {
+        onUpdated: {
             textUpdate(text);
         }
     }

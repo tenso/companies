@@ -78,6 +78,7 @@ ApplicationWindow {
                 }
 
                 delegate: CompanyRowDeligate {
+                    itemData: model
                     width: page.width
                     height: page.rowH
                     colW: page.colW
@@ -111,20 +112,16 @@ ApplicationWindow {
         }
 
         Page {
-            ColumnLayout{
-                anchors.centerIn: parent
-                Row{
-                    Label {
-                        text: qsTr("Second page")
-                        font: tm.font
-                    }
-                }
-                Row {
-                    Label {
-                        text: qsTr("Second page")
-                        font: tm.buttonFont
-                    }
-                }
+
+            CompanyRowDeligate {
+                id: currentCompany
+                itemData: companiesView.currentItem.itemData
+
+                anchors.top: parent.top
+                showEdit: true
+                width: page.width
+                height: page.rowH
+                colW: page.colW
             }
         }
     }
