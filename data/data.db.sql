@@ -51,10 +51,8 @@ CREATE TABLE IF NOT EXISTS `tags` (
 );
 CREATE TABLE IF NOT EXISTS `share` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
-	`date`	TEXT,
 	`cId`	INTEGER,
-	`fId`	INTEGER,
-	`shares`	INTEGER,
+	`date`	TEXT,
 	`sharePrice`	INTEGER,
 	`owners`	INTEGER
 );
@@ -81,11 +79,26 @@ CREATE TABLE IF NOT EXISTS `financials` (
 	`cId`	INTEGER,
 	`year`	INTEGER,
 	`quarter`	INTEGER,
+	`shares`	INTEGER,
 	`sales`	INTEGER,
 	`ebit`	INTEGER,
-	`bookAssets`	INTEGER,
-	`bookEquity`	INTEGER,
-	`interestDebt`	INTEGER
+	`assets.fixed`	INTEGER,
+	`assets.fixed.ppe`	INTEGER,
+	`assets.current`	INTEGER,
+	`assets.current.cash`	INTEGER,
+	`equity`	INTEGER,
+	`liabilities.longterm`	INTEGER,
+	`liabilities.longterm.interestCarrying`	INTEGER,
+	`liabilities.current`	INTEGER,
+	`liabilities.current.interestCarrying`	INTEGER,
+	`interestPayed`	INTEGER,
+	`dividend`	INTEGER,
+	`managmentRemuneration`	INTEGER,
+	`debtMaturity`	INTEGER,
+	`leasing.y`	INTEGER,
+	`leasing.y1`	INTEGER,
+	`leasing.y2-y5`	INTEGER,
+	`leaing.y5-up`	INTEGER
 );
 CREATE TABLE IF NOT EXISTS `companyTags` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
