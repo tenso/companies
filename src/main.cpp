@@ -63,6 +63,9 @@ int main(int argc, char *argv[])
     SqlTableModel listsModel("lists");
     listsModel.setSort(1, Qt::AscendingOrder);
     listsModel.select();
+    SqlTableModel financialsModel("financials");
+    financialsModel.setRelation(2, QSqlRelation("companies", "cId", "id"));
+    financialsModel.select();
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("companiesModel", &companyModel );

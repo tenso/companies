@@ -14,5 +14,7 @@
         <file>qml/ATabButton.qml</file>
         <file>qml/CompanyFilterText.qml</file>
         <file>qml/CompanyFilterDropDown.qml</file>
+        <file>qml/CompanyOverviewPage.qml</file>
+        <file>qml/MainStatusBar.qml</file>
     </qresource>
 </RCC>

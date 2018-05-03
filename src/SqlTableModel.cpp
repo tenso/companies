@@ -58,6 +58,11 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
     fetchAll();
 }
 
+bool SqlTableModel::newRow()
+{
+    return insertRows(-1, 1);
+}
+
 QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Orientation::Horizontal) {
@@ -115,9 +120,9 @@ Qt::ItemFlags SqlTableModel::flags(const QModelIndex &index) const
 bool SqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+    bool retVal = QSqlRelationalTableModel::insertRows(row, count);
     endInsertRows();
-    return false;
+    return retVal;
 }
 
 bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)

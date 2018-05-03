@@ -5,7 +5,12 @@ Rectangle {
     color: "transparent"
     signal select(int index)
 
-    property variant itemData
+    property variant itemData: {"id": "",
+                                "name": "",
+                                "description": "",
+                                "lId": "",
+                                "tId": "",
+                                "watch": "" }
     property variant colW: [0, 0, 0, 0, 0, 0]
     property bool showEdit: false
     property int wComp: 20
@@ -17,7 +22,7 @@ Rectangle {
         CompanyCellEditText {
             width: colW[0] - wComp
             id: idText
-            text: itemData.id
+            text: itemData ? itemData.id : ""
             enabled: companyRow.showEdit
             onUpdated: {
                 addStatus(qsTr("id is read-only"));
@@ -28,7 +33,7 @@ Rectangle {
         }
         CompanyCellEditText {
             width: colW[1] - wComp
-            text: itemData.name
+            text: itemData ? itemData.name : ""
             enabled: companyRow.showEdit
             onUpdated: {
                 itemData.name = text;
@@ -39,7 +44,7 @@ Rectangle {
             enabled: companyRow.showEdit
             comboModel: listsModel
             width: colW[2] - wComp
-            text: itemData.lId
+            text: itemData ? itemData.lId : ""
             onUpdated: {
                 itemData.lId = id;
                 addStatus(qsTr("id=" + idText.text + " set lId=" + id));
@@ -50,7 +55,7 @@ Rectangle {
             enabled: companyRow.showEdit
             comboModel: typesModel
             width: colW[3] - wComp
-            text: itemData.tId
+            text: itemData ? itemData.tId : ""
             onUpdated: {
                 itemData.tId = id;
                 addStatus(qsTr("id=" + idText.text + " set tId=" + id));
@@ -58,7 +63,7 @@ Rectangle {
         }
         CompanyCellEditText {
             width: colW[4] - wComp
-            text: itemData.watch
+            text: itemData ? itemData.watch : ""
             enabled: companyRow.showEdit
             onUpdated: {
                 itemData.watch = text;
@@ -67,7 +72,7 @@ Rectangle {
         }
         CompanyCellEditText {
             width: colW[5] - wComp
-            text: itemData.description
+            text: itemData ? itemData.description : ""
             enabled: companyRow.showEdit
             onUpdated: {
                 itemData.description = text;

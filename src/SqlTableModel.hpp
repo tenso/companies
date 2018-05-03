@@ -25,7 +25,7 @@ public slots:
     bool fetchAll();
     int rowToId(int index) const;
     void filterColumn(int index, const QString& filter);
-
+    bool newRow();
 private:
     int _idColumn { -1 };
     QHash<int, QByteArray> _roles;

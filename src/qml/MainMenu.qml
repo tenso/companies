@@ -6,10 +6,11 @@ Rectangle {
     height: 30
     width: parent.width
     color: tm.menuBg
+    signal willSave();
+    signal saveDone();
 
     function save() {
-        selectedRow = companiesView.currentIndex
-        selectedY = companiesView.contentY
+        willSave();
         if (companiesModel.submitAll()) {
             addStatus(qsTr("Save complete"));
             companiesModel.fetchAll();
@@ -17,7 +18,7 @@ Rectangle {
         else {
             addStatus(qsTr("Save failed"));
         }
-        reSelectList++;
+        saveDone();
     }
 
     function revert() {
