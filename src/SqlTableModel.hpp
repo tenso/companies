@@ -28,6 +28,7 @@ public slots:
     bool newRow();
 private:
     int _idColumn { -1 };
+    int _numColumns { 0 };
     QHash<int, QByteArray> _roles;
     QHash<int, QString> _filters;
 };

@@ -9,7 +9,8 @@ SqlTableModel::SqlTableModel(const QString &table, QObject *parent)
     setEditStrategy(EditStrategy::OnManualSubmit);
     select();
 
-    for (int i = 0; i < record().count(); i++) {
+    _numColumns = record().count();
+    for (int i = 0; i < _numColumns; i++) {
         QByteArray name = record().fieldName(i).toUtf8();
         if (name == "id") {
             _idColumn = i;
@@ -60,7 +61,19 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
 
 bool SqlTableModel::newRow()
 {
-    return insertRows(-1, 1);
+    int rowNum = rowCount();
+    logStatus() << "newRow:" << tableName() << rowNum; //FIXME: remove
+    if (insertRows(rowNum, 1)) {
+        submitAll();
+        for (int i =0; i < _numColumns; i++) {
+            if (i != _idColumn) {
+                if (!setData(QSqlRelationalTableModel::index(rowNum, i), QVariant())) {
+                    logError() << "setData failed on new row" << rowNum;
+                }
+            }
+        }
+    }
+    submitAll();
 }
 
 QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -90,20 +103,17 @@ QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 
 bool SqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.isValid() && data(index, role) != value) {
-        if (role < Qt::UserRole) {
-            QSqlRelationalTableModel::setData(index, value);
-            emit dataChanged(index, index, QVector<int>() << role);
-        } else {
+    QModelIndex modelIndex = index;
+    if (index.isValid() /*&& data(index, role) != value*/) {
+        if (role >= Qt::UserRole) {
             int columnIdx = role - Qt::UserRole - 1;
-            QModelIndex modelIndex = this->index(index.row(), columnIdx);
-
-            if (!QSqlRelationalTableModel::setData(modelIndex, value)) {
-                logError() << "setData failed" << modelIndex << value;
-                return false;
-            }
-            emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
+            modelIndex = this->index(index.row(), columnIdx);
         }
+        if (!QSqlRelationalTableModel::setData(modelIndex, value)) {
+            logError() << "setData failed" << modelIndex << value;
+            return false;
+        }
+        emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
         return true;
     }
     return false;
@@ -119,10 +129,14 @@ Qt::ItemFlags SqlTableModel::flags(const QModelIndex &index) const
 
 bool SqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    bool ok = false;
     beginInsertRows(parent, row, row + count - 1);
-    bool retVal = QSqlRelationalTableModel::insertRows(row, count);
+    ok = QSqlRelationalTableModel::insertRows(row, count);
     endInsertRows();
-    return retVal;
+    if (!ok) {
+        logError() << "insert failed:" << row << count;
+    }
+    return ok;
 }
 
 bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)

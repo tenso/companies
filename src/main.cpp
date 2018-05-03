@@ -56,21 +56,39 @@ int main(int argc, char *argv[])
     SqlTableModel companyModel("companies");
     companyModel.setRelation(2, QSqlRelation("lists", "id", "name"));
     companyModel.setRelation(3, QSqlRelation("types", "id", "name"));
-    companyModel.select();
+    if (!companyModel.select()) {
+        logError() << "companies: select failed";
+    }
+
     SqlTableModel typesModel("types");
     typesModel.setSort(1, Qt::AscendingOrder);
-    typesModel.select();
+    if (!typesModel.select()) {
+        logError() << "types: select failed";
+    }
+
     SqlTableModel listsModel("lists");
     listsModel.setSort(1, Qt::AscendingOrder);
-    listsModel.select();
+    if (!listsModel.select()) {
+        logError() << "lists: select failed";
+    }
+
     SqlTableModel financialsModel("financials");
-    financialsModel.setRelation(2, QSqlRelation("companies", "cId", "id"));
-    financialsModel.select();
+    //financialsModel.setRelation(1, QSqlRelation("companies", "id", "cId"));
+    if (!financialsModel.select()) {
+        logError() << "financials: select failed";
+    }
+
+    SqlTableModel tagsModel("tags");
+    if (!tagsModel.select()) {
+        logError() << "tags: select failed";
+    }
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("companiesModel", &companyModel );
     engine.rootContext()->setContextProperty("typesModel", &typesModel );
     engine.rootContext()->setContextProperty("listsModel", &listsModel );
+    engine.rootContext()->setContextProperty("financialsModel", &financialsModel );
+    engine.rootContext()->setContextProperty("tagsModel", &tagsModel );
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
