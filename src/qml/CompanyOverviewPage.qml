@@ -7,16 +7,12 @@ Page {
     property variant colW: []
     property alias count: view.count
     property variant currentItemData: view.currentItem ? view.currentItem.itemData : null
-    property int _selectedRow: 0
-    property int _selectedY: 0
+
     function savePos() {
-        _selectedRow = view.currentIndex;
-        _selectedY = view.contentY;
-        view.currentIndex = -1;
+        view.savePos();
     }
     function resetPos() {
-        view.currentIndex = _selectedRow;
-        view.contentY = _selectedY;
+        view.resetPos();
     }
 
     CompanyHeaderDeligate {
@@ -31,28 +27,11 @@ Page {
         }
     }
 
-    ListView {
+    AList {
         id: view
-        clip: true
         model: companiesModel
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: listHead.bottom
-        anchors.bottom: parent.bottom
-        focus: true
-        boundsBehavior: Flickable.StopAtBounds
-        keyNavigationEnabled: true
-
-        property var lastItem: currentItem
-
-        onCurrentItemChanged: {
-            if (lastItem) {
-                lastItem.showEdit = false;
-            }
-            if (currentItem) {
-                currentItem.showEdit = true;
-            }
-        }
+        anchors.fill: parent
+        anchors.topMargin: listHead.height
 
         delegate: CompanyRowDeligate {
             itemData: model
@@ -64,26 +43,6 @@ Page {
                 view.currentIndex = index;
                 view.forceActiveFocus();
             }
-        }
-
-        highlightFollowsCurrentItem: false
-        highlight: Rectangle {
-            width: page.width
-            height: page.rowH
-            x: 0
-            y: view.currentItem ? view.currentItem.y : 0
-            color: tm.selectBg
-            radius: 0
-        }
-
-        ScrollBar.vertical: ScrollBar {
-            clip:true
-            width: 20
-        }
-        Component.onCompleted: {
-            currentIndex = 0;
-            contentY = 0;
-            forceActiveFocus(); //give list focus; who has it?
         }
     }
 }

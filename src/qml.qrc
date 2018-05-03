@@ -16,5 +16,7 @@
         <file>qml/CompanyFilterDropDown.qml</file>
         <file>qml/CompanyOverviewPage.qml</file>
         <file>qml/MainStatusBar.qml</file>
+        <file>qml/CompanyDetailsPage.qml</file>
+        <file>qml/AList.qml</file>
     </qresource>
 </RCC>

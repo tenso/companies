@@ -47,16 +47,11 @@ ApplicationWindow {
             colW: pages.colW
         }
 
-        Page {
-            CompanyRowDeligate {
-                id: currentCompany
-                itemData: overview.currentItemData
-                anchors.top: parent.top
-                showEdit: true
-                width: parent.width
-                height: pages.rowH
-                colW: pages.colW
-            }
+        CompanyDetailsPage {
+            id: details
+            rowH: pages.rowH
+            colW: pages.colW
+            selectedData: overview.currentItemData
         }
     }
 
