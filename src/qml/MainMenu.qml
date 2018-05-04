@@ -11,13 +11,27 @@ Rectangle {
 
     function save() {
         willSave();
+        var ok = true;
         if (companiesModel.submitAll()) {
-            addStatus(qsTr("Save complete"));
             companiesModel.fetchAll();
+        }
+        else {
+            ok = false;
+        }
+        if (financialsModel.submitAll()) {
+            financialsModel.fetchAll();
+        }
+        else {
+            ok = false;
+        }
+
+        if (ok) {
+            addStatus(qsTr("Save successfull"));
         }
         else {
             addStatus(qsTr("Save failed"));
         }
+
         saveDone();
     }
 

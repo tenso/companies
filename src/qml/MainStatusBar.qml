@@ -13,6 +13,7 @@ Rectangle {
     signal showStatus();
 
     TabBar {
+        currentIndex: 1 //debug!
         height: 20
         width: parent.width
         id: tabBar

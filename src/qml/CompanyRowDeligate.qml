@@ -23,13 +23,7 @@ Rectangle {
             width: colW[0] - wComp
             id: idText
             text: itemData ? itemData.id : ""
-            enabled: companyRow.showEdit
-            onUpdated: {
-                addStatus(qsTr("id is read-only"));
-                text = id;
-                //id = text;
-                //addStatus(qsTr("id=" + idText.text + " set id=" + text));
-            }
+            enabled: false
         }
         CompanyCellEditText {
             width: colW[1] - wComp

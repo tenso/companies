@@ -50,7 +50,7 @@ ApplicationWindow {
         CompanyDetailsPage {
             id: details
             rowH: pages.rowH
-            colW: pages.colW
+            colW: [70, 300, 300, 300, 70, pages.totColW - (1060 + pages.rowH)]
             selectedData: overview.currentItemData
         }
     }

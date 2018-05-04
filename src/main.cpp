@@ -73,9 +73,15 @@ int main(int argc, char *argv[])
     }
 
     SqlTableModel financialsModel("financials");
-    //financialsModel.setRelation(1, QSqlRelation("companies", "id", "cId"));
+    financialsModel.setRelation(1, QSqlRelation("companies", "id", "name"));
+    financialsModel.setRelation(3, QSqlRelation("quarters", "id", "name"));
     if (!financialsModel.select()) {
         logError() << "financials: select failed";
+    }
+
+    SqlTableModel quartersModel("quarters");
+    if (!quartersModel.select()) {
+        logError() << "quarters: select failed";
     }
 
     SqlTableModel tagsModel("tags");
@@ -88,6 +94,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("typesModel", &typesModel );
     engine.rootContext()->setContextProperty("listsModel", &listsModel );
     engine.rootContext()->setContextProperty("financialsModel", &financialsModel );
+    engine.rootContext()->setContextProperty("quartersModel", &quartersModel );
     engine.rootContext()->setContextProperty("tagsModel", &tagsModel );
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
     if (engine.rootObjects().isEmpty())

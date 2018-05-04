@@ -18,5 +18,6 @@
         <file>qml/MainStatusBar.qml</file>
         <file>qml/CompanyDetailsPage.qml</file>
         <file>qml/AList.qml</file>
+        <file>qml/FinancialRowDeligate.qml</file>
     </qresource>
 </RCC>

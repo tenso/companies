@@ -67,7 +67,11 @@ bool SqlTableModel::newRow()
         submitAll();
         for (int i =0; i < _numColumns; i++) {
             if (i != _idColumn) {
-                if (!setData(QSqlRelationalTableModel::index(rowNum, i), QVariant())) {
+                QVariant value;
+                if (relation(i).isValid()) {
+                    value = 1;
+                }
+                if (!setData(QSqlRelationalTableModel::index(rowNum, i), value)) {
                     logError() << "setData failed on new row" << rowNum;
                 }
             }

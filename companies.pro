@@ -26,7 +26,7 @@ HEADERS += \
 win32 {
 #I have bug where qml will not be repacked if sub modules are saved.
 #use this workaround:
-runtouch.commands = copy /b $$shell_path($${PWD}/src/qml/main.qml) +,,;
+runtouch.commands = copy /b $$shell_path($${PWD}/src/qml/*.qml) +,,;
 QMAKE_EXTRA_TARGETS = runtouch
 PRE_TARGETDEPS = runtouch
 }
