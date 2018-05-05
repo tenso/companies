@@ -4,7 +4,7 @@ Rectangle {
     Theme {id: tm}
     height: parent.height
     width: 100
-    color: tm.editBg(enabled)
+    color: input.activeFocus ? tm.focusBg : tm.editBg(enabled)
 
     signal updated()
     property alias enabled: input.enabled

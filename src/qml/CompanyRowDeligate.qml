@@ -31,7 +31,7 @@ Rectangle {
             enabled: companyRow.showEdit
             onUpdated: {
                 itemData.name = text;
-                addStatus(qsTr("id=" + idText.text + " set name=" + text));
+                logStatus("id=" + idText.text + " set name=" + text);
             }
         }
         CompanyCellDropDown {
@@ -41,7 +41,7 @@ Rectangle {
             text: itemData ? itemData.lId : ""
             onUpdated: {
                 itemData.lId = id;
-                addStatus(qsTr("id=" + idText.text + " set lId=" + id));
+                logStatus("id=" + idText.text + " set lId=" + id);
             }
         }
         CompanyCellDropDown {
@@ -52,7 +52,7 @@ Rectangle {
             text: itemData ? itemData.tId : ""
             onUpdated: {
                 itemData.tId = id;
-                addStatus(qsTr("id=" + idText.text + " set tId=" + id));
+                logStatus("id=" + idText.text + " set tId=" + id);
             }
         }
         CompanyCellEditText {
@@ -61,7 +61,7 @@ Rectangle {
             enabled: companyRow.showEdit
             onUpdated: {
                 itemData.watch = text;
-                addStatus(qsTr("id=" + idText.text + " set watch=" + text));
+                logStatus("id=" + idText.text + " set watch=" + text);
             }
         }
         CompanyCellEditText {
@@ -70,7 +70,7 @@ Rectangle {
             enabled: companyRow.showEdit
             onUpdated: {
                 itemData.description = text;
-                addStatus(qsTr("id=" + idText.text + " set desc=" + text));
+                logStatus("id=" + idText.text + " set desc=" + text);
             }
         }
     }

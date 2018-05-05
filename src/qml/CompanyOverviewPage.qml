@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 
 Page {
     id: page
-    property int rowH: 0
+    Theme {id:tm}
     property variant colW: []
     property alias count: view.count
     property variant currentItemData: view.currentItem ? view.currentItem.itemData : null
@@ -18,7 +18,7 @@ Page {
     CompanyHeaderDeligate {
         id: listHead
         width: page.width
-        height: page.rowH * 2 + 10
+        height: tm.rowH * 2 + 10
         colW: page.colW
         model: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
 
@@ -36,7 +36,7 @@ Page {
         delegate: CompanyRowDeligate {
             itemData: model
             width: page.width
-            height: page.rowH
+            height: tm.rowH
             colW: page.colW
 
             onSelect: {

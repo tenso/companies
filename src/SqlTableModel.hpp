@@ -25,7 +25,10 @@ public slots:
     bool fetchAll();
     int rowToId(int index) const;
     void filterColumn(int index, const QString& filter);
-    bool newRow();
+    int newRow(int col, const QVariant &value); //-1 on fail otherwise new rowIndex
+    bool delRow(int row);
+    bool set(const int row, const int col, const QVariant &value);
+
 private:
     int _idColumn { -1 };
     int _numColumns { 0 };

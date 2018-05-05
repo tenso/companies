@@ -26,10 +26,10 @@ Rectangle {
         }
 
         if (ok) {
-            addStatus(qsTr("Save successfull"));
+            showStatus(qsTr("Save successfull"));
         }
         else {
-            addStatus(qsTr("Save failed"));
+            showStatus(qsTr("Save failed"));
         }
 
         saveDone();
@@ -37,7 +37,9 @@ Rectangle {
 
     function revert() {
         companiesModel.revertAll();
-        addStatus(qsTr("Revert complete"));
+        financialsModel.revertAll();
+        financialsModel.select();
+        showStatus(qsTr("Revert complete"));
     }
 
     function quit() {

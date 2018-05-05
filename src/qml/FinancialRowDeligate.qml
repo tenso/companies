@@ -25,6 +25,7 @@ Rectangle {
         CompanyCellEditText {
             width: colW[0] - wComp
             id: idText
+            visible: false
             text: itemData ? itemData.id : ""
             enabled: false
         }
@@ -34,7 +35,7 @@ Rectangle {
             enabled: financials.showEdit
             onUpdated: {
                 itemData.year = text;
-                addStatus(qsTr("id=" + idText.text + " set year=" + text));
+                logStatus("id=" + idText.text + " set year=" + text);
             }
         }
         CompanyCellDropDown {
@@ -44,7 +45,7 @@ Rectangle {
             text: itemData ? itemData.qId : ""
             onUpdated: {
                 itemData.qId = id;
-                addStatus(qsTr("id=" + idText.text + " set qId=" + id));
+                logStatus("id=" + idText.text + " set qId=" + id);
             }
         }
 
@@ -54,7 +55,7 @@ Rectangle {
             enabled: financials.showEdit
             onUpdated: {
                 itemData.sales = text;
-                addStatus(qsTr("id=" + idText.text + " set sales=" + text));
+                logStatus("id=" + idText.text + " set sales=" + text);
             }
         }
         CompanyCellEditText {
@@ -63,7 +64,7 @@ Rectangle {
             enabled: financials.showEdit
             onUpdated: {
                 itemData.ebit = text;
-                addStatus(qsTr("id=" + idText.text + " set ebit=" + text));
+                logStatus("id=" + idText.text + " set ebit=" + text);
             }
         }
     }

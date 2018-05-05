@@ -2,7 +2,8 @@
 
 # TODO
 
-#1 First detail: yearly financials new+edit+delete entries for selected company.
-#2 Filter runs select which clears unsaved changes
-#3 Filter search fill clear selectedItem = bugged details page
+* First detail: yearly financials new+edit+delete entries for selected company.
+* Show number of financials on all rows in overview.
+* Filter runs select 0> clears unsaved changes.
+* Filter search will clear selectedItem => bugged details page.
 

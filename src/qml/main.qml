@@ -9,12 +9,29 @@ ApplicationWindow {
     width: 1280
     height: 800
     title: qsTr("Companies")
+
+
     property string status: ""
     property string statusLog: ""
     function addStatus(text) {
         var dateTag = "[" + new Date().toTimeString() + "]";
         status = text + " " + dateTag;
         statusLog = statusLog + "\n" + dateTag + " " + text;
+    }
+
+    function showStatus(text) {
+        console.log("USER " + text);
+        addStatus("USER " + text);
+    }
+
+    function logStatus(text) {
+        console.log("STATUS " + text);
+        addStatus("STATUS " + text);
+    }
+
+    function logError(text) {
+        console.log("ERROR " + text);
+        addStatus("ERROR " + text);
     }
 
     header: MainMenu {
@@ -27,7 +44,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        addStatus("load all");
+        showStatus(qsTr("Load all done"));
         companiesModel.fetchAll();
     }
 
@@ -38,19 +55,16 @@ ApplicationWindow {
         currentIndex: statusBar.currentTab
 
         property int totColW: window.width - 5*10
-        property int rowH: tm.rowH
         property variant colW: [70, 300, 300, 300, 70, totColW - 1060]
 
         CompanyOverviewPage {
             id: overview
-            rowH: pages.rowH
             colW: pages.colW
         }
 
         CompanyDetailsPage {
             id: details
-            rowH: pages.rowH
-            colW: [70, 300, 300, 300, 70, pages.totColW - (1060 + pages.rowH)]
+            colW: [70, 300, 300, 300, 70, pages.totColW - (1060 + tm.rowH)]
             selectedData: overview.currentItemData
         }
     }
@@ -58,8 +72,8 @@ ApplicationWindow {
     footer: MainStatusBar {
         id: statusBar
         currentTab: pages.currentIndex
-        rowCount: overview.count
-        statusText: window.status
+        statusText: "Total: " + overview.count + ", selected entries:" + details.rowCount;
+        lastLog: window.status
         onShowStatus: {
             statusPopup.open();
         }

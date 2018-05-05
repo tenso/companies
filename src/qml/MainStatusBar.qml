@@ -5,16 +5,16 @@ Rectangle {
     Theme {id:tm}
     id: bar
     width: parent.width
-    height: 40
+    height: tm.rowH + 20
     color: tm.menuBg
     property alias currentTab: tabBar.currentIndex
-    property alias statusText: statusBar.text
-    property int rowCount: 0
+    property alias lastLog: statusBar.text
+    property string statusText: ""
     signal showStatus();
 
     TabBar {
         currentIndex: 1 //debug!
-        height: 20
+        height: tm.rowH
         width: parent.width
         id: tabBar
         ATabButton {
@@ -32,7 +32,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: 10
         width: parent.width / 2
-        text: "Rows: " + parent.rowCount
+        text: parent.statusText
         font: tm.font
     }
     Text {

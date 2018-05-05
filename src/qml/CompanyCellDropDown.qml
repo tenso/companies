@@ -42,7 +42,10 @@ Rectangle {
                 }
                 highlighted: comboBox.highlightedIndex === index
             }
-
+            background: Rectangle {
+                anchors.fill: comboBox
+                color: comboBox.activeFocus ? tm.focusBg : tm.editBg(comboBox.enabled)
+            }
 
             onActivated: {
                 updated(comboModel.rowToId(currentIndex));

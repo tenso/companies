@@ -24,62 +24,6 @@ QHash<int, QByteArray> SqlTableModel::roleNames() const
     return _roles;
 }
 
-int SqlTableModel::rowToId(int index) const
-{
-    if (_idColumn < 0) {
-        logError() << "id column not found";
-        return -1;
-    }
-    QModelIndex modelIndex = this->index(index, _idColumn);
-    return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
-}
-
-void SqlTableModel::filterColumn(int index, const QString &filter)
-{
-    int roleIndex = index + Qt::UserRole + 1;
-
-    if (filter.size()) {
-        QString role =  _roles[roleIndex];
-        QString filterString = "companies." + role + " " + filter;
-        _filters[roleIndex] = filterString;
-    }
-    else {
-        _filters.remove(roleIndex);
-    }
-    QString totalFilter;
-    foreach(const QString& entry, _filters.values()) {
-        totalFilter += entry + " and ";
-    }
-    totalFilter.chop(5); //remove last " and "
-    setFilter(totalFilter);
-
-    if (!select()) {
-        logError() << "select failed" << selectStatement();
-    }
-    fetchAll();
-}
-
-bool SqlTableModel::newRow()
-{
-    int rowNum = rowCount();
-    logStatus() << "newRow:" << tableName() << rowNum; //FIXME: remove
-    if (insertRows(rowNum, 1)) {
-        submitAll();
-        for (int i =0; i < _numColumns; i++) {
-            if (i != _idColumn) {
-                QVariant value;
-                if (relation(i).isValid()) {
-                    value = 1;
-                }
-                if (!setData(QSqlRelationalTableModel::index(rowNum, i), value)) {
-                    logError() << "setData failed on new row" << rowNum;
-                }
-            }
-        }
-    }
-    submitAll();
-}
-
 QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Orientation::Horizontal) {
@@ -88,19 +32,17 @@ QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int
     return section;
 }
 
-
 QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant value;
 
     if (index.isValid()) {
-        if (role < Qt::UserRole) {
-            value = QSqlRelationalTableModel::data(index, role);
-        } else {
+        QModelIndex modelIndex = index;
+        if (role >= Qt::UserRole) {
             int columnIdx = role - Qt::UserRole - 1;
-            QModelIndex modelIndex = this->index(index.row(), columnIdx);
-            value = QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole);
+            modelIndex = this->index(index.row(), columnIdx);
         }
+        value = QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole);
     }
     return value;
 }
@@ -108,6 +50,7 @@ QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 bool SqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     QModelIndex modelIndex = index;
+    //logStatus() << "setData:" << modelIndex << value;
     if (index.isValid() /*&& data(index, role) != value*/) {
         if (role >= Qt::UserRole) {
             int columnIdx = role - Qt::UserRole - 1;
@@ -120,6 +63,7 @@ bool SqlTableModel::setData(const QModelIndex &index, const QVariant &value, int
         emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
         return true;
     }
+    logError() << "setData: faulty index" << modelIndex << value;
     return false;
 }
 
@@ -145,10 +89,11 @@ bool SqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+    bool ok = false;
     beginRemoveRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+    ok = QSqlRelationalTableModel::removeRows(row, count);
     endRemoveRows();
-    return false;
+    return ok;
 }
 
 bool SqlTableModel::fetchAll()
@@ -157,4 +102,80 @@ bool SqlTableModel::fetchAll()
         fetchMore();
     }
     return true;
+}
+
+int SqlTableModel::rowToId(int index) const
+{
+    if (_idColumn < 0) {
+        logError() << "id column not found";
+        return -1;
+    }
+    QModelIndex modelIndex = this->index(index, _idColumn);
+    return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
+}
+
+void SqlTableModel::filterColumn(int index, const QString &filter)
+{
+    int roleIndex = index + Qt::UserRole + 1;
+
+    if (filter.size()) {
+        QString role =  _roles[roleIndex];
+        QString filterString = tableName() + "." + role + " " + filter;
+        _filters[roleIndex] = filterString;
+    }
+    else {
+        _filters.remove(roleIndex);
+    }
+    QString totalFilter;
+    foreach(const QString& entry, _filters.values()) {
+        totalFilter += entry + " and ";
+    }
+    totalFilter.chop(5); //remove last " and "
+    setFilter(totalFilter);
+
+    if (!select()) {
+        logError() << "select failed" << selectStatement();
+    }
+    fetchAll();
+}
+
+int SqlTableModel::newRow(int col, const QVariant &value)
+{
+    int rowNum = rowCount();
+    if (insertRows(rowNum, 1)) {
+        submitAll();
+        for (int i =0; i < _numColumns; i++) {
+            if (i != _idColumn) {
+                QVariant val;
+                if (col == i) {
+                    val = value;
+                }
+                else {
+                    if (relation(i).isValid()) {
+                        val = 1;
+                    }
+                }
+                if (!setData(QSqlRelationalTableModel::index(rowNum, i), val)) {
+                    logError() << "setData failed on new row" << rowNum;
+                }
+            }
+        }
+        submitAll();
+        return rowNum;
+    }
+    return -1;
+}
+
+bool SqlTableModel::delRow(int row)
+{
+    bool ok = QSqlRelationalTableModel::removeRow(row);
+    submitAll();
+    return ok;
+}
+
+
+bool SqlTableModel::set(const int row, const int col, const QVariant &value)
+{
+    QModelIndex modelIndex = createIndex(row, col);
+    return setData(modelIndex, value);
 }
