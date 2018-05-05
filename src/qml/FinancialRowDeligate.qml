@@ -17,7 +17,9 @@ Rectangle {
     property int rowH: 30
     height: rowH
 
+    //property int currentCol : row
     Row {
+        id: row
         anchors.fill: parent
         spacing: 10
         anchors.leftMargin: 10
@@ -30,6 +32,7 @@ Rectangle {
             enabled: false
         }
         CompanyCellEditText {
+            id: year
             width: colW[1] - wComp
             text: itemData ? itemData.year : ""
             enabled: financials.showEdit
@@ -37,8 +40,11 @@ Rectangle {
                 itemData.year = text;
                 logStatus("id=" + idText.text + " set year=" + text);
             }
+            KeyNavigation.right: quarter
+            KeyNavigation.tab: quarter
         }
         CompanyCellDropDown {
+            id: quarter
             enabled: financials.showEdit
             comboModel: quartersModel
             width: colW[2] - wComp
@@ -47,9 +53,12 @@ Rectangle {
                 itemData.qId = id;
                 logStatus("id=" + idText.text + " set qId=" + id);
             }
+            KeyNavigation.right: sales
+            KeyNavigation.tab: sales
         }
 
         CompanyCellEditText {
+            id: sales
             width: colW[4] - wComp
             text: itemData ? itemData.sales : ""
             enabled: financials.showEdit
@@ -57,8 +66,11 @@ Rectangle {
                 itemData.sales = text;
                 logStatus("id=" + idText.text + " set sales=" + text);
             }
+            KeyNavigation.right: ebit
+            KeyNavigation.tab: ebit
         }
         CompanyCellEditText {
+            id: ebit
             width: colW[5] - wComp
             text: itemData ? itemData.ebit : ""
             enabled: financials.showEdit
@@ -66,6 +78,8 @@ Rectangle {
                 itemData.ebit = text;
                 logStatus("id=" + idText.text + " set ebit=" + text);
             }
+            KeyNavigation.right: year
+            KeyNavigation.tab: year
         }
     }
     MouseArea {

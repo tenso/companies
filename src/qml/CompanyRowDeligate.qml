@@ -26,6 +26,7 @@ Rectangle {
             enabled: false
         }
         CompanyCellEditText {
+            id: name
             width: colW[1] - wComp
             text: itemData ? itemData.name : ""
             enabled: companyRow.showEdit
@@ -33,8 +34,11 @@ Rectangle {
                 itemData.name = text;
                 logStatus("id=" + idText.text + " set name=" + text);
             }
+            KeyNavigation.right: list
+            KeyNavigation.tab: list
         }
         CompanyCellDropDown {
+            id: list
             enabled: companyRow.showEdit
             comboModel: listsModel
             width: colW[2] - wComp
@@ -43,9 +47,11 @@ Rectangle {
                 itemData.lId = id;
                 logStatus("id=" + idText.text + " set lId=" + id);
             }
+            KeyNavigation.right: type
+            KeyNavigation.tab: type
         }
         CompanyCellDropDown {
-            id: typeSelect
+            id: type
             enabled: companyRow.showEdit
             comboModel: typesModel
             width: colW[3] - wComp
@@ -54,8 +60,11 @@ Rectangle {
                 itemData.tId = id;
                 logStatus("id=" + idText.text + " set tId=" + id);
             }
+            KeyNavigation.right: watch
+            KeyNavigation.tab: watch
         }
         CompanyCellEditText {
+            id: watch
             width: colW[4] - wComp
             text: itemData ? itemData.watch : ""
             enabled: companyRow.showEdit
@@ -63,8 +72,11 @@ Rectangle {
                 itemData.watch = text;
                 logStatus("id=" + idText.text + " set watch=" + text);
             }
+            KeyNavigation.right: description
+            KeyNavigation.tab: description
         }
         CompanyCellEditText {
+            id: description
             width: colW[5] - wComp
             text: itemData ? itemData.description : ""
             enabled: companyRow.showEdit
@@ -72,6 +84,8 @@ Rectangle {
                 itemData.description = text;
                 logStatus("id=" + idText.text + " set desc=" + text);
             }
+            KeyNavigation.right: name
+            KeyNavigation.tab: name
         }
     }
     MouseArea {

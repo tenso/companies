@@ -1,24 +1,32 @@
 import QtQuick 2.7
 
-Rectangle {
-    Theme {id: tm}
-    height: parent.height
-    width: 100
-    color: input.activeFocus ? tm.focusBg : tm.editBg(enabled)
-
-    signal updated()
+FocusScope {
+    id: scope
     property alias enabled: input.enabled
     property alias text: input.text
     property alias font: input.font
+    property alias color: box.color
+    signal updated()
 
-    TextInput {
-        id: input
-        onEditingFinished: parent.updated();
-        verticalAlignment: Text.AlignVCenter
-        color: tm.editFg(parent.enabled)
-        clip: true
+    height: parent.height
+    width: 100
+
+    Rectangle {
+        id: box
+        Theme {id: tm}
         anchors.fill: parent
-        anchors.leftMargin: 12
-        font: tm.font
+        color: input.activeFocus ? tm.focusBg : tm.editBg(scope.enabled)
+
+        TextInput {
+            id: input
+            focus: true
+            onEditingFinished: scope.updated();
+            verticalAlignment: Text.AlignVCenter
+            color: tm.editFg(parent.enabled)
+            clip: true
+            anchors.fill: parent
+            anchors.leftMargin: 12
+            font: tm.font
+        }
     }
 }

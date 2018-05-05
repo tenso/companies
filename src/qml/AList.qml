@@ -10,6 +10,7 @@ ListView {
 
     property int _selectedRow: 0
     property int _selectedY: 0
+
     function savePos() {
         _selectedRow = currentIndex;
         _selectedY = contentY;
