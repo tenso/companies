@@ -29,13 +29,8 @@ FocusScope {
             id: editBox
 
             ComboBox {
-                property var currentUserText: scope.text
-
-                onActiveFocusChanged: {
-                    logStatus("combobox has focus:" + activeFocus);
-                }
-
                 id: comboBox
+                property var currentUserText: scope.text
                 activeFocusOnTab: false
                 model: scope.comboModel
                 flat: true
