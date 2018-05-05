@@ -56,6 +56,15 @@ CREATE TABLE IF NOT EXISTS `share` (
 	`sharePrice`	INTEGER,
 	`owners`	INTEGER
 );
+CREATE TABLE IF NOT EXISTS `quarters` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`name`	TEXT
+);
+INSERT INTO `quarters` VALUES (1,'FY');
+INSERT INTO `quarters` VALUES (2,'Q1');
+INSERT INTO `quarters` VALUES (3,'Q2');
+INSERT INTO `quarters` VALUES (4,'Q3');
+INSERT INTO `quarters` VALUES (5,'Q4');
 CREATE TABLE IF NOT EXISTS `notes` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`cId`	INTEGER,
@@ -78,27 +87,27 @@ CREATE TABLE IF NOT EXISTS `financials` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`cId`	INTEGER,
 	`year`	INTEGER,
-	`quarter`	INTEGER,
-	`shares`	INTEGER,
-	`sales`	INTEGER,
-	`ebit`	INTEGER,
-	`assetsFixed`	INTEGER,
-	`assetsFixedPpe`	INTEGER,
-	`assetsCurrent`	INTEGER,
-	`assetsCurrentCash`	INTEGER,
-	`equity`	INTEGER,
-	`liabilitiesLongterm`	INTEGER,
-	`liabilitiesLongtermInterestCarrying`	INTEGER,
-	`liabilitiesCurrent`	INTEGER,
-	`liabilitiesCurrentInterestCarrying`	INTEGER,
-	`interestPayed`	INTEGER,
-	`dividend`	INTEGER,
-	`managmentRemuneration`	INTEGER,
-	`debtMaturity`	INTEGER,
-	`leasingY`	INTEGER,
-	`leasingY1`	INTEGER,
-	`leasingY2Y5`	INTEGER,
-	`leaingY5Up`	INTEGER
+	`qId`	INTEGER,
+	`shares`	NUMERIC,
+	`sales`	NUMERIC,
+	`ebit`	NUMERIC,
+	`assetsFixed`	NUMERIC,
+	`assetsFixedPpe`	NUMERIC,
+	`assetsCurrent`	NUMERIC,
+	`assetsCurrentCash`	NUMERIC,
+	`equity`	NUMERIC,
+	`liabilitiesLongterm`	NUMERIC,
+	`liabilitiesLongtermInterestCarrying`	NUMERIC,
+	`liabilitiesCurrent`	NUMERIC,
+	`liabilitiesCurrentInterestCarrying`	NUMERIC,
+	`interestPayed`	NUMERIC,
+	`dividend`	NUMERIC,
+	`managmentRemuneration`	NUMERIC,
+	`debtMaturity`	NUMERIC,
+	`leasingY`	NUMERIC,
+	`leasingY1`	NUMERIC,
+	`leasingY2Y5`	NUMERIC,
+	`leaingY5Up`	NUMERIC
 );
 CREATE TABLE IF NOT EXISTS `companyTags` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
