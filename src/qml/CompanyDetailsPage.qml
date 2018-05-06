@@ -22,8 +22,10 @@ Page {
         anchors.right: parent.right
         height: tm.rowH + 10
         color: tm.headBg
-        CompanyRowDeligate {
+        AListRow {
             id: currentCompany
+            roles:  ["id", "name", "lId", "tId", "watch", "description"]
+            comboModels: { "lId": listsModel, "tId": typesModel }
             itemData: overview.currentItemData
             anchors.left: parent.left
             anchors.right: parent.right
@@ -39,20 +41,20 @@ Page {
         }
     }
     Rectangle {
-        width: 800
         id: financials
         anchors.left: parent.left
+        anchors.right: parent.right
         anchors.top: company.bottom
         anchors.bottom: parent.bottom
         anchors.margins: tm.rowH
         color: tm.menuBg
-        property variant colW: [80]
+        property int singleW: 80
 
         CompanyHeaderDeligate {
             id: financialsHead
             width: parent.width
             height: tm.rowH
-            colW: financials.colW
+            singleW: financials.singleW
             model: [qsTr("Year"), qsTr("Quarter"), qsTr("Shares"), qsTr("Sales"), qsTr("Ebit")]
         }
 
@@ -64,11 +66,18 @@ Page {
             anchors.top: financialsHead.bottom
             anchors.bottom: financials.bottom
             anchors.bottomMargin: newButton.height
-            delegate: FinancialRowDeligate {
+            delegate: AListRow {
+                roles:  [
+                    "year", "qId", "shares", "sales", "ebit", "assetsFixed", "assetsFixedPpe",
+                    "assetsCurrent", "assetsCurrentCash", "equity", "liabilitiesLongterm",
+                    "liabilitiesLongtermInterestCarrying", "liabilitiesCurrent", "liabilitiesCurrentInterestCarrying",
+                    "interestPayed", "dividend"
+                ]
+                comboModels: { "qId": quartersModel }
                 itemData: model
                 width: view.width
-                rowH: tm.rowH
-                colW: financials.colW[0]
+                height: tm.rowH
+                singleW: financials.singleW
                 onSelect: {
                     view.currentIndex = index;
                     view.forceActiveFocus();

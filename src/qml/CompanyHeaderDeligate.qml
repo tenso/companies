@@ -2,7 +2,9 @@ import QtQuick 2.9
 
 Rectangle {
     Theme {id: tm}
+    id: root
     property variant colW: []
+    property int singleW: 80
     property alias model: repeater.model
     color: tm.headBg
     signal filterChange(int index, string filter)
@@ -15,18 +17,14 @@ Rectangle {
         id: nameRow
         Repeater {
             id: repeater
-            delegate: Item {
-                width: colW[index] ? colW[index] : colW[0]
+            delegate: CompanyCellText {
+                font: tm.headFont
+                horizontalAlignment: Text.AlignHCenter
+                id: name
+                color: tm.headFg
+                text: modelData
+                width: root.colW.length ? root.colW[index] : root.singleW
                 height: parent.height
-                CompanyCellText {
-                    font: tm.headFont
-                    horizontalAlignment: Text.AlignHCenter
-                    id: name
-                    color: tm.headFg
-                    width: colW[index] ? colW[index] : colW[0]
-                    text: modelData
-                    height: parent.height
-                }
             }
         }
     }

@@ -5,10 +5,10 @@ FocusScope {
     property string role: ""
     property variant model
 
-    property variant nextFocus: null
+    property variant prevFocus: null
     property string roleSelector: ""
-    KeyNavigation.right: nextFocus
-    KeyNavigation.tab: nextFocus
+    KeyNavigation.left: prevFocus
+    KeyNavigation.backtab: prevFocus
 
     onRoleSelectorChanged: {
         if (role !== "" && roleSelector === role) {

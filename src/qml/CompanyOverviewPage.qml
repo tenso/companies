@@ -33,8 +33,10 @@ Page {
         anchors.fill: parent
         anchors.topMargin: listHead.height
 
-        delegate: CompanyRowDeligate {
+        delegate: AListRow {
             itemData: model
+            roles:  ["id", "name", "lId", "tId", "watch", "description"]
+            comboModels: { "lId": listsModel, "tId": typesModel }
             width: page.width
             height: tm.rowH
             colW: page.colW

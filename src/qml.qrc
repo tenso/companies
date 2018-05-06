@@ -3,7 +3,6 @@
         <file>qtquickcontrols2.conf</file>
         <file>qml/main.qml</file>
         <file>qml/CompanyHeaderDeligate.qml</file>
-        <file>qml/CompanyRowDeligate.qml</file>
         <file>qml/MainMenu.qml</file>
         <file>qml/CompanyCellText.qml</file>
         <file>qml/CompanyCellDropDown.qml</file>
@@ -18,8 +17,8 @@
         <file>qml/MainStatusBar.qml</file>
         <file>qml/CompanyDetailsPage.qml</file>
         <file>qml/AList.qml</file>
-        <file>qml/FinancialRowDeligate.qml</file>
         <file>qml/AListItem.qml</file>
         <file>qml/AItem.qml</file>
+        <file>qml/AListRow.qml</file>
     </qresource>
 </RCC>

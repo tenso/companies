@@ -18,7 +18,7 @@ Rectangle {
             onTextUpdate: {
                 filter = text;
             }
-            nextFocus: name
+            prevFocus: description
         }
         CompanyFilterText {
             id: name
@@ -31,7 +31,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            nextFocus: list
+            prevFocus: companyId
         }
         CompanyFilterDropDown {
             id: list
@@ -46,7 +46,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            nextFocus: type
+            prevFocus: name
         }
         CompanyFilterDropDown {
             id: type
@@ -61,7 +61,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            nextFocus: watch
+            prevFocus: list
         }
         CompanyFilterText {
             id: watch
@@ -70,7 +70,7 @@ Rectangle {
             onTextUpdate: {
                 filter = text;
             }
-            nextFocus: description
+            prevFocus: type
         }
         CompanyFilterText {
             id: description
@@ -83,7 +83,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            nextFocus: companyId
+            prevFocus: watch
         }
     }
 }
