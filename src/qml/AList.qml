@@ -10,6 +10,7 @@ ListView {
 
     property int _selectedRow: 0
     property int _selectedY: 0
+    property string _selectedRole: ""
 
     function savePos() {
         _selectedRow = currentIndex;
@@ -26,9 +27,11 @@ ListView {
 
     onCurrentItemChanged: {
         if (lastItem) {
+            _selectedRole = lastItem.selectedRole
             lastItem.showEdit = false;
         }
         if (currentItem) {
+            currentItem.focusRole = _selectedRole;
             currentItem.showEdit = true;
         }
     }

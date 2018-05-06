@@ -18,8 +18,7 @@ Rectangle {
             onTextUpdate: {
                 filter = text;
             }
-            KeyNavigation.right: name
-            KeyNavigation.tab: name
+            nextFocus: name
         }
         CompanyFilterText {
             id: name
@@ -32,8 +31,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            KeyNavigation.right: list
-            KeyNavigation.tab: list
+            nextFocus: list
         }
         CompanyFilterDropDown {
             id: list
@@ -48,8 +46,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            KeyNavigation.right: type
-            KeyNavigation.tab: type
+            nextFocus: type
         }
         CompanyFilterDropDown {
             id: type
@@ -64,8 +61,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            KeyNavigation.right: watch
-            KeyNavigation.tab: watch
+            nextFocus: watch
         }
         CompanyFilterText {
             id: watch
@@ -74,8 +70,7 @@ Rectangle {
             onTextUpdate: {
                 filter = text;
             }
-            KeyNavigation.right: description
-            KeyNavigation.tab: description
+            nextFocus: description
         }
         CompanyFilterText {
             id: description
@@ -88,8 +83,7 @@ Rectangle {
                     filter = "";
                 }
             }
-            KeyNavigation.right: companyId
-            KeyNavigation.tab: companyId
+            nextFocus: companyId
         }
     }
 }

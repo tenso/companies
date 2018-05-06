@@ -1,13 +1,13 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 
-FocusScope {
+AItem {
     id: scope
     height: parent.height
     width: 100
     enabled: false
     property var comboModel
-    property var text
+    property var text: model ? model[role] : ""
     property bool down: false
     property alias color: box.color
     readonly property color visibleColor: (loader.item ? loader.item.currentColor : scope.color)
@@ -63,7 +63,12 @@ FocusScope {
                 }
 
                 onActivated: {
-                    scope.updated(scope.comboModel.rowToId(currentIndex));
+                    var comboId = scope.comboModel.rowToId(currentIndex);
+                    if (scope.model && scope.role !== "") {
+                        scope.model[scope.role] = comboId;
+                        logStatus("id:" + scope.model.id + " " + scope.role + "=" + comboId);
+                    }
+                    scope.updated(comboId);
                 }
                 Component.onCompleted: {
                     currentIndex = find(currentUserText);

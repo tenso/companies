@@ -1,6 +1,6 @@
 import QtQuick 2.7
 
-FocusScope {
+AItem {
     id: scope
     property int index: 0
     property string filter: ""

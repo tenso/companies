@@ -1,91 +1,79 @@
 import QtQuick 2.7
 
-Rectangle {
+AListItem {
     id: companyRow
-    color: "transparent"
     signal select(int index)
 
-    property variant itemData: {"id": "",
-                                "name": "",
-                                "description": "",
-                                "lId": "",
-                                "tId": "",
-                                "watch": "" }
+    itemData: {"id": "",
+               "name": "",
+               "description": "",
+               "lId": "",
+               "tId": "",
+               "watch": "" }
+
     property variant colW: [0, 0, 0, 0, 0, 0]
-    property bool showEdit: false
     property int wComp: 20
+
     Row {
+        id: row
         anchors.fill: parent
         spacing: 30
         anchors.leftMargin: 10
 
         CompanyCellEditText {
-            width: colW[0] - wComp
             id: idText
-            text: itemData ? itemData.id : ""
+            roleSelector: companyRow.focusRole
+            role: "id"
+            model: itemData
+            width: colW[0] - wComp
             enabled: false
         }
         CompanyCellEditText {
             id: name
+            roleSelector: companyRow.focusRole
+            role: "name"
+            model: itemData
             width: colW[1] - wComp
-            text: itemData ? itemData.name : ""
             enabled: companyRow.showEdit
-            onUpdated: {
-                itemData.name = text;
-                logStatus("id=" + idText.text + " set name=" + text);
-            }
-            KeyNavigation.right: list
-            KeyNavigation.tab: list
+            nextFocus: list
         }
         CompanyCellDropDown {
             id: list
+            roleSelector: companyRow.focusRole
+            role: "lId"
+            model: itemData
             enabled: companyRow.showEdit
             comboModel: listsModel
             width: colW[2] - wComp
-            text: itemData ? itemData.lId : ""
-            onUpdated: {
-                itemData.lId = id;
-                logStatus("id=" + idText.text + " set lId=" + id);
-            }
-            KeyNavigation.right: type
-            KeyNavigation.tab: type
+            nextFocus: type
         }
         CompanyCellDropDown {
+            roleSelector: companyRow.focusRole
+            role: "tId"
+            model: itemData
             id: type
             enabled: companyRow.showEdit
             comboModel: typesModel
             width: colW[3] - wComp
-            text: itemData ? itemData.tId : ""
-            onUpdated: {
-                itemData.tId = id;
-                logStatus("id=" + idText.text + " set tId=" + id);
-            }
-            KeyNavigation.right: watch
-            KeyNavigation.tab: watch
+            nextFocus: watch
         }
         CompanyCellEditText {
             id: watch
+            roleSelector: companyRow.focusRole
+            role: "watch"
+            model: itemData
             width: colW[4] - wComp
-            text: itemData ? itemData.watch : ""
             enabled: companyRow.showEdit
-            onUpdated: {
-                itemData.watch = text;
-                logStatus("id=" + idText.text + " set watch=" + text);
-            }
-            KeyNavigation.right: description
-            KeyNavigation.tab: description
+            nextFocus: description
         }
         CompanyCellEditText {
             id: description
+            roleSelector: companyRow.focusRole
+            role: "description"
+            model: itemData
             width: colW[5] - wComp
-            text: itemData ? itemData.description : ""
             enabled: companyRow.showEdit
-            onUpdated: {
-                itemData.description = text;
-                logStatus("id=" + idText.text + " set desc=" + text);
-            }
-            KeyNavigation.right: name
-            KeyNavigation.tab: name
+            nextFocus: name
         }
     }
     MouseArea {

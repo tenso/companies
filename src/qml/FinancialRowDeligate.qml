@@ -1,18 +1,16 @@
 import QtQuick 2.7
 
-Rectangle {
+AListItem {
     id: financials
-    color: "transparent"
     signal select(int index)
 
-    property variant itemData: {"id": "",
-                                "cId": "",
-                                "year": "",
-                                "qId": "",
-                                "sales": "",
-                                "ebit": "" }
+    itemData: {"id": "",
+               "cId": "",
+               "year": "",
+               "qId": "",
+               "sales": "",
+               "ebit": "" }
     property variant colW: [40, 80, 80, 80, 80, 80]
-    property bool showEdit: false
     property int wComp: 0
     property int rowH: 30
     height: rowH
@@ -25,61 +23,51 @@ Rectangle {
         anchors.leftMargin: 10
 
         CompanyCellEditText {
-            width: colW[0] - wComp
             id: idText
+            roleSelector: financials.focusRole
+            role: "id"
+            model: itemData
+            width: colW[0] - wComp
             visible: false
-            text: itemData ? itemData.id : ""
             enabled: false
         }
         CompanyCellEditText {
             id: year
+            roleSelector: financials.focusRole
+            role: "year"
+            model: itemData
             width: colW[1] - wComp
-            text: itemData ? itemData.year : ""
             enabled: financials.showEdit
-            onUpdated: {
-                itemData.year = text;
-                logStatus("id=" + idText.text + " set year=" + text);
-            }
-            KeyNavigation.right: quarter
-            KeyNavigation.tab: quarter
+            nextFocus: quarter
         }
         CompanyCellDropDown {
             id: quarter
+            roleSelector: financials.focusRole
+            role: "qId"
+            model: itemData
             enabled: financials.showEdit
             comboModel: quartersModel
             width: colW[2] - wComp
-            text: itemData ? itemData.qId : ""
-            onUpdated: {
-                itemData.qId = id;
-                logStatus("id=" + idText.text + " set qId=" + id);
-            }
-            KeyNavigation.right: sales
-            KeyNavigation.tab: sales
+            nextFocus: sales
         }
 
         CompanyCellEditText {
             id: sales
+            roleSelector: financials.focusRole
+            role: "sales"
+            model: itemData
             width: colW[4] - wComp
-            text: itemData ? itemData.sales : ""
             enabled: financials.showEdit
-            onUpdated: {
-                itemData.sales = text;
-                logStatus("id=" + idText.text + " set sales=" + text);
-            }
-            KeyNavigation.right: ebit
-            KeyNavigation.tab: ebit
+            nextFocus: ebit
         }
         CompanyCellEditText {
             id: ebit
+            roleSelector: financials.focusRole
+            role: "ebit"
+            model: itemData
             width: colW[5] - wComp
-            text: itemData ? itemData.ebit : ""
             enabled: financials.showEdit
-            onUpdated: {
-                itemData.ebit = text;
-                logStatus("id=" + idText.text + " set ebit=" + text);
-            }
-            KeyNavigation.right: year
-            KeyNavigation.tab: year
+            nextFocus: year
         }
     }
     MouseArea {

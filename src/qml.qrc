@@ -19,5 +19,7 @@
         <file>qml/CompanyDetailsPage.qml</file>
         <file>qml/AList.qml</file>
         <file>qml/FinancialRowDeligate.qml</file>
+        <file>qml/AListItem.qml</file>
+        <file>qml/AItem.qml</file>
     </qresource>
 </RCC>

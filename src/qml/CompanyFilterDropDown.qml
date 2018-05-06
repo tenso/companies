@@ -1,6 +1,6 @@
 import QtQuick 2.7
 
-FocusScope {
+AItem {
     id: scope
     height: row.height
     property alias model: select.comboModel

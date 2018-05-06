@@ -1,13 +1,13 @@
-import QtQuick 2.7
+import QtQuick 2.9
 
-FocusScope {
+AItem {
     id: scope
     property alias enabled: input.enabled
     property alias text: input.text
     property alias font: input.font
     property color color: tm.editBg(enabled)
     readonly property color visibleColor: box.color
-    signal updated()
+    signal updated(string text)
 
     height: parent.height
     width: 100
@@ -21,7 +21,14 @@ FocusScope {
         TextInput {
             id: input
             focus: true
-            onEditingFinished: scope.updated();
+            text: model ? model[role] : ""
+            onTextEdited: {
+                if (model && role !== "") {
+                    model[role] = text;
+                    logStatus("id:" + model.id + " " + role + "=" + text);
+                }
+                scope.updated(text);
+            }
             verticalAlignment: Text.AlignVCenter
             color: tm.editFg(parent.enabled)
             clip: true
