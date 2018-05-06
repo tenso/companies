@@ -10,6 +10,7 @@ FocusScope {
     property var text
     property bool down: false
     property alias color: box.color
+    readonly property color visibleColor: (loader.item ? loader.item.currentColor : scope.color)
     signal updated(int id)
 
     onActiveFocusChanged: {
@@ -31,6 +32,7 @@ FocusScope {
             ComboBox {
                 id: comboBox
                 property var currentUserText: scope.text
+                property color currentColor: activeFocus ? tm.focusBg : box.color
                 activeFocusOnTab: false
                 model: scope.comboModel
                 flat: true
@@ -57,7 +59,7 @@ FocusScope {
                 }
                 background: Rectangle {
                     anchors.fill: comboBox
-                    color: comboBox.activeFocus ? tm.focusBg : tm.editBg(comboBox.enabled)
+                    color: comboBox.currentColor
                 }
 
                 onActivated: {

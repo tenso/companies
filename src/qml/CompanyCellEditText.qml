@@ -5,7 +5,8 @@ FocusScope {
     property alias enabled: input.enabled
     property alias text: input.text
     property alias font: input.font
-    property alias color: box.color
+    property color color: tm.editBg(enabled)
+    readonly property color visibleColor: box.color
     signal updated()
 
     height: parent.height
@@ -15,7 +16,7 @@ FocusScope {
         id: box
         Theme {id: tm}
         anchors.fill: parent
-        color: input.activeFocus ? tm.focusBg : tm.editBg(scope.enabled)
+        color: input.activeFocus ? tm.focusBg : scope.color
 
         TextInput {
             id: input

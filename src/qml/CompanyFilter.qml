@@ -12,13 +12,17 @@ Rectangle {
         spacing: 10
         anchors.leftMargin: spacing
         CompanyFilterText {
+            id: companyId
             index: 0
             width: colW[index]
             onTextUpdate: {
                 filter = text;
             }
+            KeyNavigation.right: name
+            KeyNavigation.tab: name
         }
         CompanyFilterText {
+            id: name
             index: 1
             width: colW[index]
             onTextUpdate: {
@@ -28,8 +32,11 @@ Rectangle {
                     filter = "";
                 }
             }
+            KeyNavigation.right: list
+            KeyNavigation.tab: list
         }
         CompanyFilterDropDown {
+            id: list
             model: listsModel
             index: 2
             width: colW[index]
@@ -41,8 +48,11 @@ Rectangle {
                     filter = "";
                 }
             }
+            KeyNavigation.right: type
+            KeyNavigation.tab: type
         }
         CompanyFilterDropDown {
+            id: type
             model: typesModel
             index: 3
             width: colW[index]
@@ -54,15 +64,21 @@ Rectangle {
                     filter = "";
                 }
             }
+            KeyNavigation.right: watch
+            KeyNavigation.tab: watch
         }
         CompanyFilterText {
+            id: watch
             index: 4
             width: colW[index]
             onTextUpdate: {
                 filter = text;
             }
+            KeyNavigation.right: description
+            KeyNavigation.tab: description
         }
         CompanyFilterText {
+            id: description
             index: 5
             width: colW[index]
             onTextUpdate: {
@@ -72,6 +88,8 @@ Rectangle {
                     filter = "";
                 }
             }
+            KeyNavigation.right: companyId
+            KeyNavigation.tab: companyId
         }
     }
 }

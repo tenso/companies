@@ -1,7 +1,8 @@
 import QtQuick 2.7
 
-Row {
-    Theme {id: tm}
+FocusScope {
+    id: scope
+    height: row.height
     property alias model: select.comboModel
     property int index: 0
     property string filter: ""
@@ -11,39 +12,46 @@ Row {
         companiesModel.filterColumn(index, filter)
     }
 
-    CompanyCellDropDown {
-        id: select
-        color: tm.inActive
-        width: parent.width - clear.width
-        text: ""
-        enabled: true
-        onUpdated: {
-            idUpdate(id);
-        }
-    }
+    Row {
+        id: row
+        Theme {id: tm}
+        width: scope.width
 
-    AButton {
-        id: clear
-        width: 20
-        height: 30
-        anchors.verticalCenter: select.verticalCenter
-        font: tm.buttonFont
-
-        background: Rectangle {
-            color: select.down ? tm.active : tm.inActive
+        CompanyCellDropDown {
+            id: select
+            focus: true
+            color: tm.inActive
+            width: parent.width - clear.width
+            text: ""
+            enabled: true
+            onUpdated: {
+                scope.idUpdate(id);
+            }
         }
 
-        Image {
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            width: 12
-            height: 12
-            source: "/assets/icons/x.svg"
-        }
+        AButton {
+            id: clear
+            width: 20
+            height: 30
+            anchors.verticalCenter: select.verticalCenter
+            font: tm.buttonFont
 
-        onPressed: {
-            select.text = "";
-            idUpdate(undefined);
+            background: Rectangle {
+                color: select.visibleColor
+            }
+
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                width: 12
+                height: 12
+                source: "/assets/icons/x.svg"
+            }
+
+            onPressed: {
+                select.text = "";
+                scope.idUpdate(undefined);
+            }
         }
     }
 }

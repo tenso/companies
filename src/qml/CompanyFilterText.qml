@@ -1,46 +1,52 @@
 import QtQuick 2.7
 
-Row {
-    Theme {id: tm}
+FocusScope {
+    id: scope
     property int index: 0
-
     property string filter: ""
     signal textUpdate(string text);
-
+    height: row.height
     onFilterChanged: {
         companiesModel.filterColumn(index, filter)
     }
 
-    CompanyCellEditText {
-        id: select
-        color: tm.inActive
-        width: parent.width - clear.width
-        onUpdated: {
-            textUpdate(text);
-        }
-    }
-    AButton {
-        id: clear
-        width: 20
-        height: 30
-        anchors.verticalCenter: select.verticalCenter
-        font: tm.buttonFont
+    Row {
+        id: row
+        width: parent.width
+        Theme {id: tm}
 
-        background: Rectangle {
-            color: select.down ? tm.active : tm.inActive
+        CompanyCellEditText {
+            id: select
+            color: tm.inActive
+            width: parent.width - clear.width
+            focus: true
+            onUpdated: {
+                scope.textUpdate(text);
+            }
         }
+        AButton {
+            id: clear
+            width: 20
+            height: 30
+            anchors.verticalCenter: select.verticalCenter
+            font: tm.buttonFont
 
-        Image {
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            width: 12
-            height: 12
-            source: "/assets/icons/x.svg"
-        }
+            background: Rectangle {
+                color: select.visibleColor
+            }
 
-        onPressed: {
-            select.text = "";
-            textUpdate(undefined);
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                width: 12
+                height: 12
+                source: "/assets/icons/x.svg"
+            }
+
+            onPressed: {
+                select.text = "";
+                scope.textUpdate(undefined);
+            }
         }
     }
 }
