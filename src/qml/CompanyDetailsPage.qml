@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.9
 import QtQuick.Controls 2.2
 
 Page {
@@ -8,19 +8,33 @@ Page {
     property alias rowCount: view.count
     property variant colW: []
 
-    CompanyRowDeligate {
-        id: currentCompany
-        itemData: overview.currentItemData
-        anchors.top: parent.top
-        anchors.margins: tm.rowH
+    CompanyHeaderDeligate {
+        id: listHead
+        width: page.width
+        height: tm.rowH + 10
+        colW: page.colW
+        model: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
+    }
+    Rectangle {
+        id: company
+        anchors.top: listHead.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        showEdit: true
-        height: tm.rowH
-        colW: page.colW
-        onItemDataChanged: {
-            if (itemData) {
-                financialsModel.filterColumn(1, "=" + itemData.id);
+        height: tm.rowH + 10
+        color: tm.headBg
+        CompanyRowDeligate {
+            id: currentCompany
+            itemData: overview.currentItemData
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: tm.rowH
+            showEdit: true
+            colW: page.colW
+            onItemDataChanged: {
+                if (itemData) {
+                    financialsModel.filterColumn(1, "=" + itemData.id);
+                }
             }
         }
     }
@@ -28,21 +42,33 @@ Page {
         width: 800
         id: financials
         anchors.left: parent.left
-        anchors.top: currentCompany.bottom
+        anchors.top: company.bottom
         anchors.bottom: parent.bottom
         anchors.margins: tm.rowH
         color: tm.menuBg
+        property variant colW: [80]
+
+        CompanyHeaderDeligate {
+            id: financialsHead
+            width: parent.width
+            height: tm.rowH
+            colW: financials.colW
+            model: [qsTr("Year"), qsTr("Quarter"), qsTr("Shares"), qsTr("Sales"), qsTr("Ebit")]
+        }
 
         AList {
             id: view
             model: financialsModel
-            anchors.fill: financials
+            anchors.left: financials.left
+            anchors.right: financials.right
+            anchors.top: financialsHead.bottom
+            anchors.bottom: financials.bottom
             anchors.bottomMargin: newButton.height
             delegate: FinancialRowDeligate {
                 itemData: model
                 width: view.width
                 rowH: tm.rowH
-
+                colW: financials.colW[0]
                 onSelect: {
                     view.currentIndex = index;
                     view.forceActiveFocus();

@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.9
 import QtQuick.Controls 2.2
 
 Page {
@@ -21,7 +21,7 @@ Page {
         height: tm.rowH * 2 + 10
         colW: page.colW
         model: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
-
+        filterEnabled: true
         onFilterChange: {
             companiesModel.filterColumn(index, filter);
         }

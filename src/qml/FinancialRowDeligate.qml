@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.9
 
 AListItem {
     id: financials
@@ -10,8 +10,7 @@ AListItem {
                "qId": "",
                "sales": "",
                "ebit": "" }
-    property variant colW: [40, 80, 80, 80, 80, 80]
-    property int wComp: 0
+    property int colW: 80
     property int rowH: 30
     height: rowH
 
@@ -27,7 +26,7 @@ AListItem {
             roleSelector: financials.focusRole
             role: "id"
             model: itemData
-            width: colW[0] - wComp
+            width: colW
             visible: false
             enabled: false
         }
@@ -36,7 +35,7 @@ AListItem {
             roleSelector: financials.focusRole
             role: "year"
             model: itemData
-            width: colW[1] - wComp
+            width: colW
             enabled: financials.showEdit
             nextFocus: quarter
         }
@@ -47,16 +46,24 @@ AListItem {
             model: itemData
             enabled: financials.showEdit
             comboModel: quartersModel
-            width: colW[2] - wComp
+            width: colW
+            nextFocus: shares
+        }
+        CompanyCellEditText {
+            id: shares
+            roleSelector: financials.focusRole
+            role: "shares"
+            model: itemData
+            width: colW
+            enabled: financials.showEdit
             nextFocus: sales
         }
-
         CompanyCellEditText {
             id: sales
             roleSelector: financials.focusRole
             role: "sales"
             model: itemData
-            width: colW[4] - wComp
+            width: colW
             enabled: financials.showEdit
             nextFocus: ebit
         }
@@ -65,7 +72,7 @@ AListItem {
             roleSelector: financials.focusRole
             role: "ebit"
             model: itemData
-            width: colW[5] - wComp
+            width: colW
             enabled: financials.showEdit
             nextFocus: year
         }

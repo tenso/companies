@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.9
 
 Item {
     height: parent.height
@@ -6,6 +6,7 @@ Item {
     property alias text: input.text
     property alias color: input.color
     property alias font: input.font
+    property alias horizontalAlignment: input.horizontalAlignment
     property int pad: 12
     clip: true
     Text {

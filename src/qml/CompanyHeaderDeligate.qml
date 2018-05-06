@@ -5,9 +5,8 @@ Rectangle {
     property variant colW: []
     property alias model: repeater.model
     color: tm.headBg
-    z:100
     signal filterChange(int index, string filter)
-
+    property bool filterEnabled: false
     Row {
         spacing: 10
         width: parent.width
@@ -17,13 +16,14 @@ Rectangle {
         Repeater {
             id: repeater
             delegate: Item {
-                width: colW[index]
+                width: colW[index] ? colW[index] : colW[0]
                 height: parent.height
                 CompanyCellText {
                     font: tm.headFont
+                    horizontalAlignment: Text.AlignHCenter
                     id: name
                     color: tm.headFg
-                    width: colW[index]
+                    width: colW[index] ? colW[index] : colW[0]
                     text: modelData
                     height: parent.height
                 }
@@ -33,6 +33,7 @@ Rectangle {
 
 
     CompanyFilter {
+        visible: filterEnabled
         anchors.top: nameRow.bottom
         height: 30
         colW: parent.colW
