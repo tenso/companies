@@ -69,9 +69,8 @@ Page {
             delegate: AListRow {
                 roles:  [
                     "year", "qId", "shares", "sales", "ebit", "assetsFixed", "assetsFixedPpe",
-                    "assetsCurrent", "assetsCurrentCash", "equity", "liabilitiesLongterm",
-                    "liabilitiesLongtermInterestCarrying", "liabilitiesCurrent", "liabilitiesCurrentInterestCarrying",
-                    "interestPayed", "dividend"
+                    "assetsCurr", "assetsCurrCash", "equity", "liabLong", "liabLongInt",
+                    "liabCurr", "liabCurrInt", "interestPayed", "dividend"
                 ]
                 comboModels: { "qId": quartersModel }
                 itemData: model

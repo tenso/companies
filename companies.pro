@@ -17,7 +17,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 OTHER_FILES += \
     src/qml/*.qml \
-    README.md
+    README.md \
+    data/*.sql
 
 HEADERS += \
     src/Log.hpp \
