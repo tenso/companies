@@ -2,15 +2,16 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 
 AItem {
-    id: scope
-    height: parent.height
+    id: root
+    Theme{id:tm}
     width: 100
+    height: tm.rowH
     enabled: false
     property var comboModel
-    property var text: model ? model[role] : ""
+    property var text: itemData ? itemData[role] : ""
     property bool down: false
     property alias color: box.color
-    readonly property color visibleColor: (loader.item ? loader.item.currentColor : scope.color)
+    readonly property color visibleColor: (loader.item ? loader.item.currentColor : root.color)
     signal updated(int id)
 
     onActiveFocusChanged: {
@@ -21,8 +22,6 @@ AItem {
 
     Rectangle {
         id: box
-
-        Theme {id: tm}
         anchors.fill: parent
         color: tm.editBg(enabled)
 
@@ -31,17 +30,17 @@ AItem {
 
             ComboBox {
                 id: comboBox
-                property var currentUserText: scope.text
+                property var currentUserText: root.text
                 property color currentColor: activeFocus ? tm.focusBg : box.color
                 activeFocusOnTab: false
-                model: scope.comboModel
+                model: root.comboModel
                 flat: true
-                visible: scope.enabled
+                visible: root.enabled
                 anchors.fill: parent
                 textRole: "name"
                 font: tm.font
                 onDownChanged: {
-                    scope.down = down;
+                    root.down = down;
                 }
 
                 delegate: ItemDelegate {
@@ -63,12 +62,12 @@ AItem {
                 }
 
                 onActivated: {
-                    var comboId = scope.comboModel.rowToId(currentIndex);
-                    if (scope.model && scope.role !== "") {
-                        scope.model[scope.role] = comboId;
-                        logStatus("id:" + scope.model.id + " " + scope.role + "=" + comboId);
+                    var comboId = root.comboModel.rowToId(currentIndex);
+                    if (root.itemData && root.role !== "") {
+                        root.itemData[root.role] = comboId;
+                        logStatus("id:" + root.itemData.id + " " + root.role + "=" + comboId);
                     }
-                    scope.updated(comboId);
+                    root.updated(comboId);
                 }
                 Component.onCompleted: {
                     currentIndex = find(currentUserText);
@@ -89,7 +88,7 @@ AItem {
         CompanyCellText {
             visible: !parent.enabled
             width: parent.width
-            text: scope.text
+            text: root.text
         }
     }
 }

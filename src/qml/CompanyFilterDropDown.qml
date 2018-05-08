@@ -1,7 +1,7 @@
 import QtQuick 2.9
 
 AItem {
-    id: scope
+    id: root
     height: row.height
     property alias model: select.comboModel
     property int index: 0
@@ -15,7 +15,7 @@ AItem {
     Row {
         id: row
         Theme {id: tm}
-        width: scope.width
+        width: root.width
 
         CompanyCellDropDown {
             id: select
@@ -25,7 +25,7 @@ AItem {
             text: ""
             enabled: true
             onUpdated: {
-                scope.idUpdate(id);
+                root.idUpdate(id);
             }
         }
 
@@ -50,7 +50,7 @@ AItem {
 
             onPressed: {
                 select.text = "";
-                scope.idUpdate(undefined);
+                root.idUpdate(undefined);
             }
         }
     }

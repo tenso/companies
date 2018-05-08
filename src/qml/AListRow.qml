@@ -1,19 +1,19 @@
 import QtQuick 2.9
 
-AListItem {
+AItem {
+    Theme {id:tm}
     id: root
-    signal select(int index)
+
     property variant roles: []
     property variant comboModels: ({})
     property variant colW: []
     property int singleW: 80
-    height: 30
+    height: tm.rowH
+    width: row.width
 
     Row {
         id: row
-        anchors.fill: parent
         spacing: 10
-        anchors.leftMargin: 10
 
         Repeater {
             id: repeater
@@ -24,19 +24,23 @@ AListItem {
             Component {
                 id: text
                 CompanyCellEditText {
-                    width: parent.width
                     roleSelector: root.focusRole
-                    model: root.itemData
+                    itemData: root.itemData
                     enabled: root.showEdit
+                    onSelect: {
+                        root.select(index)
+                    }
                 }
             }
             Component {
                 id: dropDown
                 CompanyCellDropDown {
-                    width: parent.width
                     roleSelector: root.focusRole
-                    model: root.itemData
+                    itemData: root.itemData
                     enabled: root.showEdit
+                    onSelect: {
+                        root.select(index)
+                    }
                 }
             }
 
@@ -64,14 +68,9 @@ AListItem {
             }
         }
         Component.onCompleted: {
-            repeater.firstChild.prevFocus = repeater.prevLoad;
-        }
-    }
-    MouseArea {
-        anchors.fill: parent
-        enabled: !showEdit
-        onClicked: {
-            select(index);
+            if (repeater.firstChild) {
+                repeater.firstChild.prevFocus = repeater.prevLoad;
+            }
         }
     }
 }

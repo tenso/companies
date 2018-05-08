@@ -2,6 +2,7 @@ import QtQuick 2.9
 
 QtObject {
     property int rowH: 30
+    property int colW: 90
     property int selectRowH: 26
 
     //"Roboto Medium", "Roboto Light", "Roboto Thin", "Roboto Black", "Roboto"
@@ -27,6 +28,7 @@ QtObject {
     property color textFg: "#000000"
     property color headBg: "#515151"
     property color headFg: "#ffffff"
+    property color subMenuBg: "#616161"
     property color menuBg: "#515151"
     property color menuFg: "#ffffff"
     property color focusBg: "#71d171"

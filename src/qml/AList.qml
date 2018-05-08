@@ -11,6 +11,7 @@ ListView {
     property int _selectedRow: 0
     property int _selectedY: 0
     property string _selectedRole: ""
+    property bool __aListParent: true
 
     function savePos() {
         _selectedRow = currentIndex;

@@ -1,14 +1,18 @@
 import QtQuick 2.9
 
 FocusScope {
-    id: scope
+    id: root
+    property variant itemData
     property string role: ""
-    property variant model
-
-    property variant prevFocus: null
+    property bool showEdit: false
+    property string selectedRole: ""
     property string roleSelector: ""
+    property string focusRole: ""
+    property variant prevFocus: null
     KeyNavigation.left: prevFocus
     KeyNavigation.backtab: prevFocus
+
+    signal select(int index)
 
     onRoleSelectorChanged: {
         if (role !== "" && roleSelector === role) {
@@ -22,10 +26,19 @@ FocusScope {
             while (nextParent) {
                 if (typeof(nextParent.selectedRole) !== "undefined") {
                     nextParent.selectedRole = role;
+                }
+                if (typeof(nextParent.__aListParent) !== "undefined") {
                     break;
                 }
                 nextParent = nextParent.parent;
             }
+        }
+    }
+    MouseArea {
+        anchors.fill: parent
+        enabled: !showEdit
+        onClicked: {
+            root.select(index);
         }
     }
 }

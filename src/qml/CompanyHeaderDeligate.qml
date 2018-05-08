@@ -5,35 +5,44 @@ Rectangle {
     id: root
     property variant colW: []
     property int singleW: 80
-    property alias model: repeater.model
-    color: tm.headBg
-    signal filterChange(int index, string filter)
+    property variant itemData
     property bool filterEnabled: false
+    property int maximumLineCount: 1
+    property font font: tm.headFont
+    property alias titleH: row.height
+    property color textColor: tm.headFg
+    signal filterChange(int index, string filter)
+
+    color: tm.headBg
+    width: row.width
+    height: row.height + (filter.visible ? filter.height : 0)
+
     Row {
+        id: row
         spacing: 10
-        width: parent.width
-        anchors.top: parent.top
-        height: 30
-        id: nameRow
+        height: tm.rowH
         Repeater {
             id: repeater
+            model: root.itemData
             delegate: CompanyCellText {
-                font: tm.headFont
+                maximumLineCount: root.maximumLineCount
+                font: root.font
                 horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignBottom
                 id: name
-                color: tm.headFg
+                color: root.textColor
                 text: modelData
                 width: root.colW.length ? root.colW[index] : root.singleW
-                height: parent.height
+                height: row.height
             }
         }
     }
 
-
     CompanyFilter {
+        id: filter
         visible: filterEnabled
-        anchors.top: nameRow.bottom
-        height: 30
+        anchors.top: row.bottom
+        height: tm.rowH
         colW: parent.colW
     }
 }

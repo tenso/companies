@@ -1,7 +1,7 @@
 import QtQuick 2.9
 
 AItem {
-    id: scope
+    id: root
     property int index: 0
     property string filter: ""
     signal textUpdate(string text);
@@ -21,7 +21,7 @@ AItem {
             width: parent.width - clear.width
             focus: true
             onUpdated: {
-                scope.textUpdate(text);
+                root.textUpdate(text);
             }
         }
         AButton {
@@ -45,7 +45,7 @@ AItem {
 
             onPressed: {
                 select.text = "";
-                scope.textUpdate(undefined);
+                root.textUpdate(undefined);
             }
         }
     }

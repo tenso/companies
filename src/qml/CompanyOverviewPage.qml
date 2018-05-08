@@ -20,7 +20,7 @@ Page {
         width: page.width
         height: tm.rowH * 2 + 10
         colW: page.colW
-        model: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
+        itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
         filterEnabled: true
         onFilterChange: {
             companiesModel.filterColumn(index, filter);

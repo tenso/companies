@@ -17,8 +17,8 @@
         <file>qml/MainStatusBar.qml</file>
         <file>qml/CompanyDetailsPage.qml</file>
         <file>qml/AList.qml</file>
-        <file>qml/AListItem.qml</file>
         <file>qml/AItem.qml</file>
         <file>qml/AListRow.qml</file>
+        <file>qml/CompanyDetailGroup.qml</file>
     </qresource>
 </RCC>
