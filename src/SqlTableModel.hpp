@@ -21,11 +21,15 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
+    void addRelation(int col, const QSqlRelation& relation);
+    void applyRelations(bool empty = false);
+    void applyFilters(bool empty = false);
+
 public slots:
     bool fetchAll();
     int rowToId(int index) const;
     void filterColumn(int index, const QString& filter);
-    int newRow(int col, const QVariant &value); //-1 on fail otherwise new rowIndex
+    bool newRow(int col, const QVariant &value);
     bool delRow(int row);
     bool set(const int row, const int col, const QVariant &value);
 
@@ -34,6 +38,8 @@ private:
     int _numColumns { 0 };
     QHash<int, QByteArray> _roles;
     QHash<int, QString> _filters;
+    QHash<int, QSqlRelation> _relations;
+    QString _totalFilter;
 };
 
 #endif // SQLTABLEMODEL_HPP

@@ -78,6 +78,9 @@ Qt::ItemFlags SqlTableModel::flags(const QModelIndex &index) const
 bool SqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     bool ok = false;
+    if (row < 0) {
+        row = rowCount();
+    }
     beginInsertRows(parent, row, row + count - 1);
     ok = QSqlRelationalTableModel::insertRows(row, count);
     endInsertRows();
@@ -90,10 +93,35 @@ bool SqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     bool ok = false;
+    if (row < 0 || row >= rowCount()) {
+        logError() << "no such row:" << row;
+        return ok;
+    }
     beginRemoveRows(parent, row, row + count - 1);
     ok = QSqlRelationalTableModel::removeRows(row, count);
+
     endRemoveRows();
     return ok;
+}
+
+void SqlTableModel::addRelation(int col, const QSqlRelation &relation)
+{
+    _relations[col] = relation;
+}
+
+void SqlTableModel::applyRelations(bool empty)
+{
+    foreach(int col, _relations.keys()) {
+        if (empty) {
+            setRelation(col, QSqlRelation());
+        }
+        else {
+            setRelation(col, _relations[col]);
+        }
+    }
+    if (!select()) {
+        logError() << tableName() << "select failed";
+    }
 }
 
 bool SqlTableModel::fetchAll()
@@ -126,12 +154,22 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
     else {
         _filters.remove(roleIndex);
     }
-    QString totalFilter;
+    _totalFilter = QString();
     foreach(const QString& entry, _filters.values()) {
-        totalFilter += entry + " and ";
+        _totalFilter += entry + " and ";
     }
-    totalFilter.chop(5); //remove last " and "
-    setFilter(totalFilter);
+    _totalFilter.chop(5); //remove last " and "
+    applyFilters();
+}
+
+void SqlTableModel::applyFilters(bool empty)
+{
+    if (empty) {
+        setFilter("");
+    }
+    else {
+        setFilter(_totalFilter);
+    }
 
     if (!select()) {
         logError() << "select failed" << selectStatement();
@@ -139,36 +177,37 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
     fetchAll();
 }
 
-int SqlTableModel::newRow(int col, const QVariant &value)
+bool SqlTableModel::newRow(int col, const QVariant &value)
 {
-    int rowNum = rowCount();
-    if (insertRows(rowNum, 1)) {
-        submitAll();
-        for (int i =0; i < _numColumns; i++) {
-            if (i != _idColumn) {
-                QVariant val;
-                if (col == i) {
-                    val = value;
-                }
-                else {
-                    if (relation(i).isValid()) {
-                        val = 1;
-                    }
-                }
-                if (!setData(QSqlRelationalTableModel::index(rowNum, i), val)) {
-                    logError() << "setData failed on new row" << rowNum;
+    applyRelations(true); //cant insert rows with relations; sqlite will not find related entries over 256!
+    QSqlRecord rec = record();
+    for (int i =0; i < _numColumns; i++) {
+        if (i != _idColumn) {
+            QVariant val;
+            if (col == i) {
+                val = value;
+            }
+            else {
+                if (_relations.contains(i)) {
+                    val = 1;
                 }
             }
+            rec.setValue(i, val);
         }
-        submitAll();
-        return rowNum;
     }
-    return -1;
+    if (!insertRecord(-1, rec)) {
+        logError() << "insert record failed";
+        applyRelations(false);
+        return false;
+    }
+    submitAll();
+    applyRelations(false);
+    return true;
 }
 
 bool SqlTableModel::delRow(int row)
 {
-    bool ok = QSqlRelationalTableModel::removeRow(row);
+    bool ok = removeRows(row, 1);
     submitAll();
     return ok;
 }

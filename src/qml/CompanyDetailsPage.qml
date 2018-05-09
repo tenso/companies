@@ -68,6 +68,9 @@ Page {
                     anchors.fill: parent
                     color: tm.inActive
                 }
+                Text {
+                    text: itemData.id
+                }
 
                 CompanyDetailGroup {
                     id: basics
@@ -128,12 +131,11 @@ Page {
         text: qsTr("New entry")
         onPressed: {
             var cId = currentCompany.itemData.id;
-            var row = financialsModel.newRow(1, cId);
-            if (row === -1) {
-                logError("new row failed " + cId);
+            if (!financialsModel.newRow(1, cId)){
+                logError("new row failed cId=" + cId);
             }
             else {
-                logStatus("added row " + row + " for " + cId);
+                logStatus("added row for cId=" + cId);
             }
         }
     }
@@ -143,6 +145,7 @@ Page {
         anchors.top: newButton.top
         anchors.leftMargin: tm.rowH
         text: qsTr("Remove entry")
+        enabled: view.currentIndex >= 0
         onPressed: {
             var cId = currentCompany.itemData.id;
             var row = view.currentIndex;
@@ -150,6 +153,11 @@ Page {
                 logError("del row failed " + row + " for " + cId);
             }
             else {
+                var newIndex = view.currentIndex;
+                if (row >= view.count) {
+                    view.currentIndex = row - 1;
+                }
+                view.positionViewAtIndex(view.currentIndex, ListView.Beginning);
                 logStatus("removed row " + row + " for " + cId);
             }
         }

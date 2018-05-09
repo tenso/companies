@@ -54,11 +54,9 @@ int main(int argc, char *argv[])
     }
 
     SqlTableModel companyModel("companies");
-    companyModel.setRelation(2, QSqlRelation("lists", "id", "name"));
-    companyModel.setRelation(3, QSqlRelation("types", "id", "name"));
-    if (!companyModel.select()) {
-        logError() << "companies: select failed";
-    }
+    companyModel.addRelation(2, QSqlRelation("lists", "id", "name"));
+    companyModel.addRelation(3, QSqlRelation("types", "id", "name"));
+    companyModel.applyRelations();
 
     SqlTableModel typesModel("types");
     typesModel.setSort(1, Qt::AscendingOrder);
@@ -73,11 +71,9 @@ int main(int argc, char *argv[])
     }
 
     SqlTableModel financialsModel("financials");
-    financialsModel.setRelation(1, QSqlRelation("companies", "id", "name"));
-    financialsModel.setRelation(3, QSqlRelation("quarters", "id", "name"));
-    if (!financialsModel.select()) {
-        logError() << "financials: select failed";
-    }
+    financialsModel.addRelation(1, QSqlRelation("companies", "id", "name"));
+    financialsModel.addRelation(3, QSqlRelation("quarters", "id", "name"));
+    financialsModel.applyRelations();
 
     SqlTableModel quartersModel("quarters");
     if (!quartersModel.select()) {

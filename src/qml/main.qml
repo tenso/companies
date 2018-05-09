@@ -46,6 +46,7 @@ ApplicationWindow {
     Component.onCompleted: {
         showStatus(qsTr("Load all done"));
         companiesModel.fetchAll();
+        financialsModel.fetchAll();
     }
 
     SwipeView {
