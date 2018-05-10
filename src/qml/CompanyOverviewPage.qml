@@ -39,13 +39,29 @@ Page {
             height: tm.rowH + 10
         }
     }
+    AListControls {
+        id: controls
+        model: companiesModel
+        view: view
+        anchors.left: parent.left
+        anchors.leftMargin: tm.margin
+        anchors.right: parent.right
+        anchors.top: head.bottom
+
+        onWillDelete: {
+            //FIXME: move all db-logic to c++ and add rest (tags etc)!
+            if (!financialsModel.delAllRows()) {
+                logError("del financials for " + id + " failed");
+            }
+        }
+    }
     AList {
         id: view
         model: companiesModel
         anchors.left: parent.left
         anchors.leftMargin: tm.margin
         anchors.right: parent.right
-        anchors.top: head.bottom
+        anchors.top: controls.bottom
         anchors.bottom: parent.bottom
 
         delegate: AListRow {

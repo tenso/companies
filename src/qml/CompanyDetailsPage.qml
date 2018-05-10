@@ -47,45 +47,14 @@ Page {
             }
         }
     }
-    Row {
+    AListControls {
         id: controls
         anchors.top: head.bottom
-        spacing: tm.margin
-        AButton {
-            id: newButton
-            height: tm.rowH
-            text: qsTr("New entry")
-            onPressed: {
-                var cId = currentCompany.itemData.id;
-                if (!financialsModel.newRow(1, cId)){
-                    logError("new row failed cId=" + cId);
-                }
-                else {
-                    logStatus("added row for cId=" + cId);
-                }
-            }
-        }
-        AButton {
-            id: delButton
-            height: tm.rowH
-            text: qsTr("Remove entry")
-            enabled: view.currentIndex >= 0
-            onPressed: {
-                var cId = currentCompany.itemData.id;
-                var row = view.currentIndex;
-                if (!financialsModel.delRow(row)) {
-                    logError("del row failed " + row + " for " + cId);
-                }
-                else {
-                    var newIndex = view.currentIndex;
-                    if (row >= view.count) {
-                        view.currentIndex = row - 1;
-                    }
-                    view.positionViewAtIndex(view.currentIndex, ListView.Beginning);
-                    logStatus("removed row " + row + " for " + cId);
-                }
-            }
-        }
+        model: financialsModel
+        addId: currentCompany.itemData ? currentCompany.itemData.id : -1;
+        addIdCol: 1
+        enabled: currentCompany.itemData
+        view: view
     }
     Rectangle {
         id: financials
@@ -283,14 +252,17 @@ Page {
 
                     maxColH = colH.reduce(function(a,b) { return Math.max(a, b);});
                 }
+
                 barChart.clear();
                 barChart.axisX.categories = cats;
-                barChart.axisY.max = maxColH;
-                for (i = 0; i < dataPlot.showOrder.length; i++) {
-                    role = dataPlot.showOrder[i];
-                    if (dataPlot.showVisible[role]) {
-                        barSet = barChart.insert(i, role, data[role]);
-                        barSet.color = dataPlot.setColors[role];
+                barChart.axisY.max = maxColH ? maxColH : 1;
+                if (maxColH >= 0) {
+                    for (i = 0; i < dataPlot.showOrder.length; i++) {
+                        role = dataPlot.showOrder[i];
+                        if (dataPlot.showVisible[role]) {
+                            barSet = barChart.insert(i, role, data[role]);
+                            barSet.color = dataPlot.setColors[role];
+                        }
                     }
                 }
             }

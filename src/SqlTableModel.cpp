@@ -209,8 +209,27 @@ bool SqlTableModel::newRow(int col, const QVariant &value)
 bool SqlTableModel::delRow(int row)
 {
     bool ok = removeRows(row, 1);
-    submitAll();
-    return ok;
+    if (ok) {
+        if (submitAll()) {
+            return true;
+        }
+    }
+    revertAll();
+    logError() << "delRow" << row << "failed";
+    return false;
+}
+
+bool SqlTableModel::delAllRows()
+{
+    bool ok = removeRows(0, rowCount());
+    if (ok) {
+        if (submitAll()) {
+            return true;
+        }
+    }
+    revertAll();
+    logError() << "delAllRows" << rowCount() << "failed";
+    return false;
 }
 
 
@@ -242,14 +261,4 @@ int SqlTableModel::roleId(const QString &role)
 bool SqlTableModel::haveRole(const QString &role)
 {
     return _roleId.contains(role);
-}
-
-QVariant SqlTableModel::min(const QString &role)
-{
-
-}
-
-QVariant SqlTableModel::max(const QString &role)
-{
-
 }

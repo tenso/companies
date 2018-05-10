@@ -29,14 +29,13 @@ public slots:
     bool fetchAll();
     int rowToId(int index) const;
     void filterColumn(int index, const QString& filter);
-    bool newRow(int col, const QVariant &value);
+    bool newRow(int col = -1, const QVariant &value = QVariant());
     bool delRow(int row);
+    bool delAllRows();
     bool set(const int row, const QString& role, const QVariant &value);
     QVariant get(const int row, const QString& role);
     int roleId(const QString& role);
     bool haveRole(const QString& role);
-    QVariant min(const QString& role);
-    QVariant max(const QString& role);
 
 private:
     int _idColumn { -1 };
