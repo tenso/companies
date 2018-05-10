@@ -3,9 +3,10 @@ import QtQuick.Controls 2.2
 
 Rectangle {
     Theme {id: tm}
-    height: 30
+    height: tm.rowH
     width: parent.width
     color: tm.menuBg
+    readonly property int nextX: menus.x + menus.width + tm.margin
     signal willSave();
     signal saveDone();
 
@@ -59,47 +60,51 @@ Rectangle {
         onActivated: quit()
     }
 
-    AButton {
-        height: parent.height
-        width: 100
-        text: qsTr("File")
-        onClicked: menu.open()
-        font: tm.font
-        Menu {
-            id: menu
+    Row {
+        id: menus
+        height: tm.rowH
+        AButton {
+            height: parent.height
+            width: tm.colW
+            text: qsTr("File")
+            onClicked: menu.open()
+            font: tm.font
+            Menu {
+                id: menu
 
-            MenuItem {
-                font: tm.font
-                text: qsTr("Save")
-                ToolTip {
+                MenuItem {
                     font: tm.font
-                    text: qsTr("Ctrl+S")
-                    delay: 500
-                    visible: parent.hovered
+                    text: qsTr("Save")
+                    ToolTip {
+                        font: tm.font
+                        text: qsTr("Ctrl+S")
+                        delay: 500
+                        visible: parent.hovered
+                    }
+                    onTriggered: save()
                 }
-                onTriggered: save()
-            }
-            MenuItem {
-                font: tm.font
-                ToolTip {
+                MenuItem {
                     font: tm.font
-                    text: qsTr("Ctrl+Z")
-                    delay: 500
-                    visible: parent.hovered
+                    ToolTip {
+                        font: tm.font
+                        text: qsTr("Ctrl+Z")
+                        delay: 500
+                        visible: parent.hovered
+                    }
+                    text: qsTr("Revert")
+                    onTriggered: revert()
                 }
-                text: qsTr("Revert")
-                onTriggered: revert()
-            }
-            MenuItem {
-                font: tm.font
-                text: qsTr("Quit")
-                ToolTip {
+                MenuItem {
                     font: tm.font
-                    text: qsTr("Ctrl+Q")
-                    delay: 500
-                    visible: parent.hovered
+                    text: qsTr("Quit")
+                    ToolTip {
+                        font: tm.font
+                        text: qsTr("Ctrl+Q")
+                        delay: 500
+                        visible: parent.hovered
+                    }
+                    onTriggered: quit();
                 }
-                onTriggered: quit();
             }
         }
     }

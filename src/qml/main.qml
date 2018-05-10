@@ -10,7 +10,6 @@ ApplicationWindow {
     height: 800
     title: qsTr("Companies")
 
-
     property string status: ""
     property string statusLog: ""
     function addStatus(text) {
@@ -34,7 +33,8 @@ ApplicationWindow {
         addStatus("ERROR " + text);
     }
 
-    header: MainMenu {
+    MainMenu {
+        id: mainMenu
         onWillSave: {
             overview.savePos();
         }
@@ -43,30 +43,35 @@ ApplicationWindow {
         }
     }
 
+    property int pageMenuX: mainMenu.nextX
+    property int pageMenuY: -mainMenu.height
+
     Component.onCompleted: {
         showStatus(qsTr("Load all done"));
         companiesModel.fetchAll();
         financialsModel.fetchAll();
     }
 
-    SwipeView {
+    StackLayout {
         id: pages
-        interactive: false
         anchors.fill: parent
+        anchors.topMargin: mainMenu.height
         currentIndex: statusBar.currentTab
 
         property int totColW: window.width - 5*10
-        property variant colW: [70, 300, 300, 300, 70, totColW - 1060]
+        property variant colW: [70, 300, 300, 300, 70, pages.totColW - 1060]
 
         CompanyOverviewPage {
             id: overview
             colW: pages.colW
+            active: pages.currentIndex == 0
         }
 
         CompanyDetailsPage {
             id: details
-            colW: [70, 300, 300, 300, 70, pages.totColW - (1060 + tm.rowH)]
+            colW: pages.colW
             selectedData: overview.currentItemData
+            active: pages.currentIndex == 1
         }
     }
 

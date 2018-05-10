@@ -52,7 +52,12 @@ ListView {
         width: 20
     }
     Component.onCompleted: {
-        currentIndex = 0;
+        if (count){
+            currentIndex = 0;
+        }
+        else {
+            currentIndex = -1;
+        }
         contentY = 0;
         forceActiveFocus();
     }

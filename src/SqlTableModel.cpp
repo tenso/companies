@@ -221,6 +221,9 @@ bool SqlTableModel::delRow(int row)
 
 bool SqlTableModel::delAllRows()
 {
+    if (rowCount() == 0) {
+        return true;
+    }
     bool ok = removeRows(0, rowCount());
     if (ok) {
         if (submitAll()) {

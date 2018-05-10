@@ -21,6 +21,6 @@
         <file>qml/AListRow.qml</file>
         <file>qml/CompanyDetailGroup.qml</file>
         <file>qml/CompanyDetailsDeligate.qml</file>
-        <file>qml/AListControls.qml</file>
+        <file>qml/DataMenu.qml</file>
     </qresource>
 </RCC>

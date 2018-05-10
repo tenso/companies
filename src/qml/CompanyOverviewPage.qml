@@ -7,7 +7,7 @@ Page {
     property variant colW: []
     property alias count: view.count
     property variant currentItemData: view.currentItem ? view.currentItem.itemData : null
-
+    property bool active: false
     function savePos() {
         view.savePos();
     }
@@ -15,11 +15,27 @@ Page {
         view.resetPos();
     }
 
+    DataMenu {
+        id: controls
+        model: companiesModel
+        view: view
+        x: pageMenuX
+        y: pageMenuY
+        active: page.active
+
+        onWillDelete: {
+            //FIXME: move all db-logic to c++ and add rest (tags etc)!
+            if (!financialsModel.delAllRows()) {
+                logError("del financials for " + id + " failed");
+            }
+        }
+    }
+
     Rectangle {
         id: head
         color: tm.headBg
         width: page.width
-        height: childrenRect.height
+        height: tm.rowH * 2 + tm.margin
 
         CompanyHeaderDeligate {
             id: listHead
@@ -36,32 +52,17 @@ Page {
             anchors.leftMargin: tm.margin
             colW: page.colW
             width: page.width
-            height: tm.rowH + 10
+            height: tm.rowH
         }
     }
-    AListControls {
-        id: controls
-        model: companiesModel
-        view: view
-        anchors.left: parent.left
-        anchors.leftMargin: tm.margin
-        anchors.right: parent.right
-        anchors.top: head.bottom
 
-        onWillDelete: {
-            //FIXME: move all db-logic to c++ and add rest (tags etc)!
-            if (!financialsModel.delAllRows()) {
-                logError("del financials for " + id + " failed");
-            }
-        }
-    }
     AList {
         id: view
         model: companiesModel
         anchors.left: parent.left
         anchors.leftMargin: tm.margin
         anchors.right: parent.right
-        anchors.top: controls.bottom
+        anchors.top: head.bottom
         anchors.bottom: parent.bottom
 
         delegate: AListRow {
@@ -74,7 +75,7 @@ Page {
 
             onSelect: {
                 view.currentIndex = index;
-                view.forceActiveFocus();
+                //NOTE: cant force focus here; will steal filter focus.
             }
         }
     }

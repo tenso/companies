@@ -8,22 +8,34 @@ Page {
     property alias selectedData: currentCompany.itemData
     property alias rowCount: view.count
     property variant colW: []
+    property bool active: false
 
+    DataMenu {
+        id: controls
+        x: pageMenuX
+        y: pageMenuY
+        active: page.active
+        model: financialsModel
+        addId: currentCompany.itemData ? currentCompany.itemData.id : -1;
+        addIdCol: 1
+        enabled: currentCompany.itemData ? true : false
+        view: view
+    }
 
     Rectangle {
         id: head
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        height: tm.rowH + tm.margin * 2
+        height: tm.rowH * 2 + tm.margin
         color: tm.headBg
 
         CompanyHeaderDeligate {
             id: listHead
             width: page.width
+            height: tm.rowH
             colW: page.colW
             x: tm.margin
-            y: tm.margin
             itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
         }
 
@@ -35,8 +47,7 @@ Page {
             anchors.left: parent.left
             anchors.leftMargin: tm.margin
             anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: tm.margin
+            anchors.top: listHead.bottom
             showEdit: true
             colW: page.colW
             onItemDataChanged: {
@@ -47,20 +58,12 @@ Page {
             }
         }
     }
-    AListControls {
-        id: controls
-        anchors.top: head.bottom
-        model: financialsModel
-        addId: currentCompany.itemData ? currentCompany.itemData.id : -1;
-        addIdCol: 1
-        enabled: currentCompany.itemData
-        view: view
-    }
+
     Rectangle {
         id: financials
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: controls.bottom
+        anchors.top: head.bottom
         height: tm.rowH * 10 + view.spacing
         color: tm.headBg
 
@@ -251,6 +254,9 @@ Page {
                     }
 
                     maxColH = colH.reduce(function(a,b) { return Math.max(a, b);});
+                }
+                if (maxColH <= 0) {
+                    maxColH = 1; //barChart.axisY=0 -> segfaults
                 }
 
                 barChart.clear();
