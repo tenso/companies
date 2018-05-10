@@ -32,10 +32,16 @@ QtObject {
     property color subMenuBg: "#616161"
     property color menuBg: "#515151"
     property color menuFg: "#ffffff"
-    property color focusBg: "#71d171"
+    property color focusBg: graph1
+    property color border: "#000000"
     property color active: "#cccccc"
     property color inActive: "#ffffff"
     property color selectBg: "#aaaaaa"
+
+    property color graph1: "#40c639"
+    property color graph2: "#0db3bc"
+    property color graph3: "#c6be39"
+    property color graph4: "#bc0d27"
 
     function editBg(enabled) {
         return enabled ? active : inActive;

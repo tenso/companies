@@ -31,12 +31,18 @@ public slots:
     void filterColumn(int index, const QString& filter);
     bool newRow(int col, const QVariant &value);
     bool delRow(int row);
-    bool set(const int row, const int col, const QVariant &value);
+    bool set(const int row, const QString& role, const QVariant &value);
+    QVariant get(const int row, const QString& role);
+    int roleId(const QString& role);
+    bool haveRole(const QString& role);
+    QVariant min(const QString& role);
+    QVariant max(const QString& role);
 
 private:
     int _idColumn { -1 };
     int _numColumns { 0 };
     QHash<int, QByteArray> _roles;
+    QHash<QString, int> _roleId; //for simple reverse-lookup
     QHash<int, QString> _filters;
     QHash<int, QSqlRelation> _relations;
     QString _totalFilter;

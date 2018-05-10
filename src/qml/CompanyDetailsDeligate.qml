@@ -59,10 +59,10 @@ AItem {
         anchors.top: assets.top
         anchors.left: assets.right
         anchors.leftMargin: tm.rowH * 2
-        groupName: "Equity & Liab."
-        headerModel: [qsTr("Equity"), qsTr("Longterm"), qsTr("Intb. long"), qsTr("Current"), qsTr("Intb. current")]
+        groupName: "Equity"
+        headerModel: [qsTr("Equity")]
 
-        itemRoles:  ["equity", "liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
+        itemRoles:  ["equity"]
     }
 
     CompanyDetailGroup {
@@ -74,5 +74,16 @@ AItem {
         groupName: "Leasing"
         headerModel: [qsTr("This y."), qsTr("+1"), qsTr("+2-5"), qsTr("+5")]
         itemRoles:  ["leasingY", "leasingY1", "leasingY2Y5", "leaingY5Up"]
+    }
+
+    CompanyDetailGroup {
+        id: liabilities
+        itemData: dataRow.itemData
+        anchors.top: leasing.top
+        anchors.left: equity.left
+        groupName: "Liabilities"
+        headerModel: [qsTr("Long"), qsTr("Long Intb."), qsTr("Current"), qsTr("Current Intb.")]
+
+        itemRoles:  ["liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
     }
 }

@@ -15,7 +15,8 @@ SqlTableModel::SqlTableModel(const QString &table, QObject *parent)
         if (name == "id") {
             _idColumn = i;
         }
-        _roles.insert(Qt::UserRole + i + 1, name);
+        _roles[Qt::UserRole + i + 1] = name;
+        _roleId[name] = Qt::UserRole + i + 1;
     }
 }
 
@@ -213,8 +214,42 @@ bool SqlTableModel::delRow(int row)
 }
 
 
-bool SqlTableModel::set(const int row, const int col, const QVariant &value)
+bool SqlTableModel::set(const int row, const QString &role, const QVariant &value)
 {
-    QModelIndex modelIndex = createIndex(row, col);
-    return setData(modelIndex, value);
+    if (!haveRole(role)) {
+        return false;
+    }
+    return setData(createIndex(row,0), value, _roleId[role]);
+}
+
+QVariant SqlTableModel::get(const int row, const QString &role)
+{
+    if (!haveRole(role)) {
+        return QVariant();
+    }
+    return data(createIndex(row,0), _roleId[role]);
+}
+
+int SqlTableModel::roleId(const QString &role)
+{
+    if (!haveRole(role)) {
+        logError() << "faulty role on" << tableName() << role;
+        return -1;
+    }
+    return _roleId[role];
+}
+
+bool SqlTableModel::haveRole(const QString &role)
+{
+    return _roleId.contains(role);
+}
+
+QVariant SqlTableModel::min(const QString &role)
+{
+
+}
+
+QVariant SqlTableModel::max(const QString &role)
+{
+
 }

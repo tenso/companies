@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSqlDatabase>
@@ -43,11 +43,11 @@ void loadFonts()
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication app(argc, argv);
 
     loadFonts();
-    QGuiApplication::setFont( QFont("Roboto") );
+    QApplication::setFont( QFont("Roboto") );
 
     if (!loadDB( "../data/data.db" )) {
         return -1;
@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
     }
 
     SqlTableModel financialsModel("financials");
+    financialsModel.setSort(2, Qt::DescendingOrder); //FIXME: no magic number 2="year"
     financialsModel.addRelation(1, QSqlRelation("companies", "id", "name"));
     financialsModel.addRelation(3, QSqlRelation("quarters", "id", "name"));
     financialsModel.applyRelations();
