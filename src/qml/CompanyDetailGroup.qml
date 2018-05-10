@@ -20,7 +20,7 @@ AItem {
     Row {
         id: row
         height: parent.height
-        spacing: 10
+        spacing: tm.margin
         Rectangle {
             id: group
             width: tm.colW
@@ -49,15 +49,15 @@ AItem {
                 maximumLineCount: 2
                 height: tm.rowH * 2
                 titleH: height
-                color: tm.inActive
+                color: "transparent"
                 textColor: tm.textFg
             }
             AListRow {
                 id: items
+                itemData: dataRow.itemData
                 onSelect: dataRow.select(index);
                 focus: true
                 showEdit: dataRow.showEdit
-                itemData: dataRow.itemData
                 focusRole: dataRow.focusRole
                 singleW: tm.colW
             }

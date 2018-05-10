@@ -13,7 +13,7 @@ AItem {
 
     Row {
         id: row
-        spacing: 10
+        spacing: tm.margin
 
         Repeater {
             id: repeater

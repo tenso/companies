@@ -3,6 +3,7 @@ import QtQuick 2.9
 QtObject {
     property int rowH: 30
     property int colW: 90
+    property int margin: 10
     property int selectRowH: 26
 
     //"Roboto Medium", "Roboto Light", "Roboto Thin", "Roboto Black", "Roboto"

@@ -4,7 +4,6 @@ AItem {
     Theme {id:tm}
 
     id: dataRow
-    itemData: model
     height: tm.rowH * 10
 
     Rectangle {
@@ -16,13 +15,15 @@ AItem {
             width: tm.colW
             anchors.left: parent.left
             anchors.top: parent.top
-            anchors.leftMargin: 20
-            text: itemData ? itemData.id : ""
+            anchors.leftMargin: tm.margin * 2
+            anchors.topMargin: tm.margin
+            text: itemData ? "(" + itemData.id + ")" : ""
         }
     }
 
     CompanyDetailGroup {
         id: basics
+        itemData: dataRow.itemData
         groupName: "Basics"
         headerModel: [qsTr("Year"), qsTr("Quarter"), qsTr("Shares")]
         itemRoles:  ["year", "qId", "shares"]
@@ -31,6 +32,7 @@ AItem {
 
     CompanyDetailGroup {
         id: income
+        itemData: dataRow.itemData
         anchors.top: basics.top
         anchors.left: equity.left
 
@@ -42,6 +44,7 @@ AItem {
 
     CompanyDetailGroup {
         id: assets
+        itemData: dataRow.itemData
         anchors.top: basics.bottom
         anchors.left: basics.left
         anchors.topMargin: 0
@@ -52,6 +55,7 @@ AItem {
 
     CompanyDetailGroup {
         id: equity
+        itemData: dataRow.itemData
         anchors.top: assets.top
         anchors.left: assets.right
         anchors.leftMargin: tm.rowH * 2
@@ -63,6 +67,7 @@ AItem {
 
     CompanyDetailGroup {
         id: leasing
+        itemData: dataRow.itemData
         anchors.top: assets.bottom
         anchors.left: assets.left
         anchors.topMargin: 0

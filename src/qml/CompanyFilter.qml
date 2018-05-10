@@ -4,13 +4,15 @@ import QtQuick.Controls 2.2
 Rectangle {
     Theme {id: tm}
     id: companyRow
-    color: "transparent"
+    color: tm.headBg
     property variant colW: [0, 0, 0, 0, 0, 0]
+    width: filterRow.width
+    height: tm.rowH
 
     Row {
-        anchors.fill: parent
-        spacing: 10
-        anchors.leftMargin: spacing
+        id: filterRow
+        height: parent.height
+        spacing: tm.margin
         CompanyFilterText {
             id: companyId
             index: 0

@@ -89,6 +89,7 @@ AItem {
             visible: !parent.enabled
             width: parent.width
             text: root.text
+            x: 12 //this is the built in padding in the ComboBox
         }
     }
 }

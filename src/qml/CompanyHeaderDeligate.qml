@@ -6,20 +6,18 @@ Rectangle {
     property variant colW: []
     property int singleW: 80
     property variant itemData
-    property bool filterEnabled: false
     property int maximumLineCount: 1
     property font font: tm.headFont
     property alias titleH: row.height
     property color textColor: tm.headFg
-    signal filterChange(int index, string filter)
 
     color: tm.headBg
     width: row.width
-    height: row.height + (filter.visible ? filter.height : 0)
+    height: row.height
 
     Row {
         id: row
-        spacing: 10
+        spacing: tm.margin
         height: tm.rowH
         Repeater {
             id: repeater
@@ -36,14 +34,6 @@ Rectangle {
                 height: row.height
             }
         }
-    }
-
-    CompanyFilter {
-        id: filter
-        visible: filterEnabled
-        anchors.top: row.bottom
-        height: tm.rowH
-        colW: parent.colW
     }
 }
 

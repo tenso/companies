@@ -15,23 +15,38 @@ Page {
         view.resetPos();
     }
 
-    CompanyHeaderDeligate {
-        id: listHead
+    Rectangle {
+        id: head
+        color: tm.headBg
         width: page.width
-        height: tm.rowH * 2 + 10
-        colW: page.colW
-        itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
-        filterEnabled: true
-        onFilterChange: {
-            companiesModel.filterColumn(index, filter);
+        height: childrenRect.height
+
+        CompanyHeaderDeligate {
+            id: listHead
+            width: page.width
+            height: tm.rowH
+            colW: page.colW
+            x: tm.margin
+            itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
+        }
+        CompanyFilter {
+            id: filter
+            anchors.top: listHead.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: tm.margin
+            colW: page.colW
+            width: page.width
+            height: tm.rowH + 10
         }
     }
-
     AList {
         id: view
         model: companiesModel
-        anchors.fill: parent
-        anchors.topMargin: listHead.height
+        anchors.left: parent.left
+        anchors.leftMargin: tm.margin
+        anchors.right: parent.right
+        anchors.top: head.bottom
+        anchors.bottom: parent.bottom
 
         delegate: AListRow {
             itemData: model

@@ -13,7 +13,7 @@ Rectangle {
     signal showStatus();
 
     TabBar {
-        currentIndex: 1 //debug!
+        currentIndex: 0 //debug!
         height: tm.rowH
         width: parent.width
         id: tabBar
@@ -30,7 +30,7 @@ Rectangle {
         anchors.top: tabBar.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.leftMargin: 10
+        anchors.leftMargin: tm.margin
         width: parent.width / 2
         text: parent.statusText
         font: tm.font
@@ -43,7 +43,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.left: countBar.right
         anchors.right: parent.right
-        anchors.rightMargin: 10
+        anchors.rightMargin: tm.margin
         font: tm.font
         clip: true
         elide: Text.ElideRight
