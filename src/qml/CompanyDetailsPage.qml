@@ -191,7 +191,7 @@ Page {
 
                 if(val !== "" && cat >= 0) {
                     data[role][cat] = val;
-                    colH[cat] += parseInt(val);
+                    colH[cat] += Math.ceil(val);
                 }
             }
 
@@ -255,7 +255,7 @@ Page {
 
                 barChart.clear();
                 barChart.axisX.categories = cats;
-                barChart.axisY.max = maxColH ? maxColH : 1;
+                barChart.axisY.max = maxColH;
                 if (maxColH >= 0) {
                     for (i = 0; i < dataPlot.showOrder.length; i++) {
                         role = dataPlot.showOrder[i];

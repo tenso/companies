@@ -2,13 +2,16 @@
 
 # TODO
 
-* new entry clears all changes!
-* new/rem complete companies; make sure to delete orphan financials etc
-* what to show in plot; checkboxes
-* Third detail: compare companies; present analys in valulation-overview-page
+##prio
 * default empty db if file missing
-* proper data-dirs
+
+##goals
 * Second detail: calculate fixed dcf.
+* Third detail: compare companies; present analys in valulation-overview-page
+
+##issues
+* new entry clears all changes!
+* proper data-dirs
 * disable multiple same year entries
 * sort year? if so handle re-select of current better
 * disable Quarters data untill fixes

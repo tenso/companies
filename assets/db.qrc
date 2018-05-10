@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file>db/data.db.sql</file>
+    </qresource>
+</RCC>

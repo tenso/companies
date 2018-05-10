@@ -6,8 +6,9 @@ SOURCES += src/main.cpp \
     src/SqlTableModel.cpp
 
 RESOURCES += src/qml.qrc \
-    fonts.qrc \
-    images.qrc
+    assets/fonts.qrc \
+    assets/images.qrc \
+    assets/db.qrc
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
