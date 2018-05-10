@@ -2,27 +2,83 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 #include <QDir>
+#include <QFile>
 #include <QFontDatabase>
 
 #include "Log.hpp"
 #include "SqlTableModel.hpp"
 
+bool setupDataStore(const QString& path)
+{
+    QString dataDir = QFileInfo(path).absolutePath();
+    QDir dataPath(dataDir);
+    if (!dataPath.exists()) {
+        if (!dataPath.mkpath(dataDir)) {
+            logError() << "failed to create data dir" << dataDir;
+            return false;
+        }
+        logStatus() << "created datadir:" << dataDir;
+    }
+    else {
+        logStatus() << "datadir is:" << dataDir;
+    }
+    return true;
+}
+
 bool loadDB(const QString &file)
 {
+    bool populateDb = false;
     QSqlDatabase db;
-    QString absoluteFile = QDir::currentPath() + "/" + file;
-    if (!QFileInfo(absoluteFile).exists()) {
-        logError() << "file does not exist" << absoluteFile;
-        return false;
+    if (!QFileInfo(file).exists()) {
+        populateDb = true;
     }
+
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName( file );
     if (!db.open()) {
-        logError() << "failed to open db" << absoluteFile;
+        logError() << "failed to open db" << file;
         return false;
     }
-    logStatus() << "opened" << absoluteFile;
+    logStatus() << "opened" << file;
+
+    if (populateDb) {
+        logStatus() << "popuplating db from scratch";
+        QFile sqlDb(":/assets/db/data.db.sql");
+        if (!sqlDb.open(QIODevice::ReadOnly)) {
+            logError() << "failed to open scratch data";
+            return false;
+        }
+
+        QString statement;
+        while(!sqlDb.atEnd()) {
+            QString line = sqlDb.readLine();
+            statement += line;
+            if (statement.contains(";")) {
+                QSqlError error = db.exec(statement).lastError();
+
+                if (error.isValid()) {
+                    logError() << "creating db failed:" << error;
+                    logError() << line;
+                    db.close();
+                    if (!QFile(file).remove()) {
+                        logError() << "cleanup failed";
+                    }
+                    else {
+                        logStatus() << "cleanup ok";
+                    }
+                    return false;
+                }
+                statement.clear();
+            }
+        }
+    }
+    else {
+        logStatus() << "found existing db";
+    }
+
     return true;
 }
 
@@ -49,7 +105,12 @@ int main(int argc, char *argv[])
     loadFonts();
     QApplication::setFont( QFont("Roboto") );
 
-    if (!loadDB( "../data/data.db" )) {
+    //FIXME: make registry paths:
+    QString dataPath = QDir::currentPath() + "/../data/";
+    if (!setupDataStore( dataPath )) {
+        return -1;
+    }
+    if (!loadDB( dataPath + "data.db" )) {
         return -1;
     }
 
@@ -62,12 +123,14 @@ int main(int argc, char *argv[])
     typesModel.setSort(1, Qt::AscendingOrder);
     if (!typesModel.select()) {
         logError() << "types: select failed";
+        return -1;
     }
 
     SqlTableModel listsModel("lists");
     listsModel.setSort(1, Qt::AscendingOrder);
     if (!listsModel.select()) {
         logError() << "lists: select failed";
+        return -1;
     }
 
     SqlTableModel financialsModel("financials");
@@ -79,11 +142,13 @@ int main(int argc, char *argv[])
     SqlTableModel quartersModel("quarters");
     if (!quartersModel.select()) {
         logError() << "quarters: select failed";
+        return -1;
     }
 
     SqlTableModel tagsModel("tags");
     if (!tagsModel.select()) {
         logError() << "tags: select failed";
+        return -1;
     }
 
     QQmlApplicationEngine engine;

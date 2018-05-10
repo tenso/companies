@@ -2,9 +2,6 @@
 
 # TODO
 
-##prio
-* default empty db if file missing
-
 ##goals
 * Second detail: calculate fixed dcf.
 * Third detail: compare companies; present analys in valulation-overview-page
