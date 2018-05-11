@@ -114,13 +114,13 @@ double Analysis::cod(double defaultRate, double riskFree)
     return riskFree + defaultRate;
 }
 
-double Analysis::coeCAPM(double beta, double riskPremium, double riskFree)
+double Analysis::coeCAPM(double beta, double marketRiskPremium, double riskFree)
 {
-    if (riskPremium < riskFree) {
+    if (marketRiskPremium < riskFree) {
         logError() << "Analysis::coe riskPremium < riskFree";
         return riskFree;
     }
-    return riskFree + beta * (riskPremium - riskFree);
+    return riskFree + beta * (marketRiskPremium - riskFree);
 }
 
 double Analysis::wacc(double equity, double debt, double coe, double cod, double taxRate)
