@@ -20,6 +20,11 @@ SqlTableModel::SqlTableModel(const QString &table, QObject *parent)
     }
 }
 
+SqlTableModel::~SqlTableModel()
+{
+    //logStatus() << "free:" << tableName();
+}
+
 QHash<int, QByteArray> SqlTableModel::roleNames() const
 {
     return _roles;
@@ -110,7 +115,7 @@ void SqlTableModel::addRelation(int col, const QSqlRelation &relation)
     _relations[col] = relation;
 }
 
-void SqlTableModel::applyRelations(bool empty)
+bool SqlTableModel::applyRelations(bool empty)
 {
     foreach(int col, _relations.keys()) {
         if (empty) {
@@ -122,7 +127,9 @@ void SqlTableModel::applyRelations(bool empty)
     }
     if (!select()) {
         logError() << tableName() << "select failed";
+        return false;
     }
+    return true;
 }
 
 bool SqlTableModel::fetchAll()

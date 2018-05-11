@@ -9,7 +9,7 @@ class SqlTableModel : public QSqlRelationalTableModel
 
 public:
     explicit SqlTableModel(const QString& table, QObject *parent = nullptr);
-
+    virtual ~SqlTableModel();
     virtual QHash<int, QByteArray> roleNames() const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -22,7 +22,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     void addRelation(int col, const QSqlRelation& relation);
-    void applyRelations(bool empty = false);
+    bool applyRelations(bool empty = false);
     void applyFilters(bool empty = false);
 
 public slots:
