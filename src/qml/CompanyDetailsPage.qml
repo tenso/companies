@@ -25,7 +25,7 @@ APage {
 
         onSelectionChanged: {
             if (selectedData) {
-                financialsModel.filterColumn(1, "=" + selectedData.id);
+                financialsModel.filterColumn("cId", "=" + selectedData.id);
             }
             graph.redraw();
         }

@@ -2,12 +2,24 @@
 #include "Log.hpp"
 #include <QSqlRecord>
 
-SqlTableModel::SqlTableModel(const QString &table, QObject *parent)
+SqlTableModel::SqlTableModel(QObject *parent)
     : QSqlRelationalTableModel(parent)
+{
+}
+
+SqlTableModel::~SqlTableModel()
+{
+    //logStatus() << "free:" << tableName();
+}
+
+bool SqlTableModel::init(const QString &table)
 {
     setTable(table);
     setEditStrategy(EditStrategy::OnManualSubmit);
-    select();
+    if (!select()) {
+        logError() << "table init failed:" << tableName();
+        return false;
+    }
 
     _numColumns = record().count();
     for (int i = 0; i < _numColumns; i++) {
@@ -16,13 +28,9 @@ SqlTableModel::SqlTableModel(const QString &table, QObject *parent)
             _idColumn = i;
         }
         _roles[Qt::UserRole + i + 1] = name;
-        _roleId[name] = Qt::UserRole + i + 1;
+        _roleInt[name] = Qt::UserRole + i + 1;
     }
-}
-
-SqlTableModel::~SqlTableModel()
-{
-    //logStatus() << "free:" << tableName();
+    return true;
 }
 
 QHash<int, QByteArray> SqlTableModel::roleNames() const
@@ -105,14 +113,38 @@ bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
     }
     beginRemoveRows(parent, row, row + count - 1);
     ok = QSqlRelationalTableModel::removeRows(row, count);
-
     endRemoveRows();
     return ok;
 }
 
-void SqlTableModel::addRelation(int col, const QSqlRelation &relation)
+void SqlTableModel::setSort(int col, Qt::SortOrder order)
 {
+    QSqlRelationalTableModel::setSort(col, order);
+}
+
+void SqlTableModel::setSort(const QString &role, Qt::SortOrder order)
+{
+    QSqlRelationalTableModel::setSort(roleColumn(role), order);
+}
+
+bool SqlTableModel::addRelation(const QString &role, const QSqlRelation &relation)
+{
+    return addRelation(roleColumn(role), relation);
+}
+
+bool SqlTableModel::addRelation(int col, const QSqlRelation &relation)
+{
+    if (col < 0) {
+        logError() << "col oob:" << col;
+        return false;
+    }
     _relations[col] = relation;
+    return true;
+}
+
+bool SqlTableModel::applyAll()
+{
+    return applyRelations();
 }
 
 bool SqlTableModel::applyRelations(bool empty)
@@ -129,6 +161,7 @@ bool SqlTableModel::applyRelations(bool empty)
         logError() << tableName() << "select failed";
         return false;
     }
+    fetchAll();
     return true;
 }
 
@@ -168,6 +201,11 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
     }
     _totalFilter.chop(5); //remove last " and "
     applyFilters();
+}
+
+void SqlTableModel::filterColumn(const QString &role, const QString &filter)
+{
+    return filterColumn(roleColumn(role), filter);
 }
 
 void SqlTableModel::applyFilters(bool empty)
@@ -248,7 +286,7 @@ bool SqlTableModel::set(const int row, const QString &role, const QVariant &valu
     if (!haveRole(role)) {
         return false;
     }
-    return setData(createIndex(row,0), value, _roleId[role]);
+    return setData(createIndex(row,0), value, _roleInt[role]);
 }
 
 QVariant SqlTableModel::get(const int row, const QString &role)
@@ -256,7 +294,7 @@ QVariant SqlTableModel::get(const int row, const QString &role)
     if (!haveRole(role)) {
         return QVariant();
     }
-    return data(createIndex(row,0), _roleId[role]);
+    return data(createIndex(row,0), _roleInt[role]);
 }
 
 int SqlTableModel::roleId(const QString &role)
@@ -265,10 +303,19 @@ int SqlTableModel::roleId(const QString &role)
         logError() << "faulty role on" << tableName() << role;
         return -1;
     }
-    return _roleId[role];
+    return _roleInt[role];
+}
+
+int SqlTableModel::roleColumn(const QString &role)
+{
+    int qtIndex = roleId(role);
+    if (qtIndex < 0) {
+        return qtIndex;
+    }
+    return (qtIndex - Qt::UserRole - 1);
 }
 
 bool SqlTableModel::haveRole(const QString &role)
 {
-    return _roleId.contains(role);
+    return _roleInt.contains(role);
 }

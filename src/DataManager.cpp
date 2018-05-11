@@ -121,43 +121,58 @@ void DataManager::loadFonts()
 bool DataManager::setupTableModels()
 {
 
-    SqlTableModel* model = new SqlTableModel("companies", this);
-    model->addRelation(2, QSqlRelation("lists", "id", "name"));
-    model->addRelation(3, QSqlRelation("types", "id", "name"));
-    if (!model->applyRelations()) {
+    SqlTableModel* model = new SqlTableModel(this);
+    if (!model->init("companies")) {
+        return false;
+    }
+    model->addRelation("lId", QSqlRelation("lists", "id", "name"));
+    model->addRelation("tId", QSqlRelation("types", "id", "name"));
+    if (!model->applyAll()) {
         logError() << "companies: failed";
         return false;
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel("types", this);
-    model->setSort(1, Qt::AscendingOrder);
-    if (!model->select()) {
+    model = new SqlTableModel(this);
+    if (!model->init("types")) {
+        return false;
+    }
+    model->setSort("name", Qt::AscendingOrder);
+    if (!model->applyAll()) {
         logError() << "types: select failed";
         return false;
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel("lists", this);
-    model->setSort(1, Qt::AscendingOrder);
-    if (!model->select()) {
+    model = new SqlTableModel(this);
+    if (!model->init("lists")) {
+        return false;
+    }
+    model->setSort("name", Qt::AscendingOrder);
+    if (!model->applyAll()) {
         logError() << "lists: select failed";
         return false;
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel("quarters", this);
-    if (!model->select()) {
+    model = new SqlTableModel(this);
+    if (!model->init("quarters")) {
+        return false;
+    }
+    if (!model->applyAll()) {
         logError() << "quarters: select failed";
         return false;
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel("financials", this);
-    model->setSort(2, Qt::DescendingOrder); //FIXME: no magic number 2="year"
-    model->addRelation(1, QSqlRelation("companies", "id", "name"));
-    model->addRelation(3, QSqlRelation("quarters", "id", "name"));
-    if (!model->applyRelations()) {
+    model = new SqlTableModel(this);
+    if (!model->init("financials")) {
+        return false;
+    }
+    model->setSort("year", Qt::DescendingOrder);
+    model->addRelation("cId", QSqlRelation("companies", "id", "name"));
+    model->addRelation("qId", QSqlRelation("quarters", "id", "name"));
+    if (!model->applyAll()) {
         logError() << "financials: failed";
         return false;
     }
