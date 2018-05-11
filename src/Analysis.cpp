@@ -40,7 +40,7 @@ bool Analysis::init()
     } \
 }
 
-#define VERDOUBLE(a, b) {\
+#define VERIFYD(a, b) {\
     if ( (a - b)*(a - b) >= 0.0000001) { \
         logError() << "TEST FAILED:" << __PRETTY_FUNCTION__ << "line:" << __LINE__ << ":" << a << "!=" << b; \
         return false; \
@@ -50,21 +50,11 @@ bool Analysis::init()
 bool Analysis::test()
 {
     //test lookups
-    VERDOUBLE(defaultRate(100000000, true), 0.0054);
+    VERIFYD(defaultRate(100000000, true), 0.0054);
     VERIFY(rating(100000000, false), "AAA");
-    VERDOUBLE(defaultRate(-100000000, false), 1);
+    VERIFYD(defaultRate(-100000000, false), 1);
     VERIFY(rating(-100000000, true), "D");
-    VERDOUBLE(defaultRate(4.3, false), 0.0099);
-
-    //interestCoverage
-    VERDOUBLE(interestCoverage(2, 1), 2);
-    VERDOUBLE(interestCoverage(2, 2), 1);
-    VERDOUBLE(interestCoverage(-2, 0), DoubleMax);
-    VERDOUBLE(interestCoverage(2, 0), DoubleMax);
-
-    VERDOUBLE(cod(1, 1.5), 2.5);
-    VERDOUBLE(coeCAPM(1, 2, 1.5), 2);
-    VERDOUBLE(wacc(1, 1.5, 0.5, 0.25, 0.2), 0.32); //0.2 + 0.12 = 0.32
+    VERIFYD(defaultRate(4.3, false), 0.0099);
     return true;
 }
 
@@ -127,6 +117,55 @@ double Analysis::wacc(double equity, double debt, double coe, double cod, double
 {
     double assets = equity + debt;
     return (equity/assets) * coe + (debt/assets) * (1 - taxRate) * cod;
+}
+
+double Analysis::salesPerCapital(double sales, double capitalEmployed)
+{
+    return sales / capitalEmployed;
+}
+
+double Analysis::workingCapital(double currentAssets, double cash,
+                                double currentLiabilities, double currentDebt)
+{
+    return (currentAssets - cash) - (currentLiabilities - currentDebt);
+}
+
+double Analysis::capitalEmployed(double workingCapital, double ppe)
+{
+    return workingCapital + ppe;
+}
+
+void logYear(int year, double sales, double ebit, double fcf, double capex, double investedCapital)
+{
+    if (year < 0) {
+        printf("year|  sales| ebit|  fcf|capex|capital|\n");
+    }
+    else {
+        printf("   %1d|%7.1f|%5.1f|%5.1f|%5.1f|%7.1f|\n", year, sales, ebit, fcf, capex, investedCapital);
+    }
+}
+
+double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
+                                double salesGrowth, double terminalSalesGrowth, int growthYears,
+                                double salesPerCapital, double wacc, double tax)
+{
+    logYear(-1, 0, 0, 0, 0, 0);
+
+    double cSales = sales;
+    double cCapital = cSales / salesPerCapital;
+    double reinvest = cSales * salesGrowth / salesPerCapital;
+    double cEbit = cSales * ebitMargin;
+    double fcf = cEbit * (1 - tax) - reinvest;
+
+    for (int year = 0; year < growthYears; year++) {
+        logYear(year, cSales, cEbit, fcf, reinvest, cCapital);
+
+        cCapital += reinvest;
+        cSales *= 1.0 + salesGrowth;
+        reinvest = cSales * salesGrowth / salesPerCapital;
+        cEbit = cSales * ebitMargin;
+        fcf = cEbit * (1 - tax) - reinvest;
+    }
 }
 
 void Analysis::buildLookups()

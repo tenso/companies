@@ -30,8 +30,7 @@ int main(int argc, char *argv[])
         logError() << "Analysis: unit tests failed";
         return -1;
     }
-    analysis.analyse(0);
-    analysis.analyse(1);
+    analysis.dcfEquityValue(1000, 0.1, 0.05, 0.1, 0.02, 5, 2, 0.1);
     return 0;
 
     QApplication::setFont( QFont("Roboto") );

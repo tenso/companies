@@ -32,21 +32,29 @@ public slots:
     //double researchAsAssets();
     //double leasesAsDebt();
 
+    //defaultRate and rating
     double interestCoverage(double ebit, double interestExpenses);
     double defaultRate(double interestCoverage, bool riskyCompany = false);
     QString rating(double interestCoverage, bool riskyCompany = false);
 
+    //wacc
     double cod(double defaultRate, double riskFree = DefaultRiskFree);
     //NOTE: takes marketRiskPremium as defined: equityRiskPremium = marketRiskPremium - riskfreeRate
     double coeCAPM(double beta = DefaultBeta, double marketRiskPremium = DefaultMarketRiskPremium,
                    double riskFree = DefaultRiskFree);
     double wacc(double equity, double debt, double coe, double cod, double taxRate = DefaultTaxRate);
 
-    /*double dcfEquityValue(double sales,
+    //return on capital
+    double salesPerCapital(double sales, double capitalEmployed);
+    double workingCapital(double currentAssets, double cash, double currentLiabilities, double currentDebt);
+    double capitalEmployed(double workingCapital, double ppe);
+
+    //dcf
+    double dcfEquityValue(double sales,
                           double ebitMargin, double terminalEbitMargin,
-                          double growth, double terminalGrowth,int growthYears,
-                          double reinvestmentRate, double wacc);
-                          */
+                          double salesGrowth, double terminalSalesGrowth, int growthYears,
+                          double salesPerCapital, double wacc, double tax = DefaultTaxRate);
+
 private:
     void buildLookups();
     class RatingLookup {
