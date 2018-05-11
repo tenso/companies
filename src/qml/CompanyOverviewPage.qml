@@ -1,13 +1,12 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 
-Page {
+APage {
     id: page
     Theme {id:tm}
-    property variant colW: []
-    property alias count: view.count
-    property variant currentItemData: view.currentItem ? view.currentItem.itemData : null
-    property bool active: false
+    rowCount: view.count
+    selectedData: view.currentItem ? view.currentItem.itemData : null
+
     function savePos() {
         view.savePos();
     }

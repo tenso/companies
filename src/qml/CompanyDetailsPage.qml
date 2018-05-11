@@ -1,13 +1,10 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 
-Page {
+APage {
     id: page
     Theme {id:tm}
-    property alias selectedData: currentCompany.itemData
-    property alias rowCount: view.count
-    property variant colW: []
-    property bool active: false
+    rowCount: view.count
 
     DataMenu {
         id: controls
@@ -15,46 +12,22 @@ Page {
         y: pageMenuY
         active: page.active
         model: financialsModel
-        addId: currentCompany.itemData ? currentCompany.itemData.id : -1;
+        addId: page.selectedData ? page.selectedData.id : -1;
         addIdCol: 1
-        enabled: currentCompany.itemData ? true : false
+        enabled: page.selectedData ? true : false
         view: view
     }
 
-    Rectangle {
+    SelectedCompany {
         id: head
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: tm.rowH * 2 + tm.margin
-        color: tm.headBg
+        selectedData: page.selectedData
+        colW: page.colW
 
-        CompanyHeaderDeligate {
-            id: listHead
-            width: page.width
-            height: tm.rowH
-            colW: page.colW
-            x: tm.margin
-            itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
-        }
-
-        AListRow {
-            id: currentCompany
-            roles:  ["id", "name", "lId", "tId", "watch", "description"]
-            comboModels: { "lId": listsModel, "tId": typesModel }
-            itemData: overview.currentItemData
-            anchors.left: parent.left
-            anchors.leftMargin: tm.margin
-            anchors.right: parent.right
-            anchors.top: listHead.bottom
-            showEdit: true
-            colW: page.colW
-            onItemDataChanged: {
-                if (itemData) {
-                    financialsModel.filterColumn(1, "=" + itemData.id);
-                }
-                graph.redraw();
+        onSelectionChanged: {
+            if (selectedData) {
+                financialsModel.filterColumn(1, "=" + selectedData.id);
             }
+            graph.redraw();
         }
     }
 
@@ -71,7 +44,6 @@ Page {
             model: financialsModel
             anchors.fill: parent
             snapMode: ListView.SnapToItem
-            //spacing: tm.margin
             delegate: CompanyDetailsDeligate {
                 width: view.width
                 itemData: model

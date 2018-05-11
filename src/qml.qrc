@@ -24,5 +24,8 @@
         <file>qml/DataMenu.qml</file>
         <file>qml/DetailsGraph.qml</file>
         <file>qml/Util.js</file>
+        <file>qml/CompanyAnalysisPage.qml</file>
+        <file>qml/APage.qml</file>
+        <file>qml/SelectedCompany.qml</file>
     </qresource>
 </RCC>

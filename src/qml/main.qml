@@ -70,15 +70,21 @@ ApplicationWindow {
         CompanyDetailsPage {
             id: details
             colW: pages.colW
-            selectedData: overview.currentItemData
+            selectedData: overview.selectedData
             active: pages.currentIndex == 1
+        }
+        CompanyAnalysisPage {
+            id: analysis
+            colW: pages.colW
+            selectedData: overview.selectedData
+            active: pages.currentIndex == 2
         }
     }
 
     footer: MainStatusBar {
         id: statusBar
         currentTab: pages.currentIndex
-        statusText: "Total: " + overview.count + ", selected entries:" + details.rowCount;
+        statusText: "Total: " + overview.rowCount + ", finacial entries:" + details.rowCount;
         lastLog: window.status
         onShowStatus: {
             statusPopup.open();

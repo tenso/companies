@@ -59,6 +59,6 @@ ListView {
             currentIndex = -1;
         }
         contentY = 0;
-        forceActiveFocus();
+        //forceActiveFocus(); //FIXME: want to focus companies on startup, this is a bad spot
     }
 }

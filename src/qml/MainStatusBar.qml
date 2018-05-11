@@ -18,10 +18,13 @@ Rectangle {
         width: parent.width
         id: tabBar
         ATabButton {
-            text: qsTr("List")
+            text: qsTr("Companies")
         }
         ATabButton {
-            text: qsTr("Details")
+            text: qsTr("Financials")
+        }
+        ATabButton {
+            text: qsTr("Analysis")
         }
     }
     Text {
