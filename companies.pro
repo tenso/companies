@@ -4,7 +4,9 @@ CONFIG += c++11
 
 SOURCES += src/main.cpp \
     src/SqlTableModel.cpp \
-    src/DataManager.cpp
+    src/DataManager.cpp \
+    src/Analysis.cpp #\
+    #src/AnalysisModel.cpp
 
 RESOURCES += src/qml.qrc \
     assets/fonts.qrc \
@@ -25,7 +27,9 @@ OTHER_FILES += \
 HEADERS += \
     src/Log.hpp \
     src/SqlTableModel.hpp \
-    src/DataManager.hpp
+    src/DataManager.hpp \
+    src/Analysis.hpp #\
+    #src/AnalysisModel.hpp
 
 win32 {
 #I have bug where qml will not be repacked if sub modules are saved.

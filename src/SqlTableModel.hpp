@@ -29,15 +29,16 @@ public:
 public slots:
     bool fetchAll();
     int rowToId(int index) const;
+    int idToRow(int id) const;
     void filterColumn(const QString& role, const QString& filter);
     bool newRow(int col = -1, const QVariant &value = QVariant());
     bool delRow(int row);
     bool delAllRows();
     bool set(const int row, const QString& role, const QVariant &value);
-    QVariant get(const int row, const QString& role);
-    int roleId(const QString& role);
-    int roleColumn(const QString& role);
-    bool haveRole(const QString& role);
+    QVariant get(const int row, const QString& role) const;
+    int roleId(const QString& role) const;
+    int roleColumn(const QString& role) const;
+    bool haveRole(const QString& role) const;
 
 private:
     bool applyRelations(bool empty = false);

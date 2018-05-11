@@ -6,6 +6,9 @@
 * Second detail: calculate fixed dcf.
 * Third detail: compare companies; present analys in valulation-overview-page
 
+##Possible-goals
+* Calculate bottom up beta: levered/delevered beta
+
 ##issues
 * new entry clears all changes!
 * proper data-dirs

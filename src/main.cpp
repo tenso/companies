@@ -5,7 +5,7 @@
 #include <QFont>
 #include "DataManager.hpp"
 #include "Log.hpp"
-
+#include "Analysis.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +17,22 @@ int main(int argc, char *argv[])
         logError() << "data.init failed";
         return -1;
     }
+
+    Analysis analysis;
+    if (!analysis.init()) {
+        logError() << "Analysis::init failed";
+        return -1;
+    }
+    else {
+        logStatus() << "Analysis engine loaded";
+    }
+    if (!analysis.test()) {
+        logError() << "Analysis: unit tests failed";
+        return -1;
+    }
+    analysis.analyse(0);
+    analysis.analyse(1);
+    return 0;
 
     QApplication::setFont( QFont("Roboto") );
 

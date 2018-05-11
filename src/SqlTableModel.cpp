@@ -183,6 +183,22 @@ int SqlTableModel::rowToId(int index) const
     return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
 }
 
+int SqlTableModel::idToRow(int id) const
+{
+    if (_idColumn < 0) {
+        logError() << "id column not found";
+        return -1;
+    }
+    //FIXME: better way?
+    for(int i = 0; i < rowCount(); i++) {
+        if (get(i, "id").toInt() == id) {
+            return i;
+        }
+    }
+    logError() << "id not found:" << id;
+    return -1;
+}
+
 void SqlTableModel::filterColumn(int index, const QString &filter)
 {
     int roleIndex = index + Qt::UserRole + 1;
@@ -289,7 +305,7 @@ bool SqlTableModel::set(const int row, const QString &role, const QVariant &valu
     return setData(createIndex(row,0), value, _roleInt[role]);
 }
 
-QVariant SqlTableModel::get(const int row, const QString &role)
+QVariant SqlTableModel::get(const int row, const QString &role) const
 {
     if (!haveRole(role)) {
         return QVariant();
@@ -297,7 +313,7 @@ QVariant SqlTableModel::get(const int row, const QString &role)
     return data(createIndex(row,0), _roleInt[role]);
 }
 
-int SqlTableModel::roleId(const QString &role)
+int SqlTableModel::roleId(const QString &role) const
 {
     if (!haveRole(role)) {
         logError() << "faulty role on" << tableName() << role;
@@ -306,7 +322,7 @@ int SqlTableModel::roleId(const QString &role)
     return _roleInt[role];
 }
 
-int SqlTableModel::roleColumn(const QString &role)
+int SqlTableModel::roleColumn(const QString &role) const
 {
     int qtIndex = roleId(role);
     if (qtIndex < 0) {
@@ -315,7 +331,7 @@ int SqlTableModel::roleColumn(const QString &role)
     return (qtIndex - Qt::UserRole - 1);
 }
 
-bool SqlTableModel::haveRole(const QString &role)
+bool SqlTableModel::haveRole(const QString &role) const
 {
     return _roleInt.contains(role);
 }
