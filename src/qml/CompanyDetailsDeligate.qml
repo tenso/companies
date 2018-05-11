@@ -25,8 +25,8 @@ AItem {
         id: basics
         itemData: dataRow.itemData
         groupName: "Basics"
-        headerModel: [qsTr("Year"), qsTr("Quarter"), qsTr("Shares")]
-        itemRoles:  ["year", "qId", "shares"]
+        headerModel: [qsTr("Year"), qsTr("Quarter"), qsTr("Shares"), qsTr("Share Price")]
+        itemRoles:  ["year", "qId", "shares", "sharePrice"]
         itemCombos: { "qId": quartersModel }
     }
 

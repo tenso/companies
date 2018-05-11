@@ -45,6 +45,8 @@ INSERT INTO `types` VALUES (38,'Business services');
 INSERT INTO `types` VALUES (39,'Tech');
 INSERT INTO `types` VALUES (40,'Vanity');
 INSERT INTO `types` VALUES (41,'Furniture & decoration');
+INSERT INTO `types` VALUES (42,'Steel & materials');
+INSERT INTO `types` VALUES (43,'Other');
 CREATE TABLE IF NOT EXISTS `tags` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT
@@ -121,14 +123,5 @@ CREATE TABLE IF NOT EXISTS `companies` (
 	`tId`	INTEGER,
 	`watch`	INTEGER,
 	`description`	TEXT
-);
-CREATE TABLE IF NOT EXISTS `calculated` (
-	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
-	`cId`	INTEGER,
-	`mcap`	NUMERIC,
-	`pe`	NUMERIC,
-	`ps`	NUMERIC,
-	`dividend`	NUMERIC,
-	`owners`	INTEGER
 );
 COMMIT;

@@ -22,5 +22,7 @@
         <file>qml/CompanyDetailGroup.qml</file>
         <file>qml/CompanyDetailsDeligate.qml</file>
         <file>qml/DataMenu.qml</file>
+        <file>qml/DetailsGraph.qml</file>
+        <file>qml/Util.js</file>
     </qresource>
 </RCC>
