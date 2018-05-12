@@ -8,9 +8,11 @@ class AnalysisDebug
 {
 public:
     static void logTitle(const QString& title);
+    static void logNote(const QString& title);
 
-    static void logYear(int year, double sales, double ebit, double reinvest, double fcf, double dcf, double investedCapital);
-    static void logSumYear(double sum);
+    static void logYear(int year = -1, double sales = 0, double cSalesGrowth = 0, double ebit = 0,
+                        double cEbitMargin = 0, double reinvest = 0, double fcf = 0,
+                        double dcf = 0, double investedCapital = 0);
 
     static void logTerminal(int year, double terminalEbitMargin, double fcf, double terminalGrowth,
                             double value, int discountYear, double discountedValue);

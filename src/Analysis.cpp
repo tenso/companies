@@ -138,61 +138,80 @@ double Analysis::capitalEmployed(double workingCapital, double ppe)
 
 double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
                                 double salesGrowth, double terminalGrowth, int growthYears,
-                                double salesPerCapital, double wacc, double tax)
+                                double salesPerCapital, double wacc, double tax,
+                                Change salesGrowthChange, Change ebitMarginChange)
 {
-    AnalysisDebug::logTitle("----DCF Input----");
-    AnalysisDebug::logInitial(sales, ebitMargin, salesGrowth, growthYears, salesPerCapital, wacc, tax);
-    AnalysisDebug::logYear(-1, 0, 0, 0, 0, 0, 0); //header
+    double cSalesGrowth = salesGrowth;
+    double cEbitMargin = ebitMargin;
+    AnalysisDebug::logTitle("----Year 0----");
+    AnalysisDebug::logInitial(sales, cEbitMargin, cSalesGrowth, growthYears, salesPerCapital, wacc, tax);
+    AnalysisDebug::logYear(); //header
 
     int year = 0;
+
     double cSales = sales;
     double cCapital = cSales / salesPerCapital;
-    double reinvest = cSales * salesGrowth / salesPerCapital; //need to reinvest this year to have projected sales next
-    double cEbit = cSales * ebitMargin;
+    double reinvest = cSales * cSalesGrowth / salesPerCapital; //need to reinvest this year to have projected sales next
+    double cEbit = cSales * cEbitMargin;
     double fcf = cEbit * (1 - tax) - reinvest;
     double dcf = fcf;
-    AnalysisDebug::logYear(year, cSales, cEbit, reinvest, fcf, dcf, cCapital); //y0
+    AnalysisDebug::logYear(year, cSales, 0, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital); //y0
 
 
-    AnalysisDebug::logTitle("DCF Analysis");
-    AnalysisDebug::logYear(-1, 0, 0, 0, 0, 0, 0); //header
+    AnalysisDebug::logTitle(QString("Growth Years, sales:") + (salesGrowthChange == Change::Constant ? "Constant" : "Linear")
+                            + " ebit:" + (ebitMarginChange == Change::Constant ? "Constant" : "Linear"));
+    AnalysisDebug::logYear();
     year++;
-    double sum = 0;
+    double growthDiscounted = 0;
     for (; year <= growthYears; year++) {
         cCapital += reinvest;
-        cSales *= 1.0 + salesGrowth;
-        reinvest = cSales * salesGrowth / salesPerCapital;
-        cEbit = cSales * ebitMargin;
+        cSales *= 1.0 + cSalesGrowth;
+        reinvest = cSales * cSalesGrowth / salesPerCapital;
+        cEbit = cSales * cEbitMargin;
         fcf = cEbit * (1 - tax) - reinvest;
 
         dcf = fcf / pow(1.0 + wacc, year);
-        sum += dcf;
+        growthDiscounted += dcf;
+        AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
-        AnalysisDebug::logYear(year, cSales, cEbit, reinvest, fcf, dcf, cCapital);
+        double pos = (growthYears - year) / (double)growthYears;
+        //update sales growth for next year
+        if (salesGrowthChange == Change::Linear) {
+            cSalesGrowth = terminalGrowth + (salesGrowth - terminalGrowth) * pos;
+        }
+        //update ebit margin for next year
+        if (ebitMarginChange == Change::Linear) {
+            cEbitMargin = terminalEbitMargin + (ebitMargin - terminalEbitMargin) * pos;
+        }
     }
-    AnalysisDebug::logSumYear(sum);
+    AnalysisDebug::logResult(growthDiscounted);
 
 
     AnalysisDebug::logTitle("Terminal");
     cCapital += reinvest;
-    cSales *= 1.0 + salesGrowth;
+    cSales *= 1.0 + cSalesGrowth;
     reinvest = cSales * terminalGrowth / salesPerCapital;
     cEbit = cSales * terminalEbitMargin;
     fcf = cEbit * (1 - tax) - reinvest;
     dcf = fcf / pow(1.0 + wacc, year);
-    AnalysisDebug::logYear(-1, 0, 0, 0, 0, 0, 0); //header
-    AnalysisDebug::logYear(year, cSales, cEbit, reinvest, fcf, dcf, cCapital);
+    AnalysisDebug::logYear();
+    AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
     double terminalValue = fcf / (wacc - terminalGrowth);
     int discountYear = year -1;
     double terminalDiscounted = terminalValue / pow(1 + wacc, discountYear);
     AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);
-    sum += terminalDiscounted;
+    AnalysisDebug::logResult(terminalDiscounted);
 
-
+    double total = growthDiscounted + terminalDiscounted;
     AnalysisDebug::logTitle("Result");
-    AnalysisDebug::logResult(sum);
-    return sum;
+    AnalysisDebug::logResult(total);
+
+    if (terminalDiscounted >= total * 0.75) {
+        AnalysisDebug::logNote("terminal is more than 75% of total");
+    }
+
+    return total;
 }
 
 void Analysis::buildLookups()

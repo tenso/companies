@@ -4,6 +4,7 @@
 #define HeadColor Cyan
 #define TitleColor Magenta
 #define SumColor Green
+#define WarnColor Red
 enum Color {Reset, Black, White, Green, Red, Blue, Yellow, Cyan, Magenta};
 void color(Color color)
 {
@@ -20,16 +21,23 @@ void AnalysisDebug::logTitle(const QString& title)
     color(TitleColor); printf("\n----%s----\n", title.toStdString().c_str()); color(Reset);
 }
 
-void AnalysisDebug::logYear(int year, double sales, double ebit, double reinvest, double fcf, double dcf, double investedCapital)
+void AnalysisDebug::logNote(const QString &title)
+{
+    color(WarnColor); printf("NOTE: %s\n", title.toStdString().c_str()); color(Reset);
+}
+
+void AnalysisDebug::logYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin,
+                            double reinvest, double fcf, double dcf, double investedCapital)
 {
     if (year < 0) {
         color(HeadColor);
-        printf("year|   sales|  ebit| capex|   fcf|   dcf| capital|\n");
+        printf("year|           sales|          ebit| capex|   fcf|   dcf| capital|\n");
         color(Reset);
     }
     else {
         color(EntryColor);
-        printf("%4d|%8.1f|%6.1f|%6.1f|%6.1f|%6.1f|%8.1f|\n", year, sales, ebit, reinvest, fcf, dcf, investedCapital);
+        printf("%4d|%8.1f (+%4.1f%%)|%6.1f (%4.1f%%)|%6.1f|%6.1f|%6.1f|%8.1f|\n",
+               year, sales, cSalesGrowth * 100, ebit, cEbitMargin * 100, reinvest, fcf, dcf, investedCapital);
         color(Reset);
     }
 }
@@ -60,10 +68,5 @@ void AnalysisDebug::logInitial(double sales, double ebitMargin, double salesGrow
 
 void AnalysisDebug::logResult(double result)
 {
-    color(SumColor); printf("\nequity value: [%5.1f]\n\n", result); color(Reset);
-}
-
-void AnalysisDebug::logSumYear(double sum)
-{
-    color(SumColor); printf("sum |        |      |      |%6.1f|      |        |\n", sum); color(Reset);
+    color(SumColor); printf("value: [%5.1f]\n", result); color(Reset);
 }

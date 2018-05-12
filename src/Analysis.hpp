@@ -10,15 +10,15 @@ class Analysis : public QObject
 {
     Q_OBJECT
 
+public:
+    enum class Change {Constant, Linear};
     static constexpr double DoubleMin = std::numeric_limits<double>::min();
     static constexpr double DoubleMax = std::numeric_limits<double>::max();
-
     static constexpr double DefaultRiskFree = 0.025;
     static constexpr double DefaultMarketRiskPremium = 0.10;
     static constexpr double DefaultTaxRate = 0.22;
     static constexpr double DefaultBeta = 1.0;
 
-public:
     explicit Analysis(QObject *parent = nullptr);
     bool init();
     bool test();
@@ -50,10 +50,11 @@ public slots:
     double capitalEmployed(double workingCapital, double ppe);
 
     //dcf
-    double dcfEquityValue(double sales,
-                          double ebitMargin, double terminalEbitMargin,
+    double dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
                           double salesGrowth, double terminalGrowth, int growthYears,
-                          double salesPerCapital, double wacc, double tax = DefaultTaxRate);
+                          double salesPerCapital, double wacc, double tax = DefaultTaxRate,
+                          Change salesGrowthChange = Change::Linear,
+                          Change ebitMarginChange = Change::Constant);
 
 private:
     void buildLookups();
