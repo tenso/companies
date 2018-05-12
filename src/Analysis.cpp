@@ -152,6 +152,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     double cSales = sales;
     double cCapital = cSales / salesPerCapital;
     double reinvest = cSales * cSalesGrowth / salesPerCapital; //need to reinvest this year to have projected sales next
+    cCapital += reinvest;
     double cEbit = cSales * cEbitMargin;
     double fcf = cEbit * (1 - tax) - reinvest;
     double dcf = fcf;
@@ -164,9 +165,9 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     year++;
     double growthDiscounted = 0;
     for (; year <= growthYears; year++) {
-        cCapital += reinvest;
         cSales *= 1.0 + cSalesGrowth;
         reinvest = cSales * cSalesGrowth / salesPerCapital;
+        cCapital += reinvest;
         cEbit = cSales * cEbitMargin;
         fcf = cEbit * (1 - tax) - reinvest;
 
