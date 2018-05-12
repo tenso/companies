@@ -147,6 +147,15 @@ bool SqlTableModel::applyAll()
     return applyRelations();
 }
 
+bool SqlTableModel::selectRow(int row)
+{
+    if (row < 0) {
+        return false;
+    }
+    _selectedRow = row;
+    return true;
+}
+
 bool SqlTableModel::applyRelations(bool empty)
 {
     foreach(int col, _relations.keys()) {
@@ -264,7 +273,13 @@ bool SqlTableModel::newRow(int col, const QVariant &value)
     }
     submitAll();
     applyRelations(false);
+    _selectedRow = rowCount() - 1;
     return true;
+}
+
+int SqlTableModel::selectedRow()
+{
+    return _selectedRow;
 }
 
 bool SqlTableModel::delRow(int row)
@@ -305,12 +320,22 @@ bool SqlTableModel::set(const int row, const QString &role, const QVariant &valu
     return setData(createIndex(row,0), value, _roleInt[role]);
 }
 
+bool SqlTableModel::set(const QString &role, const QVariant &value)
+{
+    return set(_selectedRow, role, value);
+}
+
 QVariant SqlTableModel::get(const int row, const QString &role) const
 {
     if (!haveRole(role)) {
         return QVariant();
     }
     return data(createIndex(row,0), _roleInt[role]);
+}
+
+QVariant SqlTableModel::get(const QString &role) const
+{
+    return get(_selectedRow, role);
 }
 
 int SqlTableModel::roleId(const QString &role) const

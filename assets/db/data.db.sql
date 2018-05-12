@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS `financials` (
 	`year`	INTEGER,
 	`qId`	INTEGER,
 	`shares`	NUMERIC,
+	`sharePrice`	NUMERIC,
 	`sales`	NUMERIC,
 	`ebit`	NUMERIC,
 	`assetsFixed`	NUMERIC,
@@ -123,5 +124,42 @@ CREATE TABLE IF NOT EXISTS `companies` (
 	`tId`	INTEGER,
 	`watch`	INTEGER,
 	`description`	TEXT
+);
+CREATE TABLE IF NOT EXISTS `analysisResults` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`aId`	INTEGER,
+	`type`	INTEGER,
+	`step`	INTEGER,
+	`sales`	NUMERIC,
+	`ebit`	NUMERIC,
+	`ebitMargin`	NUMERIC,
+	`salesGrowth`	NUMERIC,
+	`reinvestments`	NUMERIC,
+	`fcf`	NUMERIC,
+	`dcf`	NUMERIC,
+	`investedCapital`	NUMERIC,
+	`discountYear`	INTEGER
+);
+CREATE TABLE IF NOT EXISTS `analysis` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`cId`	INTEGER,
+	`sales`	NUMERIC,
+	`ebitMargin`	NUMERIC,
+	`terminalEbitMargin`	NUMERIC,
+	`salesGrowth`	NUMERIC,
+	`terminalGrowth`	NUMERIC,
+	`beta`	NUMERIC,
+	`riskyCompany`	INTEGER,
+	`growthYears`	INTEGER,
+	`salesPerCapital`	NUMERIC,
+	`riskFreeRate`	NUMERIC,
+	`marketPremium`	NUMERIC,
+	`wacc`	NUMERIC,
+	`tax`	NUMERIC,
+	`salesGrowthMode`	INTEGER,
+	`ebitMarginMode`	INTEGER,
+	`growthValueDiscounted`	NUMERIC,
+	`terminalValueDiscounted`	NUMERIC,
+	`totalValue`	NUMERIC
 );
 COMMIT;

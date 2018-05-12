@@ -9,14 +9,16 @@ Analysis::Analysis(QObject *parent) : QObject(parent)
 
 bool Analysis::init()
 {
-    if (!_companies.init("companies")) {
-        logError() << "Analysis::init companies failed";
+    if (!initModel(_companies, "companies")) {
         return false;
     }
-    if (!_companies.applyAll()) {
-        logError() << "Analysis::init companies failed";
+    if (!initModel(_analysis, "analysis")) {
         return false;
     }
+    if (!initModel(_analysisResults, "analysisResults")) {
+        return false;
+    }
+
     if (!_financials.init("financials")) {
         logError() << "Analysis::init financials failed";
         return false;
@@ -59,17 +61,119 @@ bool Analysis::test()
     return true;
 }
 
-bool Analysis::analyse(int row)
+bool Analysis::newAnalysis(int cId, bool empty)
 {
-    logStatus() << "dcf on" << _companies.get(row, "name");
-    QString cId = _companies.get(row, "id").toString();
-    _financials.filterColumn("cId", "=" + cId);
-    _financials.applyAll();
-    for (int i = 0; i < _financials.rowCount(); i++) {
-        logStatus() << _financials.get(i, "sales");
-        logStatus() << _financials.get(i, "ebit");
+    if (!_analysis.newRow(_analysis.roleColumn("cId"), cId)) {
+        logError() << "new analysis failed";
+        return false;
+    }
+    if (empty) {
+        return true;
+    }
+
+    if (!selectCompany(cId)) {
+        return false;
+    }
+    logStatus() << "new analys (defaults) for" << _companies.get("name").toString();
+
+    //defaults:
+    _analysis.set("tax", DefaultTaxRate);
+    _analysis.set("beta", DefaultBeta);
+    _analysis.set("marketPremium", DefaultMarketRiskPremium);
+    _analysis.set("riskFreeRate", DefaultRiskFree);
+    _analysis.set("growthYears", DefaultGrowthYears);
+    _analysis.set("terminalGrowth", DefaultTerminalGrowth);
+    _analysis.set("salesGrowthMode", (int)Change::Linear);
+    _analysis.set("ebitMarginMode", (int)Change::Linear);
+    _analysis.set("riskyCompany", DefaultRisky);
+
+    //from company means
+    QHash<QString, double> means = fetchMeans();
+    _analysis.set("sales", means["sales"]);
+    _analysis.set("ebitMargin", means["ebitMargin"]);
+    _analysis.set("terminalEbitMargin", means["ebitMargin"]);
+    _analysis.set("salesGrowth", means["salesGrowth"]);
+    _analysis.set("terminalSalesGrowth", means["salesGrowth"]);
+    _analysis.set("salesPerCapital", means["salesPerCapital"]);
+
+    double interestDebt = means["liabCurrInt"] + means["liabLongInt"]; //FIXME: use means here?
+    double defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
+    double r = wacc(fin("equity"), interestDebt, coeCAPM(),cod(defRate));
+    _analysis.set("wacc", r);
+
+    _analysis.submitAll();
+    return true;
+}
+
+bool Analysis::selectCompany(int cId)
+{
+    if (!_companies.selectRow(_companies.idToRow(cId))) {
+        logError() << "failed to select company";
+        return false;
+    }
+    _financials.filterColumn("cId", "=" + QString::number(cId));
+    if (!_financials.applyAll()) {
+        logError() << "failed to select finacials";
+        return false;
     }
     return true;
+}
+
+QHash<QString, double> Analysis::fetchMeans()
+{
+    QHash<QString, double> means;
+    int entries = _financials.rowCount();
+    means["sales"] = 0;
+    means["ebit"] = 0;
+    means["interestPayed"] = 0;
+    means["ebitMargin"] = 0;
+    means["salesGrowth"] = 0;
+    means["salesPerCapital"] = 0;
+    means["liabCurrInt"] = 0;
+    means["liabLongInt"] = 0;
+
+    if (entries == 0) {
+        return means;
+    }
+
+    double lastSale = 0;
+    double salesGrowth = 1; //calc geometric-mean; FIXME: make option?
+    double newSale;
+
+    //order is descending years
+    for (int i = 0; i < entries; i++) {
+        _financials.selectRow(i);
+
+        newSale = fin("sales");
+        if (i > 0) {
+            salesGrowth *= (lastSale / newSale) - 1.0;
+        }
+        lastSale = newSale;
+
+        means["sales"] += newSale;
+        means["ebit"] += fin("ebit");
+        means["liabCurrInt"] += fin("liabCurrInt");
+        means["liabLongInt"] += fin("liabLongInt");
+        means["interestPayed"] += fin("interestPayed");
+        double wc = workingCapital(fin("assetsCurr"), fin("assetsCurrCash"),
+                                   fin("liabCurr"), fin("liabCurrInt"));
+
+        double capEmployed = capitalEmployed(wc, fin("assetsFixedPpe"));
+        means["salesPerCapital"] += salesPerCapital(newSale, capEmployed);
+    }
+
+    means["sales"] /= (double)entries;
+    means["ebit"] /= (double)entries;
+    means["salesPerCapital"] /= (double)entries;
+    means["interestPayed"] /= (double)entries;
+    means["liabCurrInt"] /= (double)entries;
+    means["liabLongInt"] /= (double)entries;
+
+    if (means["sales"] != 0) {
+        means["ebitMargin"] = means["ebit"] / means["sales"];
+    }
+    means["salesGrowth"] = pow(salesGrowth, 1/(double)(entries - 1));
+    return means;
 }
 
 double Analysis::interestCoverage(double ebit, double interestExpenses)
@@ -114,10 +218,13 @@ double Analysis::coeCAPM(double beta, double marketRiskPremium, double riskFree)
     return riskFree + beta * (marketRiskPremium - riskFree);
 }
 
-double Analysis::wacc(double equity, double debt, double coe, double cod, double taxRate)
+double Analysis::wacc(double equity, double interestBearingLiab, double coe, double cod, double taxRate)
 {
-    double assets = equity + debt;
-    return (equity/assets) * coe + (debt/assets) * (1 - taxRate) * cod;
+    double assets = equity + interestBearingLiab;
+    if (assets == 0) {
+        return 0;
+    }
+    return (equity/assets) * coe + (interestBearingLiab/assets) * (1 - taxRate) * cod;
 }
 
 double Analysis::salesPerCapital(double sales, double capitalEmployed)
@@ -137,8 +244,8 @@ double Analysis::capitalEmployed(double workingCapital, double ppe)
 }
 
 double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
-                                double salesGrowth, double terminalGrowth, int growthYears,
-                                double salesPerCapital, double wacc, double tax,
+                                double salesGrowth, double salesPerCapital, double wacc,
+                                double terminalGrowth, int growthYears, double tax,
                                 Change salesGrowthChange, Change ebitMarginChange)
 {
     double cSalesGrowth = salesGrowth;
@@ -152,7 +259,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     double cSales = sales;
     double cCapital = cSales / salesPerCapital;
     double reinvest = cSales * cSalesGrowth / salesPerCapital; //need to reinvest this year to have projected sales next
-    cCapital += reinvest;
+        cCapital += reinvest;
     double cEbit = cSales * cEbitMargin;
     double fcf = cEbit * (1 - tax) - reinvest;
     double dcf = fcf;
@@ -215,6 +322,19 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     return total;
 }
 
+bool Analysis::initModel(SqlTableModel& model, const QString &table)
+{
+    if (!model.init(table)) {
+        logError() << "Analysis::initModel" << table << "failed";
+        return false;
+    }
+    if (!model.applyAll()) {
+        logError() << "Analysis::initModel" << table << "failed";
+        return false;
+    }
+    return true;
+}
+
 void Analysis::buildLookups()
 {
     //FIXME: this should be read from db?
@@ -249,6 +369,11 @@ void Analysis::buildLookups()
     _ratingRisky.append(RatingLookup(7.5,       9.499999,  "A+",  0.0090));
     _ratingRisky.append(RatingLookup(9.5,       12.499999, "AA",  0.0072));
     _ratingRisky.append(RatingLookup(12.5,      DoubleMax, "AAA", 0.0054));
+}
+
+double Analysis::fin(const QString &role)
+{
+    return _financials.get(role).toDouble();
 }
 
 

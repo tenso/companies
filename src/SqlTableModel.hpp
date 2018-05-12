@@ -27,15 +27,19 @@ public:
     bool applyAll();
 
 public slots:
+    bool selectRow(int row);
     bool fetchAll();
     int rowToId(int index) const;
     int idToRow(int id) const;
     void filterColumn(const QString& role, const QString& filter);
-    bool newRow(int col = -1, const QVariant &value = QVariant());
+    bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
+    int selectedRow();
     bool delRow(int row);
     bool delAllRows();
     bool set(const int row, const QString& role, const QVariant &value);
+    bool set(const QString& role, const QVariant &value); //uses last setRow
     QVariant get(const int row, const QString& role) const;
+    QVariant get(const QString& role) const; //uses last setRow
     int roleId(const QString& role) const;
     int roleColumn(const QString& role) const;
     bool haveRole(const QString& role) const;
@@ -56,6 +60,7 @@ private:
     QHash<int, QString> _filters;
     QHash<int, QSqlRelation> _relations;
     QString _totalFilter;
+    int _selectedRow { 0 };
 };
 
 #endif // SQLTABLEMODEL_HPP
