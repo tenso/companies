@@ -52,7 +52,7 @@ public slots:
     //dcf
     double dcfEquityValue(double sales,
                           double ebitMargin, double terminalEbitMargin,
-                          double salesGrowth, double terminalSalesGrowth, int growthYears,
+                          double salesGrowth, double terminalGrowth, int growthYears,
                           double salesPerCapital, double wacc, double tax = DefaultTaxRate);
 
 private:

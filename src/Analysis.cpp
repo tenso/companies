@@ -135,37 +135,74 @@ double Analysis::capitalEmployed(double workingCapital, double ppe)
     return workingCapital + ppe;
 }
 
-void logYear(int year, double sales, double ebit, double fcf, double capex, double investedCapital)
+void logYear(int year, double sales, double ebit, double reinvest, double fcf, double dcf, double investedCapital)
 {
     if (year < 0) {
-        printf("year|  sales| ebit|  fcf|capex|capital|\n");
+        printf("year|   sales|  ebit| capex|   fcf|   dcf| capital|\n");
     }
     else {
-        printf("   %1d|%7.1f|%5.1f|%5.1f|%5.1f|%7.1f|\n", year, sales, ebit, fcf, capex, investedCapital);
+        printf("%4d|%8.1f|%6.1f|%6.1f|%6.1f|%6.1f|%8.1f|\n", year, sales, ebit, reinvest, fcf, dcf, investedCapital);
     }
 }
 
+void logTerminal(int year, double fcf, double value, int discountYear, double discountedValue)
+{
+    printf("year|   fcf|   value|discount year|discount value|\n", discountYear);
+    printf("%4d|%6.1f|%8.1f|%13d|%14.1f|\n", year, fcf, value, discountYear, discountedValue);
+
+}
+
 double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
-                                double salesGrowth, double terminalSalesGrowth, int growthYears,
+                                double salesGrowth, double terminalGrowth, int growthYears,
                                 double salesPerCapital, double wacc, double tax)
 {
-    logYear(-1, 0, 0, 0, 0, 0);
+    printf("----DCF Input----\n");
+    printf("sales   |margin|term.marg|growth|term.growth|years|sales/cap| wacc|tax|\n");
+    printf("%8.1f|%5.1f%|%8.1f%|%5.1f%|%10.1f%|%5d|%9.1f|%4.1f%|%2.0f%|\n\n",
+           sales, ebitMargin * 100, terminalEbitMargin * 100, salesGrowth * 100, terminalGrowth * 100,
+           growthYears, salesPerCapital, wacc * 100, tax * 100);
+
+    logYear(-1, 0, 0, 0, 0, 0, 0); //header
 
     double cSales = sales;
     double cCapital = cSales / salesPerCapital;
-    double reinvest = cSales * salesGrowth / salesPerCapital;
+    double reinvest = cSales * salesGrowth / salesPerCapital; //need to reinvest this year to have projected sales next
     double cEbit = cSales * ebitMargin;
     double fcf = cEbit * (1 - tax) - reinvest;
+    double dcf = fcf;
+    logYear(0, cSales, cEbit, reinvest, fcf, dcf, cCapital); //y0
 
+    printf("\nAnalysis:\n");
+    logYear(-1, 0, 0, 0, 0, 0, 0); //header
+    double sum = 0;
     for (int year = 0; year < growthYears; year++) {
-        logYear(year, cSales, cEbit, fcf, reinvest, cCapital);
-
         cCapital += reinvest;
         cSales *= 1.0 + salesGrowth;
         reinvest = cSales * salesGrowth / salesPerCapital;
         cEbit = cSales * ebitMargin;
         fcf = cEbit * (1 - tax) - reinvest;
+
+        dcf = fcf / pow(1.0 + wacc, year + 1);
+        sum += dcf;
+
+        logYear(year + 1, cSales, cEbit, reinvest, fcf, dcf, cCapital);
     }
+    printf("sum |        |      |      |%6.1f|      |        |\n", sum);
+
+    //terminal year (growthYears+1)
+    cCapital += reinvest;
+    cSales *= 1.0 + salesGrowth;
+    reinvest = cSales * salesGrowth / salesPerCapital;
+    cEbit = cSales * ebitMargin;
+    fcf = cEbit * (1 - tax) - reinvest;
+
+    double terminalValue = fcf / (wacc - terminalGrowth);
+    double terminalDiscounted = terminalValue / pow(1 + wacc, growthYears);
+    printf("\nterminal\n");
+    logTerminal(growthYears + 1, fcf, terminalValue, growthYears, terminalDiscounted);
+    sum += terminalDiscounted;
+    printf("\nequity value: %5.1f\n\n", sum);
+    return sum;
 }
 
 void Analysis::buildLookups()
