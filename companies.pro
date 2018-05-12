@@ -5,7 +5,8 @@ CONFIG += c++11
 SOURCES += src/main.cpp \
     src/SqlTableModel.cpp \
     src/DataManager.cpp \
-    src/Analysis.cpp #\
+    src/Analysis.cpp \ #\
+    src/AnalysisDebug.cpp
     #src/AnalysisModel.cpp
 
 RESOURCES += src/qml.qrc \
@@ -28,7 +29,8 @@ HEADERS += \
     src/Log.hpp \
     src/SqlTableModel.hpp \
     src/DataManager.hpp \
-    src/Analysis.hpp #\
+    src/Analysis.hpp \ #\
+    src/AnalysisDebug.hpp
     #src/AnalysisModel.hpp
 
 win32 {

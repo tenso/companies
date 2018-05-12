@@ -1,5 +1,6 @@
 #include "Analysis.hpp"
 #include "Log.hpp"
+#include "AnalysisDebug.hpp"
 
 Analysis::Analysis(QObject *parent) : QObject(parent)
 {
@@ -135,73 +136,62 @@ double Analysis::capitalEmployed(double workingCapital, double ppe)
     return workingCapital + ppe;
 }
 
-void logYear(int year, double sales, double ebit, double reinvest, double fcf, double dcf, double investedCapital)
-{
-    if (year < 0) {
-        printf("year|   sales|  ebit| capex|   fcf|   dcf| capital|\n");
-    }
-    else {
-        printf("%4d|%8.1f|%6.1f|%6.1f|%6.1f|%6.1f|%8.1f|\n", year, sales, ebit, reinvest, fcf, dcf, investedCapital);
-    }
-}
-
-void logTerminal(int year, double fcf, double value, int discountYear, double discountedValue)
-{
-    printf("year|   fcf|   value|discount year|discount value|\n", discountYear);
-    printf("%4d|%6.1f|%8.1f|%13d|%14.1f|\n", year, fcf, value, discountYear, discountedValue);
-
-}
-
 double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
                                 double salesGrowth, double terminalGrowth, int growthYears,
                                 double salesPerCapital, double wacc, double tax)
 {
-    printf("----DCF Input----\n");
-    printf("sales   |margin|term.marg|growth|term.growth|years|sales/cap| wacc|tax|\n");
-    printf("%8.1f|%5.1f%|%8.1f%|%5.1f%|%10.1f%|%5d|%9.1f|%4.1f%|%2.0f%|\n\n",
-           sales, ebitMargin * 100, terminalEbitMargin * 100, salesGrowth * 100, terminalGrowth * 100,
-           growthYears, salesPerCapital, wacc * 100, tax * 100);
+    AnalysisDebug::logTitle("----DCF Input----");
+    AnalysisDebug::logInitial(sales, ebitMargin, salesGrowth, growthYears, salesPerCapital, wacc, tax);
+    AnalysisDebug::logYear(-1, 0, 0, 0, 0, 0, 0); //header
 
-    logYear(-1, 0, 0, 0, 0, 0, 0); //header
-
+    int year = 0;
     double cSales = sales;
     double cCapital = cSales / salesPerCapital;
     double reinvest = cSales * salesGrowth / salesPerCapital; //need to reinvest this year to have projected sales next
     double cEbit = cSales * ebitMargin;
     double fcf = cEbit * (1 - tax) - reinvest;
     double dcf = fcf;
-    logYear(0, cSales, cEbit, reinvest, fcf, dcf, cCapital); //y0
+    AnalysisDebug::logYear(year, cSales, cEbit, reinvest, fcf, dcf, cCapital); //y0
 
-    printf("\nAnalysis:\n");
-    logYear(-1, 0, 0, 0, 0, 0, 0); //header
+
+    AnalysisDebug::logTitle("DCF Analysis");
+    AnalysisDebug::logYear(-1, 0, 0, 0, 0, 0, 0); //header
+    year++;
     double sum = 0;
-    for (int year = 0; year < growthYears; year++) {
+    for (; year <= growthYears; year++) {
         cCapital += reinvest;
         cSales *= 1.0 + salesGrowth;
         reinvest = cSales * salesGrowth / salesPerCapital;
         cEbit = cSales * ebitMargin;
         fcf = cEbit * (1 - tax) - reinvest;
 
-        dcf = fcf / pow(1.0 + wacc, year + 1);
+        dcf = fcf / pow(1.0 + wacc, year);
         sum += dcf;
 
-        logYear(year + 1, cSales, cEbit, reinvest, fcf, dcf, cCapital);
+        AnalysisDebug::logYear(year, cSales, cEbit, reinvest, fcf, dcf, cCapital);
     }
-    printf("sum |        |      |      |%6.1f|      |        |\n", sum);
+    AnalysisDebug::logSumYear(sum);
 
-    //terminal year (growthYears+1)
+
+    AnalysisDebug::logTitle("Terminal");
     cCapital += reinvest;
     cSales *= 1.0 + salesGrowth;
-    reinvest = cSales * salesGrowth / salesPerCapital;
-    cEbit = cSales * ebitMargin;
+    reinvest = cSales * terminalGrowth / salesPerCapital;
+    cEbit = cSales * terminalEbitMargin;
     fcf = cEbit * (1 - tax) - reinvest;
+    dcf = fcf / pow(1.0 + wacc, year);
+    AnalysisDebug::logYear(-1, 0, 0, 0, 0, 0, 0); //header
+    AnalysisDebug::logYear(year, cSales, cEbit, reinvest, fcf, dcf, cCapital);
 
     double terminalValue = fcf / (wacc - terminalGrowth);
-    double terminalDiscounted = terminalValue / pow(1 + wacc, growthYears);
-    printf("\nterminal\n");
-    logTerminal(growthYears + 1, fcf, terminalValue, growthYears, terminalDiscounted);
+    int discountYear = year -1;
+    double terminalDiscounted = terminalValue / pow(1 + wacc, discountYear);
+    AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);
     sum += terminalDiscounted;
-    printf("\nequity value: %5.1f\n\n", sum);
+
+
+    AnalysisDebug::logTitle("Result");
+    AnalysisDebug::logResult(sum);
     return sum;
 }
 
