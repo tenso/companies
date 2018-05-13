@@ -32,6 +32,7 @@ public slots:
     //returns id of new analysis or -1 on error
     //autofills from available data of not empty=true
     int newAnalysis(int cId, bool empty = false);
+    void delAnalysis(int aId); //removes all results
 
     //runs analysis on last used if aId=-1
     bool analyse(int aId = -1);

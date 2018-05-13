@@ -30,9 +30,9 @@ int main(int argc, char *argv[])
         logError() << "Analysis: unit tests failed";
         return -1;
     }
-    int aId = analysis.newAnalysis(24);
-    analysis.analyse();
-    return 0;
+    //analysis.newAnalysis(24);
+    //analysis.analyse();
+    //return 0;
 
     QApplication::setFont( QFont("Roboto") );
 

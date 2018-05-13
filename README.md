@@ -10,6 +10,8 @@
 * Calculate bottom up beta: levered/delevered beta
 
 ##issues
+* REFACTOR: SqlTableModel: work with id or rows? must choose?.
+* REFACTOR: if (!financialsModel.delAllRows()) in qml, move logic to c++
 * new entry clears all changes!
 * proper data-dirs
 * disable multiple same year entries

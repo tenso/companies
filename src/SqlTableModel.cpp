@@ -208,9 +208,9 @@ int SqlTableModel::idToRow(int id) const
     return -1;
 }
 
-void SqlTableModel::filterColumn(int index, const QString &filter)
+void SqlTableModel::filterColumn(int column, const QString &filter)
 {
-    int roleIndex = index + Qt::UserRole + 1;
+    int roleIndex = column + Qt::UserRole + 1;
 
     if (filter.size()) {
         QString role =  _roles[roleIndex];
@@ -228,9 +228,22 @@ void SqlTableModel::filterColumn(int index, const QString &filter)
     applyFilters();
 }
 
+QString SqlTableModel::columnFilter(int column)
+{
+    if (_filters.contains(column)) {
+        return _filters[column];
+    }
+    return "";
+}
+
 void SqlTableModel::filterColumn(const QString &role, const QString &filter)
 {
     return filterColumn(roleColumn(role), filter);
+}
+
+QString SqlTableModel::columnFilter(const QString &role)
+{
+    return columnFilter(roleColumn(role));
 }
 
 void SqlTableModel::applyFilters(bool empty)
@@ -314,6 +327,15 @@ bool SqlTableModel::delAllRows()
     revertAll();
     logError() << "delAllRows" << rowCount() << "failed";
     return false;
+}
+
+bool SqlTableModel::delAllRows(const QString &role, const QVariant &value)
+{
+    QString prevFilter = columnFilter(role);
+    filterColumn(role, "=" + value.toString());
+    bool ok = delAllRows();
+    filterColumn(role, prevFilter);
+    return ok;
 }
 
 

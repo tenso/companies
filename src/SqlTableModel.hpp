@@ -31,12 +31,14 @@ public slots:
     bool fetchAll();
     int rowToId(int index) const;
     int idToRow(int id) const;
-    void filterColumn(const QString& role, const QString& filter);
+    void filterColumn(const QString& role, const QString& filter = QString());
+    QString columnFilter(const QString& role);
     bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
     bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
     int selectedRow();
     bool delRow(int row);
     bool delAllRows();
+    bool delAllRows(const QString& role, const QVariant& value); //removes all rows where role=value
     bool set(const int row, const QString& role, const QVariant &value);
     bool set(const QString& role, const QVariant &value); //uses last setRow
     QVariant get(const int row, const QString& role) const;
@@ -52,7 +54,8 @@ private:
     //not private per se (just use role instead):
     void setSort(int col, Qt::SortOrder order);
     bool addRelation(int col, const QSqlRelation& relation);
-    void filterColumn(int index, const QString& filter);
+    void filterColumn(int column, const QString& filter);
+    QString columnFilter(int column);
 
     int _idColumn { -1 };
     int _numColumns { 0 };

@@ -105,6 +105,12 @@ int Analysis::newAnalysis(int cId, bool empty)
     return aId;
 }
 
+void Analysis::delAnalysis(int aId)
+{
+    _analysisResults.delAllRows("aId", aId);
+    _analysis.delRow(_analysis.idToRow(aId));
+}
+
 bool Analysis::analyse(int aId)
 {
     if (aId > 0) {
@@ -325,8 +331,8 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);
     AnalysisDebug::logResult(terminalDiscounted);
     saveSingle("terminalValueDiscounted", terminalDiscounted);
-
     double total = growthDiscounted + terminalDiscounted;
+
     AnalysisDebug::logTitle("Result");
     AnalysisDebug::logResult(total);
     saveSingle("totalValue", total);
