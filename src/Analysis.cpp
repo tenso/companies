@@ -105,10 +105,29 @@ int Analysis::newAnalysis(int cId, bool empty)
     return aId;
 }
 
-void Analysis::delAnalysis(int aId)
+bool Analysis::delAnalysis(int aId)
 {
     _analysisResults.delAllRows("aId", aId);
-    _analysis.delRow(_analysis.idToRow(aId));
+    return _analysis.delRow(_analysis.idToRow(aId));
+}
+
+bool Analysis::delAllAnalysis(int cId)
+{
+    if (!selectCompany(cId)) {
+        logError() << "failed to select company" << cId;
+        return false;
+    }
+    bool ok = true;
+    int maxIter = _analysis.rowCount();
+    while (maxIter > 0 && _analysis.rowCount()) {
+        int aId = _analysis.rowToId(0);
+        if (!delAnalysis(aId)) {
+            logError() << "failed to delete row";
+            ok = false;
+        }
+        maxIter--;
+    }
+    return ok;
 }
 
 bool Analysis::analyse(int aId)
@@ -131,6 +150,11 @@ bool Analysis::selectCompany(int cId)
     }
     _financials.filterColumn("cId", "=" + QString::number(cId));
     if (!_financials.applyAll()) {
+        logError() << "failed to select finacials";
+        return false;
+    }
+    _analysis.filterColumn("cId", "=" + QString::number(cId));
+    if (!_analysis.applyAll()) {
         logError() << "failed to select finacials";
         return false;
     }

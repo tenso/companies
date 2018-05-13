@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
     }
     //analysis.newAnalysis(24);
     //analysis.analyse();
+    //analysis.delAllAnalysis(24);
     //return 0;
 
     QApplication::setFont( QFont("Roboto") );

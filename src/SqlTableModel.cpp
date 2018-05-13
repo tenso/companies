@@ -38,14 +38,6 @@ QHash<int, QByteArray> SqlTableModel::roleNames() const
     return _roles;
 }
 
-QVariant SqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Orientation::Horizontal) {
-        return _roles[ role ]; //FIXME: offset
-    }
-    return section;
-}
-
 QVariant SqlTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant value;
@@ -182,13 +174,13 @@ bool SqlTableModel::fetchAll()
     return true;
 }
 
-int SqlTableModel::rowToId(int index) const
+int SqlTableModel::rowToId(int row) const
 {
     if (_idColumn < 0) {
         logError() << "id column not found";
         return -1;
     }
-    QModelIndex modelIndex = this->index(index, _idColumn);
+    QModelIndex modelIndex = this->index(row, _idColumn);
     return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
 }
 
