@@ -28,5 +28,6 @@
         <file>qml/APage.qml</file>
         <file>qml/SelectedCompany.qml</file>
         <file>qml/CompanyAnalysisDelegate.qml</file>
+        <file>qml/CompanyAnalysisResultsDelegate.qml</file>
     </qresource>
 </RCC>

@@ -7,7 +7,7 @@ AButton {
     property variant model
     property variant view
     property int addId: -1
-    property int addIdCol: -1
+    property string addIdRole: ""
     signal willCreate();
     signal willDelete(int id);
     property bool active: false
@@ -42,7 +42,7 @@ AButton {
     function newEntry() {
         willCreate();
         if (model) {
-            if (!model.newRow(addIdCol, addId)){
+            if (!model.newRow(addIdRole, addId)){
                 logError("new row failed cId=" + addId);
             }
             else {

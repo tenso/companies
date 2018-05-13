@@ -9,7 +9,7 @@ AItem {
     Rectangle {
         id: bg
         anchors.fill: parent
-        color: tm.inActive
+        color: "transparent"
 
         Text {
             width: tm.colW

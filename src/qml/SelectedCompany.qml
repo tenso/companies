@@ -2,9 +2,6 @@ import QtQuick 2.9
 
 Rectangle {
     id: root
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
     height: tm.rowH * 2 + tm.margin
     color: tm.headBg
 

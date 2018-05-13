@@ -23,7 +23,7 @@ AItem {
         spacing: tm.margin
         Rectangle {
             id: group
-            width: tm.colW
+            width: groupName !== "" ? tm.colW : 0
             height: parent.height
             color: "transparent"
 

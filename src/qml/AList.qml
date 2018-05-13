@@ -54,11 +54,11 @@ ListView {
     Component.onCompleted: {
         if (count){
             currentIndex = 0;
+            positionViewAtIndex(currentIndex, ListView.Beginning)
         }
         else {
             currentIndex = -1;
         }
-        contentY = 0;
         //forceActiveFocus(); //FIXME: want to focus companies on startup, this is a bad spot
     }
 }

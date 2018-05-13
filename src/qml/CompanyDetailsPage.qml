@@ -13,7 +13,7 @@ APage {
         active: page.active
         model: financialsModel
         addId: page.selectedData ? page.selectedData.id : -1;
-        addIdCol: 1
+        addIdRole: "cId"
         enabled: page.selectedData ? true : false
         view: view
     }
@@ -37,7 +37,7 @@ APage {
         anchors.right: parent.right
         anchors.top: head.bottom
         height: tm.rowH * 10 + view.spacing
-        color: tm.headBg
+        color: tm.inActive
 
         AList {
             id: view

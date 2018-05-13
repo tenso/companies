@@ -152,6 +152,9 @@ bool SqlTableModel::selectRow(int row)
 
 bool SqlTableModel::applyRelations(bool empty)
 {
+    if (_relations.size() == 0) {
+        return true;
+    }
     foreach(int col, _relations.keys()) {
         if (empty) {
             setRelation(col, QSqlRelation());
@@ -286,6 +289,9 @@ bool SqlTableModel::newRow(int col, const QVariant &value)
 
 bool SqlTableModel::newRow(const QString &role, const QVariant &value)
 {
+    if (!role.length()) {
+        return newRow();
+    }
     return newRow(roleColumn(role), value);
 }
 

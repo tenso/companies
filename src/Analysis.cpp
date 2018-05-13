@@ -77,7 +77,7 @@ bool Analysis::test()
 int Analysis::newAnalysis(int cId, bool empty)
 {
     _changeUpdates = false;
-    if (!_model.newRow(_model.roleColumn("cId"), cId)) {
+    if (!_model.newRow("cId", cId)) {
         logError() << "new analysis failed";
         _changeUpdates = true;
         return -1;
@@ -94,7 +94,7 @@ int Analysis::newAnalysis(int cId, bool empty)
         _changeUpdates = true;
         return -1;
     }
-    logStatus() << "new analys (defaults) for" << _companiesRO.get("name").toString();
+    logStatus() << "new analys (defaults) for" << _companiesRO.get("name").toString() << "id" << aId;
 
     //defaults:
     set("tax", DefaultTaxRate);
@@ -158,6 +158,9 @@ bool Analysis::analyse(int aId)
         return false;
     }
     _changeUpdates = false;
+    //remove old results
+    _resultsModel.delAllRows("aId", _model.rowToId(_model.selectedRow()));
+
     dcfEquityValue(get("sales"), get("ebitMargin"), get("terminalEbitMargin"), get("salesGrowth"),
                    get("salesPerCapital"), get("wacc"), get("terminalGrowth"), get("growthYears"),
                    get("tax"), (Change)get("salesGrowthMode"), (Change)get("ebitMarginMode"));
@@ -324,6 +327,7 @@ void Analysis::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
         logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
         analyse(aId);
         _changeUpdates = true; //precautionary
+        logStatus() << "auto reAnalyse done";
     }
 }
 
@@ -332,7 +336,6 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
                                 double terminalGrowth, int growthYears, double tax,
                                 Change salesGrowthChange, Change ebitMarginChange)
 {
-
     if (salesPerCapital == 0) {
         salesPerCapital = 1;
     }

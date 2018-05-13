@@ -49,8 +49,8 @@ APage {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: head.bottom
-        height: tm.rowH * 10 + view.spacing
-        color: tm.headBg
+        anchors.bottom: parent.bottom
+        color: tm.inActive
 
         AList {
             id: view
@@ -59,6 +59,11 @@ APage {
             snapMode: ListView.SnapToItem
             delegate: CompanyAnalysisDelegate {
                 width: view.width
+                height: 660 //its a tradegy: can use height from ancestors...gets bugged calculating page.height.
+                /*onHeightChanged: {
+                    logStatus(height)
+                }*/
+
                 itemData: model
 
                 onSelect: {
