@@ -8,8 +8,10 @@ AButton {
     property variant view
     property int addId: -1
     property int addIdCol: -1
+    signal willCreate();
     signal willDelete(int id);
     property bool active: false
+
 
     height: tm.rowH
     width: tm.colW
@@ -38,28 +40,37 @@ AButton {
 
 
     function newEntry() {
-        if (!model.newRow(addIdCol, addId)){
-            logError("new row failed cId=" + addId);
-        }
-        else {
-            logStatus("added row for cId=" + addId);
+        willCreate();
+        if (model) {
+            if (!model.newRow(addIdCol, addId)){
+                logError("new row failed cId=" + addId);
+            }
+            else {
+                logStatus("added row for cId=" + addId);
+            }
         }
     }
 
     function delEntry() {
         var row = view.currentIndex;
-        willDelete(model.rowToId(row));
-        if (!model.delRow(row)) {
-            logError("del row failed " + row + " for " + addId);
+        if (model) {
+            willDelete(model.rowToId(row));
+            if (!model.delRow(row)) {
+                logError("del row failed " + row + " for " + addId);
+            }
+            else {
+                logStatus("removed row " + row + " for " + addId);
+            }
         }
         else {
-            var newIndex = view.currentIndex;
-            if (row >= view.count) {
-                view.currentIndex = row - 1;
-            }
-            view.positionViewAtIndex(view.currentIndex, ListView.Beginning);
-            logStatus("removed row " + row + " for " + addId);
+            willDelete(-1);
         }
+
+        var newIndex = view.currentIndex;
+        if (row >= view.count) {
+            view.currentIndex = row - 1;
+        }
+        view.positionViewAtIndex(view.currentIndex, ListView.Beginning);
     }
 
     Menu {

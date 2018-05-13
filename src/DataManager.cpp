@@ -156,16 +156,6 @@ bool DataManager::setupTableModels()
     _tableModels.push_back(model);
 
     model = new SqlTableModel(this);
-    if (!model->init("quarters")) {
-        return false;
-    }
-    if (!model->applyAll()) {
-        logError() << "quarters: select failed";
-        return false;
-    }
-    _tableModels.push_back(model);
-
-    model = new SqlTableModel(this);
     if (!model->init("financials")) {
         return false;
     }
@@ -178,6 +168,25 @@ bool DataManager::setupTableModels()
     }
     _tableModels.push_back(model);
 
+    //"simple" models
+    if (!addModel("quarters")) {
+        return false;
+    }
+
+    return true;
+}
+
+bool DataManager::addModel(const QString &table)
+{
+    SqlTableModel* model = new SqlTableModel(this);
+    if (!model->init(table)) {
+        return false;
+    }
+    if (!model->applyAll()) {
+        logError() << table << "select failed";
+        return false;
+    }
+    _tableModels.push_back(model);
     return true;
 }
 

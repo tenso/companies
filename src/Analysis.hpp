@@ -6,11 +6,16 @@
 #include <QList>
 #include "SqlTableModel.hpp"
 
+class QQmlContext;
+
 class Analysis : public QObject
 {
     Q_OBJECT
 
 public:
+
+    static constexpr int    SavePrecision = 3;
+
     enum class Change {Constant, Linear};
     static constexpr double DoubleMin = std::numeric_limits<double>::min();
     static constexpr double DoubleMax = std::numeric_limits<double>::max();
@@ -24,6 +29,7 @@ public:
 
     explicit Analysis(QObject *parent = nullptr);
     bool init();
+    bool registerProperties(QQmlContext *context);
     bool test();
 
 signals:
@@ -37,8 +43,7 @@ public slots:
     bool delAnalysis(int aId);
     bool delAllAnalysis(int cId);
 
-    //runs analysis on last used if aId=-1
-    bool analyse(int aId = -1);
+    bool analyse(int aId);
 
     bool selectCompany(int cId);
     QHash<QString, double> fetchMeans();
@@ -64,6 +69,7 @@ public slots:
     double workingCapital(double currentAssets, double cash, double currentLiabilities, double currentDebt);
     double capitalEmployed(double workingCapital, double ppe);
 
+private:
     //dcf
     double dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,
                           double salesGrowth, double salesPerCapital, double wacc,
@@ -73,14 +79,18 @@ public slots:
                           Change salesGrowthChange = Change::Linear,
                           Change ebitMarginChange = Change::Constant);
 
-private:
+
     bool initModel(SqlTableModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
-    double par(const QString& role); //remember to run _financials.selectRow() before!
+    double get(const QString& role); //remember to run _financials.selectRow() before!
+    bool set(const QString& role, double val);
+
+
+    bool yearSet(const QString &role, double val);
+    bool yearSet(const QString &role, int val);
     bool saveYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin,
                   double reinvest, double fcf, double dcf, double investedCapital);
-    bool saveSingle(const QString& param, double val);
 
     class RatingLookup {
     public:
@@ -95,10 +105,14 @@ private:
     QList<RatingLookup> _ratingStable;
     QList<RatingLookup> _ratingRisky;
 
-    SqlTableModel _companies;
-    SqlTableModel _financials;
-    SqlTableModel _analysis;
-    SqlTableModel _analysisResults;
+    //this class owns data:
+    SqlTableModel _model;
+    SqlTableModel _resultsModel;
+
+    //not owned data; only lookup, dont share will set own filters,sort etc
+    SqlTableModel _companiesRO;
+    SqlTableModel _financialsRO;
+
 };
 
 #endif // ANALYSIS_HPP

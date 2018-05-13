@@ -30,10 +30,6 @@ int main(int argc, char *argv[])
         logError() << "Analysis: unit tests failed";
         return -1;
     }
-    //analysis.newAnalysis(24);
-    //analysis.analyse();
-    //analysis.delAllAnalysis(24);
-    //return 0;
 
     QApplication::setFont( QFont("Roboto") );
 
@@ -42,6 +38,7 @@ int main(int argc, char *argv[])
         logError() << "register models failed";
         return -1;
     }
+    analysis.registerProperties(engine.rootContext());
 
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
     if (engine.rootObjects().isEmpty())

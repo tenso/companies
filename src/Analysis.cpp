@@ -1,6 +1,7 @@
 #include "Analysis.hpp"
 #include "Log.hpp"
 #include "AnalysisDebug.hpp"
+#include <QQmlContext>
 
 Analysis::Analysis(QObject *parent) : QObject(parent)
 {
@@ -9,23 +10,23 @@ Analysis::Analysis(QObject *parent) : QObject(parent)
 
 bool Analysis::init()
 {
-    if (!initModel(_companies, "companies")) {
+    if (!initModel(_companiesRO, "companies")) {
         return false;
     }
-    if (!initModel(_analysis, "analysis")) {
+    if (!initModel(_model, "analysis")) {
         return false;
     }
-    if (!initModel(_analysisResults, "analysisResults")) {
+    if (!initModel(_resultsModel, "analysisResults")) {
         return false;
     }
 
-    if (!_financials.init("financials")) {
+    if (!_financialsRO.init("financials")) {
         logError() << "Analysis::init financials failed";
         return false;
     }
-    _financials.filterColumn("qId", "=1"); //only want FY entries
-    _financials.setSort("year", Qt::DescendingOrder);
-    if (!_financials.applyAll()) {
+    _financialsRO.filterColumn("qId", "=1"); //only want FY entries
+    _financialsRO.setSort("year", Qt::DescendingOrder);
+    if (!_financialsRO.applyAll()) {
         logError() << "Analysis::init financials failed";
         return false;
     }
@@ -35,6 +36,13 @@ bool Analysis::init()
     return true;
 }
 
+bool Analysis::registerProperties(QQmlContext *context)
+{
+    context->setContextProperty("analysisEngine", this);
+    context->setContextProperty("analysisModel", &_model);
+    context->setContextProperty("analysisResultsModel", &_resultsModel);
+    return true;
+}
 
 #define VERIFY(a, b) {\
     if ( a != b) { \
@@ -63,52 +71,55 @@ bool Analysis::test()
 
 int Analysis::newAnalysis(int cId, bool empty)
 {
-    if (!_analysis.newRow(_analysis.roleColumn("cId"), cId)) {
+    if (!_model.newRow(_model.roleColumn("cId"), cId)) {
         logError() << "new analysis failed";
         return -1;
     }
-    int aId = _analysis.get("id").toInt();
+    int aId = _model.get("id").toInt();
     if (empty) {
+        logStatus() << "new analys (empty) for" << _companiesRO.get("name").toString();
         return aId;
     }
 
     if (!selectCompany(cId)) {
+        logError() << "failed to select company";
         return -1;
     }
-    logStatus() << "new analys (defaults) for" << _companies.get("name").toString();
+    logStatus() << "new analys (defaults) for" << _companiesRO.get("name").toString();
 
     //defaults:
-    _analysis.set("tax", DefaultTaxRate);
-    _analysis.set("beta", DefaultBeta);
-    _analysis.set("marketPremium", DefaultMarketRiskPremium);
-    _analysis.set("riskFreeRate", DefaultRiskFree);
-    _analysis.set("growthYears", DefaultGrowthYears);
-    _analysis.set("terminalGrowth", DefaultTerminalGrowth);
-    _analysis.set("salesGrowthMode", (int)Change::Linear);
-    _analysis.set("ebitMarginMode", (int)Change::Linear);
-    _analysis.set("riskyCompany", DefaultRisky);
+    set("tax", DefaultTaxRate);
+    set("beta", DefaultBeta);
+    set("marketPremium", DefaultMarketRiskPremium);
+    set("riskFreeRate", DefaultRiskFree);
+    set("growthYears", DefaultGrowthYears);
+    set("terminalGrowth", DefaultTerminalGrowth);
+    set("salesGrowthMode", (int)Change::Linear);
+    set("ebitMarginMode", (int)Change::Linear);
+    set("riskyCompany", DefaultRisky);
 
     //from company means
     QHash<QString, double> means = fetchMeans();
-    _analysis.set("sales", means["sales"]);
-    _analysis.set("ebitMargin", means["ebitMargin"]);
-    _analysis.set("terminalEbitMargin", means["ebitMargin"]);
-    _analysis.set("salesGrowth", means["salesGrowth"]);
-    _analysis.set("salesPerCapital", means["salesPerCapital"]);
+    set("sales", means["sales"]);
+    set("ebitMargin", means["ebitMargin"]);
+    set("terminalEbitMargin", means["ebitMargin"]);
+    set("salesGrowth", means["salesGrowth"]);
+    set("salesPerCapital", means["salesPerCapital"]);
 
-    double interestDebt = means["liabCurrInt"] + means["liabLongInt"]; //FIXME: use means here?
+     //FIXME: use means for: equity, liab, DONT forget to run selectRow to last year if using fin()
+    double interestDebt = means["liabCurrInt"] + means["liabLongInt"];
     double defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
-    double r = wacc(fin("equity"), interestDebt, coeCAPM(),cod(defRate));
-    _analysis.set("wacc", r);
+    double r = wacc(means["equity"], interestDebt, coeCAPM(),cod(defRate));
+    set("wacc", r);
 
-    _analysis.submitAll();
+    _model.submitAll();
     return aId;
 }
 
 bool Analysis::delAnalysis(int aId)
 {
-    _analysisResults.delAllRows("aId", aId);
-    return _analysis.delRow(_analysis.idToRow(aId));
+    _resultsModel.delAllRows("aId", aId);
+    return _model.delRow(_model.idToRow(aId));
 }
 
 bool Analysis::delAllAnalysis(int cId)
@@ -118,9 +129,9 @@ bool Analysis::delAllAnalysis(int cId)
         return false;
     }
     bool ok = true;
-    int maxIter = _analysis.rowCount();
-    while (maxIter > 0 && _analysis.rowCount()) {
-        int aId = _analysis.rowToId(0);
+    int maxIter = _model.rowCount();
+    while (maxIter > 0 && _model.rowCount()) {
+        int aId = _model.rowToId(0);
         if (!delAnalysis(aId)) {
             logError() << "failed to delete row";
             ok = false;
@@ -132,29 +143,23 @@ bool Analysis::delAllAnalysis(int cId)
 
 bool Analysis::analyse(int aId)
 {
-    if (aId > 0) {
-        _analysis.selectRow(_analysis.idToRow(aId));
-    }
-    dcfEquityValue(par("sales"), par("ebitMargin"), par("terminalEbitMargin"), par("salesGrowth"),
-                   par("salesPerCapital"), par("wacc"), par("terminalGrowth"), par("growthYears"),
-                   par("tax"), (Change)par("salesGrowthMode"), (Change)par("ebitMarginMode"));
+    _model.selectRow(_model.idToRow(aId));
+
+    dcfEquityValue(get("sales"), get("ebitMargin"), get("terminalEbitMargin"), get("salesGrowth"),
+                   get("salesPerCapital"), get("wacc"), get("terminalGrowth"), get("growthYears"),
+                   get("tax"), (Change)get("salesGrowthMode"), (Change)get("ebitMarginMode"));
 
     return true;
 }
 
 bool Analysis::selectCompany(int cId)
 {
-    if (!_companies.selectRow(_companies.idToRow(cId))) {
+    if (!_companiesRO.selectRow(_companiesRO.idToRow(cId))) {
         logError() << "failed to select company";
         return false;
     }
-    _financials.filterColumn("cId", "=" + QString::number(cId));
-    if (!_financials.applyAll()) {
-        logError() << "failed to select finacials";
-        return false;
-    }
-    _analysis.filterColumn("cId", "=" + QString::number(cId));
-    if (!_analysis.applyAll()) {
+    _financialsRO.filterColumn("cId", "=" + QString::number(cId));
+    if (!_financialsRO.applyAll()) {
         logError() << "failed to select finacials";
         return false;
     }
@@ -164,7 +169,7 @@ bool Analysis::selectCompany(int cId)
 QHash<QString, double> Analysis::fetchMeans()
 {
     QHash<QString, double> means;
-    int entries = _financials.rowCount();
+    int entries = _financialsRO.rowCount();
     means["sales"] = 0;
     means["ebit"] = 0;
     means["interestPayed"] = 0;
@@ -184,7 +189,7 @@ QHash<QString, double> Analysis::fetchMeans()
 
     //order is descending years
     for (int i = 0; i < entries; i++) {
-        _financials.selectRow(i);
+        _financialsRO.selectRow(i);
 
         newSale = fin("sales");
         if (i > 0) {
@@ -194,6 +199,7 @@ QHash<QString, double> Analysis::fetchMeans()
 
         means["sales"] += newSale;
         means["ebit"] += fin("ebit");
+        means["equity"] += fin("equity");
         means["liabCurrInt"] += fin("liabCurrInt");
         means["liabLongInt"] += fin("liabLongInt");
         means["interestPayed"] += fin("interestPayed");
@@ -206,6 +212,7 @@ QHash<QString, double> Analysis::fetchMeans()
 
     means["sales"] /= (double)entries;
     means["ebit"] /= (double)entries;
+    means["equity"] /= (double)entries;
     means["salesPerCapital"] /= (double)entries;
     means["interestPayed"] /= (double)entries;
     means["liabCurrInt"] /= (double)entries;
@@ -290,6 +297,11 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
                                 double terminalGrowth, int growthYears, double tax,
                                 Change salesGrowthChange, Change ebitMarginChange)
 {
+
+    if (salesPerCapital == 0) {
+        salesPerCapital = 1;
+    }
+
     double cSalesGrowth = salesGrowth;
     double cEbitMargin = ebitMargin;
     AnalysisDebug::logTitle("----Year 0----");
@@ -336,7 +348,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
         }
     }
     AnalysisDebug::logResult(growthDiscounted);
-    saveSingle("growthValueDiscounted", growthDiscounted);
+    set("growthValueDiscounted", growthDiscounted);
 
     AnalysisDebug::logTitle("Terminal");
     cCapital += reinvest;
@@ -354,18 +366,19 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     double terminalDiscounted = terminalValue / pow(1 + wacc, discountYear);
     AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);
     AnalysisDebug::logResult(terminalDiscounted);
-    saveSingle("terminalValueDiscounted", terminalDiscounted);
+    set("terminalValueDiscounted", terminalDiscounted);
     double total = growthDiscounted + terminalDiscounted;
 
     AnalysisDebug::logTitle("Result");
     AnalysisDebug::logResult(total);
-    saveSingle("totalValue", total);
+    set("totalValue", total);
 
     if (terminalDiscounted >= total * 0.75) {
         AnalysisDebug::logNote("terminal is more than 75% of total");
     }
 
-    _analysis.submitAll();
+    _model.submitAll();
+    _resultsModel.submitAll();
     return total;
 }
 
@@ -420,38 +433,49 @@ void Analysis::buildLookups()
 
 double Analysis::fin(const QString &role)
 {
-    return _financials.get(role).toDouble();
+    return _financialsRO.get(role).toDouble();
 }
 
-double Analysis::par(const QString &role)
+double Analysis::get(const QString &role)
 {
-    return _analysis.get(role).toDouble();
+    return _model.get(role).toDouble();
 }
+
+bool Analysis::set(const QString &role, double val)
+{
+    return _model.set(role, QString::number(val, 'f', SavePrecision));
+}
+
+bool Analysis::yearSet(const QString &role, double val)
+{
+    return _resultsModel.set(role, QString::number(val, 'f', SavePrecision));
+}
+
+bool Analysis::yearSet(const QString &role, int val)
+{
+    return _resultsModel.set(role, val);
+}
+
 
 bool Analysis::saveYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin, double reinvest,
                         double fcf, double dcf, double investedCapital)
 {
-    if (!_analysisResults.newRow("aId", _analysis.rowToId(_analysis.selectedRow()))) {
+    if (!_resultsModel.newRow("aId", _model.rowToId(_model.selectedRow()))) {
         logError() << "new row failed";
         return false;
     }
-    _analysisResults.set("type", 1);
-    _analysisResults.set("step", year);
-    _analysisResults.set("sales", sales);
-    _analysisResults.set("ebit", ebit);
-    _analysisResults.set("ebitMargin", cEbitMargin);
-    _analysisResults.set("salesGrowth", cSalesGrowth);
-    _analysisResults.set("reinvestments", reinvest);
-    _analysisResults.set("fcf", fcf);
-    _analysisResults.set("dcf", dcf);
-    _analysisResults.set("investedCapital", investedCapital);
-    _analysisResults.submitAll();
+    yearSet("type", 1);
+    yearSet("step", year);
+    yearSet("sales", sales);
+    yearSet("ebit", ebit);
+    yearSet("ebitMargin", cEbitMargin);
+    yearSet("salesGrowth", cSalesGrowth);
+    yearSet("reinvestments", reinvest);
+    yearSet("fcf", fcf);
+    yearSet("dcf", dcf);
+    yearSet("investedCapital", investedCapital);
+    _resultsModel.submitAll();
     return true;
-}
-
-bool Analysis::saveSingle(const QString &param, double val)
-{
-    return _analysis.set(param, val);
 }
 
 

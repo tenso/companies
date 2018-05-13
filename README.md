@@ -2,6 +2,11 @@
 
 # TODO
 
+#Prio#
+* Analysis: really use means for equity and liab for default newAnalysis?
+* Percent input/output
+* Dropdown for growth modes
+
 ##goals
 * Second detail: calculate fixed dcf.
 * Third detail: compare companies; present analys in valulation-overview-page

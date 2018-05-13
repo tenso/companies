@@ -27,5 +27,6 @@
         <file>qml/CompanyAnalysisPage.qml</file>
         <file>qml/APage.qml</file>
         <file>qml/SelectedCompany.qml</file>
+        <file>qml/CompanyAnalysisDelegate.qml</file>
     </qresource>
 </RCC>

@@ -1,5 +1,7 @@
 #include "AnalysisDebug.hpp"
 
+bool AnalysisDebug::_enabled = false;
+
 #define EntryColor Black
 #define HeadColor Cyan
 #define TitleColor Magenta
@@ -16,19 +18,33 @@ void color(Color color)
     printf("%s", colors[color]);
 }
 
+void AnalysisDebug::enabled(bool value)
+{
+    _enabled = value;
+}
+
 void AnalysisDebug::logTitle(const QString& title)
 {
+    if (!_enabled) {
+        return;
+    }
     color(TitleColor); printf("\n----%s----\n", title.toStdString().c_str()); color(Reset);
 }
 
 void AnalysisDebug::logNote(const QString &title)
 {
+    if (!_enabled) {
+        return;
+    }
     color(WarnColor); printf("NOTE: %s\n", title.toStdString().c_str()); color(Reset);
 }
 
 void AnalysisDebug::logYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin,
                             double reinvest, double fcf, double dcf, double investedCapital)
 {
+    if (!_enabled) {
+        return;
+    }
     if (year < 0) {
         color(HeadColor);
         printf("year|           sales|          ebit| capex|   fcf|   dcf| capital|\n");
@@ -45,6 +61,9 @@ void AnalysisDebug::logYear(int year, double sales, double cSalesGrowth, double 
 void AnalysisDebug::logTerminal(int year, double terminalEbitMargin, double fcf, double terminalGrowth,
                  double value, int discountYear, double discountedValue)
 {
+    if (!_enabled) {
+        return;
+    }
     color(HeadColor);
     printf("year|margin|   fcf|growth|   value|discount year|discount value|\n");
     color(EntryColor);
@@ -57,6 +76,9 @@ void AnalysisDebug::logTerminal(int year, double terminalEbitMargin, double fcf,
 void AnalysisDebug::logInitial(double sales, double ebitMargin, double salesGrowth,
                 int growthYears, double salesPerCapital, double wacc, double tax)
 {
+    if (!_enabled) {
+        return;
+    }
     color(HeadColor);
     printf("sales   |margin|growth|years|sales/cap| wacc|tax|\n");
     color(EntryColor);
@@ -68,5 +90,8 @@ void AnalysisDebug::logInitial(double sales, double ebitMargin, double salesGrow
 
 void AnalysisDebug::logResult(double result)
 {
+    if (!_enabled) {
+        return;
+    }
     color(SumColor); printf("value: [%5.1f]\n", result); color(Reset);
 }

@@ -27,6 +27,9 @@ APage {
             if (!financialsModel.delAllRows("cId", id)) {
                 logError("del financials for " + id + " failed");
             }
+            if (!analysisEngine.delAllAnalysis(id)) {
+                logError("del analysises for " + id + " failed");
+            }
         }
     }
 

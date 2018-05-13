@@ -7,6 +7,7 @@
 class AnalysisDebug
 {
 public:
+    static void enabled(bool value);
     static void logTitle(const QString& title);
     static void logNote(const QString& title);
 
@@ -22,6 +23,9 @@ public:
                     double salesPerCapital, double wacc, double tax);
 
     static void logResult(double result);
+
+private:
+    static bool _enabled;
 };
 
 #endif // ANALYSISDEBUG_HPP
