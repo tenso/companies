@@ -61,18 +61,19 @@ bool Analysis::test()
     return true;
 }
 
-bool Analysis::newAnalysis(int cId, bool empty)
+int Analysis::newAnalysis(int cId, bool empty)
 {
     if (!_analysis.newRow(_analysis.roleColumn("cId"), cId)) {
         logError() << "new analysis failed";
-        return false;
+        return -1;
     }
+    int aId = _analysis.get("id").toInt();
     if (empty) {
-        return true;
+        return aId;
     }
 
     if (!selectCompany(cId)) {
-        return false;
+        return -1;
     }
     logStatus() << "new analys (defaults) for" << _companies.get("name").toString();
 
@@ -93,7 +94,6 @@ bool Analysis::newAnalysis(int cId, bool empty)
     _analysis.set("ebitMargin", means["ebitMargin"]);
     _analysis.set("terminalEbitMargin", means["ebitMargin"]);
     _analysis.set("salesGrowth", means["salesGrowth"]);
-    _analysis.set("terminalSalesGrowth", means["salesGrowth"]);
     _analysis.set("salesPerCapital", means["salesPerCapital"]);
 
     double interestDebt = means["liabCurrInt"] + means["liabLongInt"]; //FIXME: use means here?
@@ -102,6 +102,18 @@ bool Analysis::newAnalysis(int cId, bool empty)
     _analysis.set("wacc", r);
 
     _analysis.submitAll();
+    return aId;
+}
+
+bool Analysis::analyse(int aId)
+{
+    if (aId > 0) {
+        _analysis.selectRow(_analysis.idToRow(aId));
+    }
+    dcfEquityValue(par("sales"), par("ebitMargin"), par("terminalEbitMargin"), par("salesGrowth"),
+                   par("salesPerCapital"), par("wacc"), par("terminalGrowth"), par("growthYears"),
+                   par("tax"), (Change)par("salesGrowthMode"), (Change)par("ebitMarginMode"));
+
     return true;
 }
 
@@ -264,7 +276,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     double fcf = cEbit * (1 - tax) - reinvest;
     double dcf = fcf;
     AnalysisDebug::logYear(year, cSales, 0, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital); //y0
-
+    saveYear(year, cSales, 0, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital); //y0
 
     AnalysisDebug::logTitle(QString("Growth Years, sales:") + (salesGrowthChange == Change::Constant ? "Constant" : "Linear")
                             + " ebit:" + (ebitMarginChange == Change::Constant ? "Constant" : "Linear"));
@@ -281,6 +293,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
         dcf = fcf / pow(1.0 + wacc, year);
         growthDiscounted += dcf;
         AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
+        saveYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
         double pos = (growthYears - year) / (double)growthYears;
         //update sales growth for next year
@@ -293,7 +306,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
         }
     }
     AnalysisDebug::logResult(growthDiscounted);
-
+    saveSingle("growthValueDiscounted", growthDiscounted);
 
     AnalysisDebug::logTitle("Terminal");
     cCapital += reinvest;
@@ -304,21 +317,25 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     dcf = fcf / pow(1.0 + wacc, year);
     AnalysisDebug::logYear();
     AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
+    saveYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
     double terminalValue = fcf / (wacc - terminalGrowth);
     int discountYear = year -1;
     double terminalDiscounted = terminalValue / pow(1 + wacc, discountYear);
     AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);
     AnalysisDebug::logResult(terminalDiscounted);
+    saveSingle("terminalValueDiscounted", terminalDiscounted);
 
     double total = growthDiscounted + terminalDiscounted;
     AnalysisDebug::logTitle("Result");
     AnalysisDebug::logResult(total);
+    saveSingle("totalValue", total);
 
     if (terminalDiscounted >= total * 0.75) {
         AnalysisDebug::logNote("terminal is more than 75% of total");
     }
 
+    _analysis.submitAll();
     return total;
 }
 
@@ -374,6 +391,37 @@ void Analysis::buildLookups()
 double Analysis::fin(const QString &role)
 {
     return _financials.get(role).toDouble();
+}
+
+double Analysis::par(const QString &role)
+{
+    return _analysis.get(role).toDouble();
+}
+
+bool Analysis::saveYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin, double reinvest,
+                        double fcf, double dcf, double investedCapital)
+{
+    if (!_analysisResults.newRow("aId", _analysis.rowToId(_analysis.selectedRow()))) {
+        logError() << "new row failed";
+        return false;
+    }
+    _analysisResults.set("type", 1);
+    _analysisResults.set("step", year);
+    _analysisResults.set("sales", sales);
+    _analysisResults.set("ebit", ebit);
+    _analysisResults.set("ebitMargin", cEbitMargin);
+    _analysisResults.set("salesGrowth", cSalesGrowth);
+    _analysisResults.set("reinvestments", reinvest);
+    _analysisResults.set("fcf", fcf);
+    _analysisResults.set("dcf", dcf);
+    _analysisResults.set("investedCapital", investedCapital);
+    _analysisResults.submitAll();
+    return true;
+}
+
+bool Analysis::saveSingle(const QString &param, double val)
+{
+    return _analysis.set(param, val);
 }
 
 

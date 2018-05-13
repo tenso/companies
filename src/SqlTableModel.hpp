@@ -33,6 +33,7 @@ public slots:
     int idToRow(int id) const;
     void filterColumn(const QString& role, const QString& filter);
     bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
+    bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
     int selectedRow();
     bool delRow(int row);
     bool delAllRows();

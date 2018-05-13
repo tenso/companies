@@ -277,6 +277,11 @@ bool SqlTableModel::newRow(int col, const QVariant &value)
     return true;
 }
 
+bool SqlTableModel::newRow(const QString &role, const QVariant &value)
+{
+    return newRow(roleColumn(role), value);
+}
+
 int SqlTableModel::selectedRow()
 {
     return _selectedRow;
@@ -315,6 +320,7 @@ bool SqlTableModel::delAllRows()
 bool SqlTableModel::set(const int row, const QString &role, const QVariant &value)
 {
     if (!haveRole(role)) {
+        logError() << "SqlTableModel::set failed" << row << role << value;
         return false;
     }
     return setData(createIndex(row,0), value, _roleInt[role]);

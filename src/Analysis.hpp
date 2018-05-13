@@ -29,7 +29,13 @@ public:
 signals:
 
 public slots:
-    bool newAnalysis(int cId, bool empty = false); //autofills from available data of not empty=true
+    //returns id of new analysis or -1 on error
+    //autofills from available data of not empty=true
+    int newAnalysis(int cId, bool empty = false);
+
+    //runs analysis on last used if aId=-1
+    bool analyse(int aId = -1);
+
     bool selectCompany(int cId);
     QHash<QString, double> fetchMeans();
 
@@ -67,6 +73,11 @@ private:
     bool initModel(SqlTableModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
+    double par(const QString& role); //remember to run _financials.selectRow() before!
+    bool saveYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin,
+                  double reinvest, double fcf, double dcf, double investedCapital);
+    bool saveSingle(const QString& param, double val);
+
     class RatingLookup {
     public:
         RatingLookup(double from, double to, const QString& rating, double defaultSpread);
