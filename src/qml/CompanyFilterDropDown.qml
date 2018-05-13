@@ -4,12 +4,12 @@ AItem {
     id: root
     height: row.height
     property alias model: select.comboModel
-    property int index: 0
+    property string role: ""
     property string filter: ""
     signal idUpdate(string id);
 
     onFilterChanged: {
-        companiesModel.filterColumn(index, filter)
+        companiesModel.filterColumn(role, filter)
     }
 
     Row {

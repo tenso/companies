@@ -43,6 +43,7 @@ public slots:
     int roleId(const QString& role) const;
     int roleColumn(const QString& role) const;
     bool haveRole(const QString& role) const;
+    QString roleName(int id);
 
 private:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;

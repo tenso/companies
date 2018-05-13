@@ -8,8 +8,10 @@ Analysis::Analysis(QObject *parent) : QObject(parent)
 
 }
 
-bool Analysis::init()
+bool Analysis::init(bool autoReAnalyse)
 {
+    _autoReAnalyse = autoReAnalyse;
+
     if (!initModel(_companiesRO, "companies")) {
         return false;
     }
@@ -32,6 +34,9 @@ bool Analysis::init()
     }
 
     buildLookups();
+
+    connect(&_model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this, SLOT(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     return true;
 }
@@ -71,18 +76,22 @@ bool Analysis::test()
 
 int Analysis::newAnalysis(int cId, bool empty)
 {
+    _changeUpdates = false;
     if (!_model.newRow(_model.roleColumn("cId"), cId)) {
         logError() << "new analysis failed";
+        _changeUpdates = true;
         return -1;
     }
     int aId = _model.get("id").toInt();
     if (empty) {
         logStatus() << "new analys (empty) for" << _companiesRO.get("name").toString();
+        _changeUpdates = true;
         return aId;
     }
 
     if (!selectCompany(cId)) {
         logError() << "failed to select company";
+        _changeUpdates = true;
         return -1;
     }
     logStatus() << "new analys (defaults) for" << _companiesRO.get("name").toString();
@@ -113,6 +122,7 @@ int Analysis::newAnalysis(int cId, bool empty)
     set("wacc", r);
 
     _model.submitAll();
+    _changeUpdates = true;
     return aId;
 }
 
@@ -143,12 +153,15 @@ bool Analysis::delAllAnalysis(int cId)
 
 bool Analysis::analyse(int aId)
 {
-    _model.selectRow(_model.idToRow(aId));
-
+    if (!_model.selectRow(_model.idToRow(aId)))  {
+        logError() << "failed to select aId:" << aId;
+        return false;
+    }
+    _changeUpdates = false;
     dcfEquityValue(get("sales"), get("ebitMargin"), get("terminalEbitMargin"), get("salesGrowth"),
                    get("salesPerCapital"), get("wacc"), get("terminalGrowth"), get("growthYears"),
                    get("tax"), (Change)get("salesGrowthMode"), (Change)get("ebitMarginMode"));
-
+    _changeUpdates = true;
     return true;
 }
 
@@ -290,6 +303,28 @@ double Analysis::workingCapital(double currentAssets, double cash,
 double Analysis::capitalEmployed(double workingCapital, double ppe)
 {
     return workingCapital + ppe;
+}
+
+void Analysis::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+    if (!_changeUpdates) {
+        return;
+    }
+    Q_UNUSED(bottomRight); //FIXME: only handlig topLeft for now
+
+    /*foreach(int roleId, roles) {
+        int row = topLeft.row();
+        logStatus() << row << _model.roleName(roleId);
+    }*/
+
+    if (roles.length() && _autoReAnalyse) {
+        _changeUpdates = false; //precautionary
+        int row = topLeft.row();
+        int aId = _model.rowToId(row);
+        logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
+        analyse(aId);
+        _changeUpdates = true; //precautionary
+    }
 }
 
 double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminalEbitMargin,

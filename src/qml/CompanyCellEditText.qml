@@ -22,10 +22,10 @@ AItem {
             id: input
             focus: true
             text: itemData ? itemData[role] : ""
-            onTextEdited: {
+            onEditingFinished: {
                 if (itemData && role !== "") {
-                    itemData[role] = text;
                     logStatus("id:" + itemData.id + " " + role + "=" + text);
+                    itemData[role] = text; //this will clear itemData...
                 }
                 root.updated(text);
             }

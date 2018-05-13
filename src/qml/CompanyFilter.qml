@@ -15,8 +15,8 @@ Rectangle {
         spacing: tm.margin
         CompanyFilterText {
             id: companyId
-            index: 0
-            width: colW[index]
+            role: "id"
+            width: colW[0]
             onTextUpdate: {
                 filter = text;
             }
@@ -24,8 +24,8 @@ Rectangle {
         }
         CompanyFilterText {
             id: name
-            index: 1
-            width: colW[index]
+            role: "name"
+            width: colW[1]
             onTextUpdate: {
                 if (text) {
                     filter = "like '%" + text + "%'";
@@ -37,9 +37,9 @@ Rectangle {
         }
         CompanyFilterDropDown {
             id: list
+            role: "lId"
             model: listsModel
-            index: 2
-            width: colW[index]
+            width: colW[2]
             onIdUpdate: {
                 if (id) {
                     filter = "=" + id;
@@ -52,9 +52,9 @@ Rectangle {
         }
         CompanyFilterDropDown {
             id: type
+            role: "tId"
             model: typesModel
-            index: 3
-            width: colW[index]
+            width: colW[3]
             onIdUpdate: {
                 if (id) {
                     filter = "=" + id;
@@ -67,8 +67,8 @@ Rectangle {
         }
         CompanyFilterText {
             id: watch
-            index: 4
-            width: colW[index]
+            role: "watch"
+            width: colW[4]
             onTextUpdate: {
                 filter = text;
             }
@@ -76,8 +76,8 @@ Rectangle {
         }
         CompanyFilterText {
             id: description
-            index: 5
-            width: colW[index]
+            role: "description"
+            width: colW[5]
             onTextUpdate: {
                 if (text) {
                     filter = "like '%" + text + "%'";

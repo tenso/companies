@@ -28,7 +28,7 @@ public:
     static constexpr bool   DefaultRisky = false;
 
     explicit Analysis(QObject *parent = nullptr);
-    bool init();
+    bool init(bool autoReanalyse = true);
     bool registerProperties(QQmlContext *context);
     bool test();
 
@@ -68,6 +68,9 @@ public slots:
     double salesPerCapital(double sales, double capitalEmployed);
     double workingCapital(double currentAssets, double cash, double currentLiabilities, double currentDebt);
     double capitalEmployed(double workingCapital, double ppe);
+
+private slots:
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 
 private:
     //dcf
@@ -112,7 +115,8 @@ private:
     //not owned data; only lookup, dont share will set own filters,sort etc
     SqlTableModel _companiesRO;
     SqlTableModel _financialsRO;
-
+    bool _changeUpdates { true };
+    bool _autoReAnalyse{ false };
 };
 
 #endif // ANALYSIS_HPP

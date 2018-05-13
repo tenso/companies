@@ -2,12 +2,12 @@ import QtQuick 2.9
 
 AItem {
     id: root
-    property int index: 0
+    property string role: ""
     property string filter: ""
     signal textUpdate(string text);
     height: row.height
     onFilterChanged: {
-        companiesModel.filterColumn(index, filter)
+        companiesModel.filterColumn(role, filter)
     }
 
     Row {

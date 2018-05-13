@@ -57,16 +57,18 @@ bool SqlTableModel::setData(const QModelIndex &index, const QVariant &value, int
 {
     QModelIndex modelIndex = index;
     //logStatus() << "setData:" << modelIndex << value;
-    if (index.isValid() /*&& data(index, role) != value*/) {
-        if (role >= Qt::UserRole) {
-            int columnIdx = role - Qt::UserRole - 1;
-            modelIndex = this->index(index.row(), columnIdx);
+    if (index.isValid()) {
+        if (data(index, role) != value) { //this is very important, dont update; will trigger heavy stuff like reAnalyse etc
+            if (role >= Qt::UserRole) {
+                int columnIdx = role - Qt::UserRole - 1;
+                modelIndex = this->index(index.row(), columnIdx);
+            }
+            if (!QSqlRelationalTableModel::setData(modelIndex, value)) {
+                logError() << "setData failed" << modelIndex << value;
+                return false;
+            }
+            emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
         }
-        if (!QSqlRelationalTableModel::setData(modelIndex, value)) {
-            logError() << "setData failed" << modelIndex << value;
-            return false;
-        }
-        emit dataChanged(modelIndex, modelIndex, QVector<int>() << role);
         return true;
     }
     logError() << "setData: faulty index" << modelIndex << value;
@@ -379,4 +381,12 @@ int SqlTableModel::roleColumn(const QString &role) const
 bool SqlTableModel::haveRole(const QString &role) const
 {
     return _roleInt.contains(role);
+}
+
+QString SqlTableModel::roleName(int id)
+{
+    if (_roles.contains(id)) {
+        return _roles[id];
+    }
+    return "";
 }
