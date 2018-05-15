@@ -14,27 +14,29 @@ Rectangle {
         willSave();
         var ok = true;
         if (companiesModel.submitAll()) {
-            companiesModel.fetchAll();
         }
         else {
             ok = false;
         }
         if (financialsModel.submitAll()) {
-            financialsModel.fetchAll();
+        }
+        else {
+            ok = false;
+        }
+
+        if (analysisEngine.submitAll()) {
         }
         else {
             ok = false;
         }
 
         if (analysisModel.submitAll()) {
-            analysisModel.fetchAll();
         }
         else {
             ok = false;
         }
 
         if (analysisResultsModel.submitAll()) {
-            analysisResultsModel.fetchAll();
         }
         else {
             ok = false;

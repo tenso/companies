@@ -48,8 +48,6 @@ ApplicationWindow {
 
     Component.onCompleted: {
         showStatus(qsTr("Load all done"));
-        companiesModel.fetchAll();
-        financialsModel.fetchAll();
     }
 
     StackLayout {
@@ -67,7 +65,7 @@ ApplicationWindow {
             active: pages.currentIndex == 0
         }
 
-        CompanyDetailsPage {
+        /*CompanyDetailsPage {
             id: details
             colW: pages.colW
             selectedData: overview.selectedData
@@ -78,13 +76,13 @@ ApplicationWindow {
             colW: pages.colW
             selectedData: overview.selectedData
             active: pages.currentIndex == 2
-        }
+        }*/
     }
 
     footer: MainStatusBar {
         id: statusBar
         currentTab: pages.currentIndex
-        statusText: "Total: " + overview.rowCount + ", finacial entries:" + details.rowCount;
+        statusText: "Total: " //+ overview.rowCount + ", finacial entries:" + details.rowCount;
         lastLog: window.status
         onShowStatus: {
             statusPopup.open();

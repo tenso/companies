@@ -52,7 +52,6 @@ AButton {
             else {
                 logStatus("added row for " + addIdRole + "=" + addId);
             }
-            model.submitAll();
         }
     }
 
@@ -66,7 +65,6 @@ AButton {
             else {
                 logStatus("removed row " + row + " for " + addId);
             }
-            model.submitAll();
         }
         else {
             willDelete(-1);

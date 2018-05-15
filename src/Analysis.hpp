@@ -4,7 +4,7 @@
 #include <limits>
 #include <QObject>
 #include <QList>
-#include "SqlTableModel.hpp"
+#include "SqlModel.hpp"
 
 class QQmlContext;
 
@@ -40,7 +40,7 @@ public slots:
     //returns id of new analysis or -1 on error
     //autofills from available data of not empty=true
     int newAnalysis(int cId, bool empty = false);
-    void submitAll();
+    bool submitAll();
     //removes all results:
     bool delAnalysis(int aId);
     bool delAllAnalysis(int cId);
@@ -85,7 +85,7 @@ private:
                           Change ebitMarginChange = Change::Constant);
 
 
-    bool initModel(SqlTableModel &model, const QString& table);
+    bool initModel(SqlModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
     double get(const QString& role); //remember to run _financials.selectRow() before!
@@ -111,12 +111,12 @@ private:
     QList<RatingLookup> _ratingRisky;
 
     //this class owns data:
-    SqlTableModel _model;
-    SqlTableModel _resultsModel;
+    SqlModel _model;
+    SqlModel _resultsModel;
 
     //not owned data; only lookup, dont share will set own filters,sort etc
-    SqlTableModel _companiesRO;
-    SqlTableModel _financialsRO;
+    SqlModel _companiesRO;
+    SqlModel _financialsRO;
     bool _changeUpdates { true };
     bool _autoReAnalyse{ false };
 };

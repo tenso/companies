@@ -1,6 +1,6 @@
 #include "DataManager.hpp"
 #include "Log.hpp"
-#include "SqlTableModel.hpp"
+#include "SqlModel.hpp"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -121,7 +121,7 @@ void DataManager::loadFonts()
 bool DataManager::setupTableModels()
 {
 
-    SqlTableModel* model = new SqlTableModel(this);
+    SqlModel* model = new SqlModel(this);
     if (!model->init("companies")) {
         return false;
     }
@@ -133,7 +133,7 @@ bool DataManager::setupTableModels()
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel(this);
+    model = new SqlModel(this);
     if (!model->init("types")) {
         return false;
     }
@@ -144,7 +144,7 @@ bool DataManager::setupTableModels()
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel(this);
+    model = new SqlModel(this);
     if (!model->init("lists")) {
         return false;
     }
@@ -155,7 +155,7 @@ bool DataManager::setupTableModels()
     }
     _tableModels.push_back(model);
 
-    model = new SqlTableModel(this);
+    model = new SqlModel(this);
     if (!model->init("financials")) {
         return false;
     }
@@ -178,7 +178,7 @@ bool DataManager::setupTableModels()
 
 bool DataManager::addModel(const QString &table)
 {
-    SqlTableModel* model = new SqlTableModel(this);
+    SqlModel* model = new SqlModel(this);
     if (!model->init(table)) {
         return false;
     }

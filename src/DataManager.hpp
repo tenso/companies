@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-class SqlTableModel;
+class SqlModel;
 class QQmlContext;
 
 class DataManager : public QObject
@@ -22,7 +22,7 @@ protected:
     void loadFonts();
     bool setupTableModels();
     bool addModel(const QString& table);
-    QVector<SqlTableModel*> _tableModels;
+    QVector<SqlModel*> _tableModels;
 };
 
 #endif // DATAMANAGER_HPP

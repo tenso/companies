@@ -6,6 +6,7 @@
 #include "DataManager.hpp"
 #include "Log.hpp"
 #include "Analysis.hpp"
+#include "SqlModel.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,11 @@ int main(int argc, char *argv[])
         logError() << "data.init failed";
         return -1;
     }
+
+    /*SqlModel model;
+    model.init("companies");
+    logStatus() << model.get(0, "name") << model.get(1, "description");
+    return 0;*/
 
     Analysis analysis;
     if (!analysis.init()) {

@@ -124,10 +124,12 @@ int Analysis::newAnalysis(int cId, bool empty)
     return aId;
 }
 
-void Analysis::submitAll()
+bool Analysis::submitAll()
 {
-    _model.submitAll();
-    _resultsModel.submitAll();
+    bool ok = true;
+    ok &= _model.submitAll();
+    ok &= _resultsModel.submitAll();
+    return ok;
 }
 
 bool Analysis::delAnalysis(int aId)
@@ -181,7 +183,6 @@ bool Analysis::analyse(int aId)
 
 bool Analysis::selectCompany(int cId)
 {
-    _companiesRO.select();
     if (!_companiesRO.selectRow(_companiesRO.idToRow(cId))) {
         logError() << "failed to select company";
         return false;
@@ -432,7 +433,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     return total;
 }
 
-bool Analysis::initModel(SqlTableModel& model, const QString &table)
+bool Analysis::initModel(SqlModel& model, const QString &table)
 {
     if (!model.init(table)) {
         logError() << "Analysis::initModel" << table << "failed";

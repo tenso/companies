@@ -26,13 +26,11 @@ APage {
             else {
                 logError("failed to create new analysis");
             }
-            analysisEngine.submitAll();
         }
 
         onWillDelete: {
             var id = analysisModel.rowToId(view.currentIndex);
             analysisEngine.delAnalysis(id);
-            analysisEngine.submitAll();
         }
     }
 
