@@ -6,7 +6,8 @@ SOURCES += src/main.cpp \
     src/SqlTableModel.cpp \
     src/DataManager.cpp \
     src/Analysis.cpp \
-    src/AnalysisDebug.cpp
+    src/AnalysisDebug.cpp \
+    src/Log.cpp
 
 
 RESOURCES += src/qml.qrc \

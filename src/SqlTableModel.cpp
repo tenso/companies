@@ -1,6 +1,7 @@
 #include "SqlTableModel.hpp"
 #include "Log.hpp"
 #include <QSqlRecord>
+#include <QSqlQuery>
 
 SqlTableModel::SqlTableModel(QObject *parent)
     : QSqlRelationalTableModel(parent)
@@ -16,6 +17,7 @@ bool SqlTableModel::init(const QString &table)
 {
     setTable(table);
     setEditStrategy(EditStrategy::OnManualSubmit);
+
     if (!select()) {
         logError() << "table init failed:" << tableName();
         return false;
@@ -30,6 +32,21 @@ bool SqlTableModel::init(const QString &table)
         _roles[Qt::UserRole + i + 1] = name;
         _roleInt[name] = Qt::UserRole + i + 1;
     }
+
+    QSqlQuery q = query();
+    q.prepare("select MAX(id) from " + tableName());
+    if (!q.exec()) {
+        logError() << "failed to get next primary";
+        return false;
+    }
+    if (q.next()) {
+        _nextPrimary = q.value(0).toInt() + 1;
+    }
+    else {
+        logError() << "failed to get next primary (2)";
+        return false;
+    }
+    //logStatus() << tableName() << "next PK" << _nextPrimary;
     return true;
 }
 
@@ -102,7 +119,7 @@ bool SqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     bool ok = false;
     if (row < 0 || row >= rowCount()) {
-        logError() << "no such row:" << row;
+        logError() << "removeRows() no such row:" << row;
         return ok;
     }
     beginRemoveRows(parent, row, row + count - 1);
@@ -141,6 +158,13 @@ bool SqlTableModel::applyAll()
     return applyRelations();
 }
 
+bool SqlTableModel::submitAll()
+{
+    bool ok = QSqlRelationalTableModel::submitAll();
+    fetchAll();
+    return ok;
+}
+
 bool SqlTableModel::selectRow(int row)
 {
     if (row < 0) {
@@ -150,7 +174,7 @@ bool SqlTableModel::selectRow(int row)
     return true;
 }
 
-bool SqlTableModel::applyRelations(bool empty)
+bool SqlTableModel::applyRelations(bool empty, bool skipSelect)
 {
     if (_relations.size() == 0) {
         return true;
@@ -163,7 +187,7 @@ bool SqlTableModel::applyRelations(bool empty)
             setRelation(col, _relations[col]);
         }
     }
-    if (!select()) {
+    if (!skipSelect && !select()) {
         logError() << tableName() << "select failed";
         return false;
     }
@@ -185,16 +209,16 @@ int SqlTableModel::rowToId(int row) const
         logError() << "id column not found";
         return -1;
     }
-    QModelIndex modelIndex = this->index(row, _idColumn);
-    return QSqlRelationalTableModel::data(modelIndex, Qt::DisplayRole).toInt();
+    return get(row, "id").toInt();
 }
 
-int SqlTableModel::idToRow(int id) const
+int SqlTableModel::idToRow(int id)
 {
     if (_idColumn < 0) {
         logError() << "id column not found";
         return -1;
     }
+
     //FIXME: better way?
     for(int i = 0; i < rowCount(); i++) {
         if (get(i, "id").toInt() == id) {
@@ -203,6 +227,12 @@ int SqlTableModel::idToRow(int id) const
     }
     logError() << "id not found:" << id;
     return -1;
+}
+
+int SqlTableModel::rowCount(const QModelIndex &parent)
+{
+    fetchAll();
+    return QSqlRelationalTableModel::rowCount(parent);
 }
 
 void SqlTableModel::filterColumn(int column, const QString &filter)
@@ -260,31 +290,35 @@ void SqlTableModel::applyFilters(bool empty)
 
 bool SqlTableModel::newRow(int col, const QVariant &value)
 {
-    applyRelations(true); //cant insert rows with relations; sqlite will not find related entries over 256!
+    //cant insert rows with relations; sqlite will not find related entries over 256!
+    //make sure not to run select() as it would undo all un-submitted changes
+    applyRelations(true, true);
     QSqlRecord rec = record();
     for (int i =0; i < _numColumns; i++) {
-        if (i != _idColumn) {
-            QVariant val;
+        QVariant val;
+        if (i == _idColumn) {
+            val = _nextPrimary++;
+        }
+        else {
             if (col == i) {
                 val = value;
             }
-            else {
-                if (_relations.contains(i)) {
-                    val = 1;
-                }
+            else if (_relations.contains(i)) {
+                val = 1;
             }
-            rec.setValue(i, val);
         }
+        rec.setValue(i, val);
     }
+
     if (!insertRecord(-1, rec)) {
         logError() << "insert record failed";
-        applyRelations(false);
+        applyRelations(false, true);
         return false;
     }
-    submitAll();
-    applyRelations(false);
+    applyRelations(false, true);
     _selectedRow = rowCount() - 1;
     return true;
+
 }
 
 bool SqlTableModel::newRow(const QString &role, const QVariant &value)
@@ -303,14 +337,11 @@ int SqlTableModel::selectedRow()
 bool SqlTableModel::delRow(int row)
 {
     bool ok = removeRows(row, 1);
-    if (ok) {
-        if (submitAll()) {
-            return true;
-        }
+
+    if (!ok) {
+        logError() << "delRow" << row << "failed";
     }
-    revertAll();
-    logError() << "delRow" << row << "failed";
-    return false;
+    return ok;
 }
 
 bool SqlTableModel::delAllRows()
@@ -319,22 +350,31 @@ bool SqlTableModel::delAllRows()
         return true;
     }
     bool ok = removeRows(0, rowCount());
-    if (ok) {
-        if (submitAll()) {
-            return true;
-        }
+    if (!ok) {
+        logError() << "delAllRows" << rowCount() << "failed";
     }
-    revertAll();
-    logError() << "delAllRows" << rowCount() << "failed";
-    return false;
+    return ok;
 }
 
 bool SqlTableModel::delAllRows(const QString &role, const QVariant &value)
 {
-    QString prevFilter = columnFilter(role);
-    filterColumn(role, "=" + value.toString());
-    bool ok = delAllRows();
-    filterColumn(role, prevFilter);
+    bool ok = true;
+    QList<int> toDelete;
+    for(int i = 0; i < rowCount(); i++) {
+        if(get(i, role) == value) {
+            toDelete.push_back(i);
+        }
+    }
+
+    for(int i = 0; i < toDelete.size(); i++) {
+        if (!delRow(toDelete.at(i))) {
+            ok = false;
+        }
+    }
+
+    if (!ok) {
+        logError() << "del all rows failed:" << role << "=" << value;
+    }
     return ok;
 }
 
@@ -382,6 +422,15 @@ int SqlTableModel::roleColumn(const QString &role) const
         return qtIndex;
     }
     return (qtIndex - Qt::UserRole - 1);
+}
+
+QString SqlTableModel::columnRole(int column) const
+{
+    if (!_roles.contains(column + Qt::UserRole + 1)) {
+        logError() << "no such column role" << column;
+        return "";
+    }
+    return _roles[column + Qt::UserRole + 1];
 }
 
 bool SqlTableModel::haveRole(const QString &role) const

@@ -3,6 +3,8 @@
 
 #include <QSqlRelationalTableModel>
 
+//NOTE: remember select resets all unsubmitted changes
+
 class SqlTableModel : public QSqlRelationalTableModel
 {
     Q_OBJECT
@@ -22,12 +24,14 @@ public:
     void setSort(const QString& role, Qt::SortOrder order);
     bool addRelation(const QString& role, const QSqlRelation& relation);
     bool applyAll();
+    bool submitAll();
 
 public slots:
     bool selectRow(int row);
     bool fetchAll();
     int rowToId(int row) const;
-    int idToRow(int id) const;
+    int idToRow(int id);
+    int rowCount(const QModelIndex &parent = QModelIndex());
     void filterColumn(const QString& role, const QString& filter = QString());
     QString columnFilter(const QString& role);
     bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
@@ -42,13 +46,14 @@ public slots:
     QVariant get(const QString& role) const; //uses last setRow
     int roleId(const QString& role) const;
     int roleColumn(const QString& role) const;
+    QString columnRole(int column) const;
     bool haveRole(const QString& role) const;
     QString roleName(int id);
 
 private:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    bool applyRelations(bool empty = false);
+    bool applyRelations(bool empty = false, bool skipSelect = false);
     void applyFilters(bool empty = false);
 
     //not private per se (just use role instead):
@@ -65,6 +70,7 @@ private:
     QHash<int, QSqlRelation> _relations;
     QString _totalFilter;
     int _selectedRow { 0 };
+    int _nextPrimary { 0 };
 };
 
 #endif // SQLTABLEMODEL_HPP

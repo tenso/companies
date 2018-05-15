@@ -26,6 +26,20 @@ Rectangle {
             ok = false;
         }
 
+        if (analysisModel.submitAll()) {
+            analysisModel.fetchAll();
+        }
+        else {
+            ok = false;
+        }
+
+        if (analysisResultsModel.submitAll()) {
+            analysisResultsModel.fetchAll();
+        }
+        else {
+            ok = false;
+        }
+
         if (ok) {
             showStatus(qsTr("Save successfull"));
         }
@@ -38,8 +52,13 @@ Rectangle {
 
     function revert() {
         companiesModel.revertAll();
+        companiesModel.select();
         financialsModel.revertAll();
         financialsModel.select();
+        analysisModel.revertAll();
+        analysisModel.select();
+        analysisResultsModel.revertAll();
+        analysisResultsModel.select();
         showStatus(qsTr("Revert complete"));
     }
 
@@ -49,14 +68,17 @@ Rectangle {
 
     Shortcut {
         sequence: "Ctrl+S"
+        context: Qt.ApplicationShortcut
         onActivated: save()
     }
     Shortcut {
         sequence: "Ctrl+Z"
+        context: Qt.ApplicationShortcut
         onActivated: revert()
     }
     Shortcut {
         sequence: "Ctrl+Q"
+        context: Qt.ApplicationShortcut
         onActivated: quit()
     }
 

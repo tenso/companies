@@ -12,7 +12,6 @@ AButton {
     signal willDelete(int id);
     property bool active: false
 
-
     height: tm.rowH
     width: tm.colW
     text: qsTr("Data")
@@ -42,12 +41,18 @@ AButton {
     function newEntry() {
         willCreate();
         if (model) {
+            /* DEBUG fill db:
+            for (var i = 0; i < 300; i++) {
+                model.newRow(addIdRole, addId);
+            }*/
+
             if (!model.newRow(addIdRole, addId)){
                 logError("new row failed cId=" + addId);
             }
             else {
-                logStatus("added row for cId=" + addId);
+                logStatus("added row for " + addIdRole + "=" + addId);
             }
+            model.submitAll();
         }
     }
 
@@ -61,12 +66,12 @@ AButton {
             else {
                 logStatus("removed row " + row + " for " + addId);
             }
+            model.submitAll();
         }
         else {
             willDelete(-1);
         }
 
-        var newIndex = view.currentIndex;
         if (row >= view.count) {
             view.currentIndex = row - 1;
         }

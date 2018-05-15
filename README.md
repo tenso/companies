@@ -3,6 +3,9 @@
 # TODO
 
 #Prio#
+* remove DataMenu new/delete; put in respective page; kepp willDelete etc
+* Super slow re-analysis as newRow for setYear will lock when qml has the same model?
+
 * Analysis: really use means for equity and liab for default newAnalysis?
 * Percent input/output
 * Dropdown for growth modes

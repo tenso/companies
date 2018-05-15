@@ -30,6 +30,8 @@ APage {
             if (!analysisEngine.delAllAnalysis(id)) {
                 logError("del analysises for " + id + " failed");
             }
+            analysisEngine.submitAll();
+            financialsModel.submitAll();
         }
     }
 

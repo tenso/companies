@@ -90,7 +90,6 @@ int Analysis::newAnalysis(int cId, bool empty)
     }
 
     if (!selectCompany(cId)) {
-        logError() << "failed to select company";
         _changeUpdates = true;
         return -1;
     }
@@ -121,34 +120,46 @@ int Analysis::newAnalysis(int cId, bool empty)
     double r = wacc(means["equity"], interestDebt, coeCAPM(),cod(defRate));
     set("wacc", r);
 
-    _model.submitAll();
     _changeUpdates = true;
     return aId;
 }
 
+void Analysis::submitAll()
+{
+    _model.submitAll();
+    _resultsModel.submitAll();
+}
+
 bool Analysis::delAnalysis(int aId)
 {
+    //logStatus() << "delete analysis:" << aId;
     _resultsModel.delAllRows("aId", aId);
     return _model.delRow(_model.idToRow(aId));
 }
 
 bool Analysis::delAllAnalysis(int cId)
 {
-    if (!selectCompany(cId)) {
-        logError() << "failed to select company" << cId;
-        return false;
-    }
     bool ok = true;
-    int maxIter = _model.rowCount();
-    while (maxIter > 0 && _model.rowCount()) {
-        int aId = _model.rowToId(0);
-        if (!delAnalysis(aId)) {
+    QList<int> toDelete;
+
+    for(int i = 0; i < _model.rowCount(); i++) {
+        if(_model.get(i, "cId") == cId) {
+            toDelete.push_back(_model.rowToId(i));
+        }
+    }
+
+    for(int i = 0; i < toDelete.size(); i++) {
+        if (!delAnalysis(toDelete.at(i))) {
             logError() << "failed to delete row";
             ok = false;
         }
-        maxIter--;
+    }
+
+    if (!ok) {
+        logError() << "delAllAnalysis failed" << cId;
     }
     return ok;
+
 }
 
 bool Analysis::analyse(int aId)
@@ -158,22 +169,24 @@ bool Analysis::analyse(int aId)
         return false;
     }
     _changeUpdates = false;
-    //remove old results
     _resultsModel.delAllRows("aId", _model.rowToId(_model.selectedRow()));
 
     dcfEquityValue(get("sales"), get("ebitMargin"), get("terminalEbitMargin"), get("salesGrowth"),
                    get("salesPerCapital"), get("wacc"), get("terminalGrowth"), get("growthYears"),
                    get("tax"), (Change)get("salesGrowthMode"), (Change)get("ebitMarginMode"));
+
     _changeUpdates = true;
     return true;
 }
 
 bool Analysis::selectCompany(int cId)
 {
+    _companiesRO.select();
     if (!_companiesRO.selectRow(_companiesRO.idToRow(cId))) {
         logError() << "failed to select company";
         return false;
     }
+
     _financialsRO.filterColumn("cId", "=" + QString::number(cId));
     if (!_financialsRO.applyAll()) {
         logError() << "failed to select finacials";
@@ -326,6 +339,7 @@ void Analysis::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
         int aId = _model.rowToId(row);
         logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
         analyse(aId);
+        submitAll();
         _changeUpdates = true; //precautionary
         logStatus() << "auto reAnalyse done";
     }
@@ -415,8 +429,6 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
         AnalysisDebug::logNote("terminal is more than 75% of total");
     }
 
-    _model.submitAll();
-    _resultsModel.submitAll();
     return total;
 }
 
@@ -481,12 +493,28 @@ double Analysis::get(const QString &role)
 
 bool Analysis::set(const QString &role, double val)
 {
-    return _model.set(role, QString::number(val, 'f', SavePrecision));
+    if (val < 1) {
+        return _model.set(role, QString::number(val, 'f', SavePrecisionSmall));
+    }
+    else if (val < 100) {
+        return _model.set(role, QString::number(val, 'f', SavePrecisionLarge));
+    }
+    else {
+        return _model.set(role, QString::number(val, 'f', SavePrecisionHuge));
+    }
 }
 
 bool Analysis::yearSet(const QString &role, double val)
 {
-    return _resultsModel.set(role, QString::number(val, 'f', SavePrecision));
+    if (val < 1) {
+        return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionSmall));
+    }
+    else if (val < 100) {
+        return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionLarge));
+    }
+    else {
+        return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionHuge));
+    }
 }
 
 bool Analysis::yearSet(const QString &role, int val)
@@ -512,7 +540,6 @@ bool Analysis::saveYear(int year, double sales, double cSalesGrowth, double ebit
     yearSet("fcf", fcf);
     yearSet("dcf", dcf);
     yearSet("investedCapital", investedCapital);
-    _resultsModel.submitAll();
     return true;
 }
 

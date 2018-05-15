@@ -14,7 +14,9 @@ class Analysis : public QObject
 
 public:
 
-    static constexpr int    SavePrecision = 3;
+    static constexpr int    SavePrecisionSmall = 3;
+    static constexpr int    SavePrecisionLarge = 1;
+    static constexpr int    SavePrecisionHuge = 0;
 
     enum class Change {Constant, Linear};
     static constexpr double DoubleMin = std::numeric_limits<double>::min();
@@ -38,7 +40,7 @@ public slots:
     //returns id of new analysis or -1 on error
     //autofills from available data of not empty=true
     int newAnalysis(int cId, bool empty = false);
-
+    void submitAll();
     //removes all results:
     bool delAnalysis(int aId);
     bool delAllAnalysis(int cId);
