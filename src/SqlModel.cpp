@@ -41,7 +41,7 @@ bool SqlModel::init(const QString &table)
     }
 
     QSqlQuery q = query();
-    q.prepare("select MAX(id) from " + tableName());
+    q.prepare("SELECT MAX(id) FROM " + tableName());
     if (!q.exec()) {
         logError() << "failed to get next primary";
         return false;
@@ -149,15 +149,20 @@ bool SqlModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool SqlModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    bool ok = false;
-    /*if (row < 0 || row >= rowCount()) {
-        logError() << "removeRows() no such row:" << row;
-        return ok;
+    if (row < 0 || row +count >= rowCount()) {
+        logError() << "oob" << row;
+        return false;
     }
     beginRemoveRows(parent, row, row + count - 1);
-    ok = QSqlRelationalTableModel::removeRows(row, count);
-    endRemoveRows();*/
-    return ok;
+
+    for (int i = 0; i < count; i++) {
+        _ramDataRemoved.push_back(_ramData[row][_idColumn].toString());
+        _ramData.removeAt(row);
+        _ramDataChanged.removeAt(row);
+    }
+
+    endRemoveRows();
+    return true;
 }
 
 void SqlModel::setSort(int col, Qt::SortOrder order)
@@ -192,6 +197,17 @@ bool SqlModel::applyAll()
 
 bool SqlModel::submitAll()
 {
+    for (int row = 0; row < _ramDataRemoved.count(); row++) {
+        QString s = QString("DELETE FROM ") + tableName() +
+                " WHERE id=" + _ramDataRemoved[row];
+        QSqlQuery q;
+        q.prepare(s);
+        if (!q.exec()) {
+            logError() << q.lastError();
+        }
+        logStatus() << s;
+    }
+
     for (int row = 0; row < _ramData.count(); row++) {
 
         if (_ramDataChanged[row][_idColumn] == RowChange::Insert) {
@@ -240,6 +256,11 @@ bool SqlModel::submitAll()
         }
     }
     return true;
+}
+
+bool SqlModel::revertAll()
+{
+    return select();
 }
 
 bool SqlModel::selectRow(int row)
@@ -354,8 +375,10 @@ QString SqlModel::tableName() const
 
 bool SqlModel::select()
 {
+    beginResetModel();
     _ramData.clear();
     _ramDataChanged.clear();
+    _ramDataRemoved.clear();
     QSqlQuery q = query();
     q.prepare("select * from " + tableName());
     if (!q.exec()) {
@@ -370,7 +393,7 @@ bool SqlModel::select()
             _ramDataChanged.last().append(RowChange::None);
         }
     }
-
+    endResetModel();
     return true;
 }
 
@@ -426,29 +449,29 @@ int SqlModel::selectedRow()
 
 bool SqlModel::delRow(int row)
 {
-    /*bool ok = removeRows(row, 1);
+    bool ok = removeRows(row, 1);
 
     if (!ok) {
         logError() << "delRow" << row << "failed";
     }
-    return ok;*/
+    return ok;
 }
 
 bool SqlModel::delAllRows()
 {
-    /*if (rowCount() == 0) {
+    if (rowCount() == 0) {
         return true;
     }
     bool ok = removeRows(0, rowCount());
     if (!ok) {
         logError() << "delAllRows" << rowCount() << "failed";
     }
-    return ok;*/
+    return ok;
 }
 
 bool SqlModel::delAllRows(const QString &role, const QVariant &value)
 {
-    /*bool ok = true;
+    bool ok = true;
     QList<int> toDelete;
     for(int i = 0; i < rowCount(); i++) {
         if(get(i, role) == value) {
@@ -465,7 +488,7 @@ bool SqlModel::delAllRows(const QString &role, const QVariant &value)
     if (!ok) {
         logError() << "del all rows failed:" << role << "=" << value;
     }
-    return ok;*/
+    return ok;
 }
 
 

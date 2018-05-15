@@ -54,13 +54,9 @@ Rectangle {
 
     function revert() {
         companiesModel.revertAll();
-        companiesModel.select();
         financialsModel.revertAll();
-        financialsModel.select();
         analysisModel.revertAll();
-        analysisModel.select();
         analysisResultsModel.revertAll();
-        analysisResultsModel.select();
         showStatus(qsTr("Revert complete"));
     }
 

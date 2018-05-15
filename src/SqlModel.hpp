@@ -30,6 +30,7 @@ public:
 
 public slots:
     bool submitAll();
+    bool revertAll();
     bool selectRow(int row);
     int rowToId(int row) const;
     int idToRow(int id);
@@ -86,6 +87,7 @@ private:
 
     enum class RowChange{None, Update, Insert, Remove};
     QList<QVector<RowChange>> _ramDataChanged;
+    QList<QString> _ramDataRemoved;
 };
 
 #endif // SqlModel_HPP
