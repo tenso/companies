@@ -3,6 +3,7 @@
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QRegExp>
 
 SqlModel::SqlModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -74,21 +75,28 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         if (role >= Qt::UserRole) {
             col = role - Qt::UserRole - 1;
         }
-        if (index.row() < _ramData.count()) {
-            if (col < _ramData[index.row()].count()) {
+        int row = index.row();
+        if (row < rowCount()) {
+            int aRow = actualRow(row);
+            if (col < _ramData[aRow].count()) {
                 if (_relations.contains(col)) {
                     QSqlQuery q;
                     QSqlRelation rel = _relations[col];
-                    q.prepare(QString("SELECT ") + rel.displayColumn() +
-                              " FROM " + rel.tableName() +
-                              " WHERE " + rel.indexColumn()
-                              + "=" + _ramData.at(index.row()).at(col).toString());
-                    q.exec();
-                    q.next();
-                    value = q.value(0);
+                    QString s = QString("SELECT ") + rel.displayColumn() +
+                            " FROM " + rel.tableName() +
+                            " WHERE " + rel.indexColumn()
+                            + "=" + _ramData.at(aRow).at(col).toString();
+
+                    q.prepare(s);
+                    if (!q.exec()) {
+                        logError() << QString("relation") << s << "failed:" << q.lastError();
+                    }
+                    if (q.next()) {
+                        value = q.value(0);
+                    }
                 }
                 else {
-                    value = _ramData.at(index.row()).at(col);
+                    value = _ramData.at(aRow).at(col);
                 }
             }
         }
@@ -109,10 +117,12 @@ bool SqlModel::setData(const QModelIndex &index, const QVariant &value, int role
             if (role >= Qt::UserRole) {
                 columnIdx = role - Qt::UserRole - 1;
             }
-            if (index.row() < _ramData.count()) {
-                if (columnIdx < _ramData[index.row()].count()) {
-                    _ramData[index.row()][columnIdx] = value;
-                    _ramDataChanged[index.row()][columnIdx] = RowChange::Update;
+            int row = index.row();
+            if (row < rowCount()) {
+                int aRow = actualRow(row);
+                if (columnIdx < _ramData[aRow].count()) {
+                    _ramData[aRow][columnIdx] = value;
+                    _ramDataChanged[aRow][columnIdx] = RowChange::Update;
                     emit dataChanged(index, index, QVector<int>() << role);
                     return true;
                 }
@@ -136,25 +146,44 @@ Qt::ItemFlags SqlModel::flags(const QModelIndex &index) const
 
 bool SqlModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    if (count <= 0) {
+        return false;
+    }
     bool ok = true;
+    int aRow = row;
+    if (aRow < 0) {
+        aRow = actualRowCount();
+    }
     if (row < 0) {
         row = rowCount();
     }
+
+    if (_removedByFilter.count() && aRow < actualRowCount()) {
+        logError() << "adding below actualRowCount() not allowed when filters active";
+        return false;
+    }
+
     beginInsertRows(parent, row, row + count - 1);
     for (int i = 0; i < count; i++) {
-        _ramData.insert(row + i, QVector<QVariant>());
-        _ramDataChanged.insert(row + i, QVector<RowChange>());
-        for (int i = 0; i < _numColumns; i++) {
-            if (i == _idColumn) {
+        _ramData.insert(aRow, QVector<QVariant>());
+        _ramDataChanged.insert(aRow, QVector<RowChange>());
+        for (int col = 0; col < _numColumns; col++) {
+            if (col == _idColumn) {
                 _ramData.last().append(_nextPrimary++);
             }
             else {
-                _ramData.last().append(QVariant());
+                if (_relations.contains(col)) {
+                    _ramData.last().append(DefaultRelationId);
+                }
+                else {
+                    _ramData.last().append(QVariant());
+                }
             }
             _ramDataChanged.last().append(RowChange::Insert);
         }
     }
     endInsertRows();
+
     if (!ok) {
         logError() << "insert failed:" << row << count;
     }
@@ -163,19 +192,23 @@ bool SqlModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool SqlModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    if (row < 0 || row +count >= rowCount()) {
+    if (row < 0 || row + count > rowCount()) {
         logError() << "oob" << row;
         return false;
     }
     beginRemoveRows(parent, row, row + count - 1);
 
     for (int i = 0; i < count; i++) {
-        _ramDataRemoved.push_back(_ramData[row][_idColumn].toString());
-        _ramData.removeAt(row);
-        _ramDataChanged.removeAt(row);
+        int aRow = actualRow(row);
+        _ramDataRemoved.push_back(_ramData[aRow][_idColumn].toString());
+        _ramData.removeAt(aRow);
+        _ramDataChanged.removeAt(aRow);
     }
-
     endRemoveRows();
+
+    //as we are now re-ording actual rows we must re-filter...
+    applyFilters();
+
     return true;
 }
 
@@ -220,7 +253,7 @@ bool SqlModel::submitAll()
         }
     }
 
-    for (int row = 0; row < _ramData.count(); row++) {
+    for (int row = 0; row < actualRowCount(); row++) {
 
         if (_ramDataChanged[row][_idColumn] == RowChange::Insert) {
             QString values;
@@ -284,7 +317,7 @@ bool SqlModel::selectRow(int row)
     if (row < 0) {
         return false;
     }
-    _selectedRow = row;
+    _selectedRow = actualRow(row);
     return true;
 }
 
@@ -316,35 +349,59 @@ int SqlModel::idToRow(int id)
 
 int SqlModel::rowCount(const QModelIndex &parent) const
 {
-    return _ramData.count();
+    Q_UNUSED(parent);
+    return _ramData.count() - _removedByFilter.count();
+}
+
+void SqlModel::filterColumn(const QString &role, const QString &filter)
+{
+    return filterColumn(roleColumn(role), filter);
 }
 
 void SqlModel::filterColumn(int column, const QString &filter)
 {
-    /*int roleIndex = column + Qt::UserRole + 1;
-
-    if (filter.size()) {
-        QString role =  _roles[roleIndex];
-        QString filterString = tableName() + "." + role + " " + filter;
-        _filters[roleIndex] = filterString;
+    if (filter.count()) {
+        _filters[column] = filter;
     }
     else {
-        _filters.remove(roleIndex);
+        _filters.remove(column);
     }
-    _totalFilter = QString();
-    foreach(const QString& entry, _filters.values()) {
-        _totalFilter += entry + " and ";
+    applyFilters();
+}
+
+//FIXME: there is better way to do this:
+int SqlModel::actualRow(int filteredRow) const
+{
+    if (!_removedByFilter.count()) {
+        return filteredRow;
     }
-    _totalFilter.chop(5); //remove last " and "
-    applyFilters();*/
+    if (filteredRow >= rowCount()) {
+        return filteredRow;
+    }
+
+    int i;
+    for (i = 0; i < actualRowCount(); i++) {
+        if (!_removedByFilter.contains(i)) {
+            filteredRow--;
+        }
+        if (filteredRow < 0) {
+            break;
+        }
+    }
+    return i;
 }
 
 QString SqlModel::columnFilter(int column)
 {
-    /*if (_filters.contains(column)) {
+    if (_filters.contains(column)) {
         return _filters[column];
     }
-    return "";*/
+    return "";
+}
+
+QString SqlModel::columnFilter(const QString &role)
+{
+    return columnFilter(roleColumn(role));
 }
 
 QSqlQuery SqlModel::query()
@@ -360,6 +417,60 @@ QSqlRecord SqlModel::record()
 void SqlModel::setTable(const QString &table)
 {
     _table = table;
+}
+
+void SqlModel::applyFilters()
+{
+    beginResetModel();
+    _removedByFilter.clear();
+
+    //loop through rows and filter data
+    //FIXME: fix filters
+    for (int column = 0; column < _numColumns; column++) {
+        if (!_filters.contains(column)) {
+            continue;
+        }
+        QString filter = _filters[column];
+
+        for (int row = 0; row < actualRowCount(); row++) {
+            if (filter.startsWith("=")) {
+                if (_ramData.at(row).at(column) != filter.mid(1)) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+            else if (filter.startsWith("!=")) {
+                if (_ramData.at(row).at(column) == filter.mid(2)) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+            else if (filter.startsWith("<")) {
+                if (_ramData.at(row).at(column).toDouble() >= filter.mid(1).toDouble()) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+            else if (filter.startsWith(">")) {
+                if (_ramData.at(row).at(column).toDouble() <= filter.mid(1).toDouble()) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+
+            QRegExp rx("like '%(.*)%'");
+            rx.setCaseSensitivity(Qt::CaseInsensitive);
+            if (rx.indexIn(filter) >= 0) {
+                if (!_ramData.at(row).at(column).toString().contains(rx.cap(1), Qt::CaseInsensitive)) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+        }
+    }
+    //logStatus() << "actual rows removed by filter:" << _removedByFilter;
+
+    endResetModel();
+}
+
+int SqlModel::actualRowCount() const
+{
+    return _ramData.count();
 }
 
 QString SqlModel::tableName() const
@@ -405,41 +516,19 @@ bool SqlModel::select()
     return true;
 }
 
-void SqlModel::filterColumn(const QString &role, const QString &filter)
-{
-    //return filterColumn(roleColumn(role), filter);
-}
-
-QString SqlModel::columnFilter(const QString &role)
-{
-    //return columnFilter(roleColumn(role));
-}
-
-void SqlModel::applyFilters(bool empty)
-{
-    /*if (empty) {
-        setFilter("");
-    }
-    else {
-        setFilter(_totalFilter);
-    }
-
-    if (!select()) {
-        logError() << "select failed" << selectStatement();
-    }
-    */
-}
-
 bool SqlModel::newRow(int col, const QVariant &value)
 {
-    int row = rowCount();
-    insertRows(row, 1);
-    if (col >= 0) {
-        set(row, columnRole(col), value);
+    if (insertRows(-1, 1)) {
+        int row = rowCount() - 1;
+        if (col >= 0) {
+            if (!set(row, columnRole(col), value)) {
+                return false;
+            }
+        }
+        _selectedRow = row;
+        return true;
     }
-    _selectedRow = row;
-    return true;
-
+    return false;
 }
 
 bool SqlModel::newRow(const QString &role, const QVariant &value)
@@ -487,7 +576,7 @@ bool SqlModel::delAllRows(const QString &role, const QVariant &value)
         }
     }
 
-    for(int i = 0; i < toDelete.size(); i++) {
+    for(int i = 0; i < toDelete.count(); i++) {
         if (!delRow(toDelete.at(i))) {
             ok = false;
         }
@@ -506,7 +595,7 @@ bool SqlModel::set(const int row, const QString &role, const QVariant &value)
         logError() << "SqlModel::set failed" << row << role << value;
         return false;
     }
-    return setData(createIndex(row,0), value, _roleInt[role]);
+    return setData(createIndex(row, 0), value, _roleInt[role]);
 }
 
 bool SqlModel::set(const QString &role, const QVariant &value)
@@ -519,7 +608,7 @@ QVariant SqlModel::get(const int row, const QString &role) const
     if (!haveRole(role)) {
         return QVariant();
     }
-    return data(createIndex(row,0), _roleInt[role]);
+    return data(createIndex(row, 0), _roleInt[role]);
 }
 
 QVariant SqlModel::get(const QString &role) const
