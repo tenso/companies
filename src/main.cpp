@@ -19,13 +19,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /*SqlModel model;
-    model.init("companies");
-    logStatus() << model.get(0, "name") << model.get(1, "description");
-    return 0;*/
-
     Analysis analysis;
-    if (!analysis.init()) {
+    if (!analysis.init(data.getModel("financials"))) {
         logError() << "Analysis::init failed";
         return -1;
     }

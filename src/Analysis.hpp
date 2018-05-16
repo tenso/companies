@@ -30,7 +30,7 @@ public:
     static constexpr bool   DefaultRisky = false;
 
     explicit Analysis(QObject *parent = nullptr);
-    bool init(bool autoReanalyse = true);
+    bool init(SqlModel* financialsModel, bool autoReanalyse = true);
     bool registerProperties(QQmlContext *context);
     bool test();
 
@@ -115,8 +115,7 @@ private:
     SqlModel _resultsModel;
 
     //not owned data; only lookup, dont share will set own filters,sort etc
-    SqlModel _companiesRO;
-    SqlModel _financialsRO;
+    SqlModel* _financials {nullptr};
     bool _changeUpdates { true };
     bool _autoReAnalyse{ false };
 };

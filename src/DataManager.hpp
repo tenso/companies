@@ -15,7 +15,7 @@ public:
 
     bool init(const QString& dataPath);
     bool registerTableModels(QQmlContext* context);
-
+    SqlModel* getModel(const QString& name);
 protected:
     bool setupDataStore(const QString &path);
     bool loadDB(const QString &file);

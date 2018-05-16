@@ -39,6 +39,7 @@ public slots:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     //remember: filters will make new rowCount and all operations have new row meaning (filtered)
+    void clearFilters();
     void filterColumn(const QString& role, const QString& filter = QString());
     void filterColumn(int column, const QString& filter);
     int actualRow(int filteredRow) const;
@@ -49,7 +50,9 @@ public slots:
     bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: selects new row
     int selectedRow();
     bool delRow(int row);
-    bool delAllRows();
+    bool delId(int id);
+    bool delAllRows(); //note: filter based as the rest
+    //FIXME: this does not use relation, should??
     bool delAllRows(const QString& role, const QVariant& value); //removes all rows where role=value
     bool set(const int row, const QString& role, const QVariant &value);
     bool set(const QString& role, const QVariant &value); //uses last setRow

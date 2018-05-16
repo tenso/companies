@@ -180,3 +180,14 @@ bool DataManager::registerTableModels(QQmlContext *context)
     }
     return true;
 }
+
+SqlModel *DataManager::getModel(const QString &name)
+{
+    for(int i = 0; i < _tableModels.length(); i++) {
+        if (_tableModels[i]->tableName() == name) {
+            return _tableModels[i];
+        }
+    }
+    logError() << "failed to find model" << name;
+    return nullptr;
+}

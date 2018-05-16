@@ -3,6 +3,9 @@
 # TODO
 
 #Prio#
+* filters on financialModels need to reset when changeing pages as its shared
+* SqlModel: delAllRows dont use filters, what else?
+* shared data-pointers but own filters?
 * remove DataMenu new/delete; put in respective page; kepp willDelete etc
 * Super slow re-analysis as newRow for setYear will lock when qml has the same model?
 
@@ -20,7 +23,6 @@
 ##issues
 * REFACTOR: SqlModel: work with id or rows? must choose?.
 * REFACTOR: if (!financialsModel.delAllRows()) in qml, move logic to c++
-* new entry clears all changes!
 * proper data-dirs
 * disable multiple same year entries
 * sort year? if so handle re-select of current better

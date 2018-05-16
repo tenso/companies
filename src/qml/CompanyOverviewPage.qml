@@ -24,6 +24,7 @@ APage {
 
         onWillDelete: {
             //FIXME: move all db-logic to c++ and add rest (tags etc)!
+            financialsModel.clearFilters();
             if (!financialsModel.delAllRows("cId", id)) {
                 logError("del financials for " + id + " failed");
             }

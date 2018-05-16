@@ -8,13 +8,14 @@ Analysis::Analysis(QObject *parent) : QObject(parent)
 
 }
 
-bool Analysis::init(bool autoReAnalyse)
+bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
 {
+    _financials = financialsModel;
+    if (_financials == nullptr) {
+        logError() << "financials null";
+    }
     _autoReAnalyse = autoReAnalyse;
 
-    if (!initModel(_companiesRO, "companies")) {
-        return false;
-    }
     if (!initModel(_model, "analysis")) {
         return false;
     }
@@ -22,12 +23,10 @@ bool Analysis::init(bool autoReAnalyse)
         return false;
     }
 
-    if (!_financialsRO.init("financials")) {
-        logError() << "Analysis::init financials failed";
-        return false;
+    if(_financials) {
+        _financials->filterColumn("qId", "=1"); //only want FY entries
+        _financials->setSort("year", Qt::DescendingOrder);
     }
-    _financialsRO.filterColumn("qId", "=1"); //only want FY entries
-    _financialsRO.setSort("year", Qt::DescendingOrder);
 
     buildLookups();
 
@@ -80,7 +79,7 @@ int Analysis::newAnalysis(int cId, bool empty)
     }
     int aId = _model.get("id").toInt();
     if (empty) {
-        logStatus() << "new analys (empty) for" << _companiesRO.get("name").toString();
+        logStatus() << "new analys (empty) for" << cId;
         _changeUpdates = true;
         return aId;
     }
@@ -89,7 +88,7 @@ int Analysis::newAnalysis(int cId, bool empty)
         _changeUpdates = true;
         return -1;
     }
-    logStatus() << "new analys (defaults) for" << _companiesRO.get("name").toString() << "id" << aId;
+    logStatus() << "new analys (defaults) for" << cId << "id" << aId;
 
     //defaults:
     set("tax", DefaultTaxRate);
@@ -179,19 +178,19 @@ bool Analysis::analyse(int aId)
 
 bool Analysis::selectCompany(int cId)
 {
-    if (!_companiesRO.selectRow(_companiesRO.idToRow(cId))) {
-        logError() << "failed to select company";
-        return false;
+    if (_financials) {
+        _financials->filterColumn("cId", "=" + QString::number(cId));
     }
-
-    _financialsRO.filterColumn("cId", "=" + QString::number(cId));
     return true;
 }
 
 QHash<QString, double> Analysis::fetchMeans()
 {
     QHash<QString, double> means;
-    int entries = _financialsRO.rowCount();
+    int entries = 0;
+    if (_financials) {
+        entries = _financials->rowCount();
+    }
     means["sales"] = 0;
     means["ebit"] = 0;
     means["interestPayed"] = 0;
@@ -211,7 +210,9 @@ QHash<QString, double> Analysis::fetchMeans()
 
     //order is descending years
     for (int i = 0; i < entries; i++) {
-        _financialsRO.selectRow(i);
+        if (_financials) {
+            _financials->selectRow(i);
+        }
 
         newSale = fin("sales");
         if (i > 0) {
@@ -332,7 +333,6 @@ void Analysis::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
         int aId = _model.rowToId(row);
         logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
         analyse(aId);
-        submitAll();
         _changeUpdates = true; //precautionary
         logStatus() << "auto reAnalyse done";
     }
@@ -472,7 +472,10 @@ void Analysis::buildLookups()
 
 double Analysis::fin(const QString &role)
 {
-    return _financialsRO.get(role).toDouble();
+    if (_financials) {
+        return _financials->get(role).toDouble();
+    }
+    return 0;
 }
 
 double Analysis::get(const QString &role)

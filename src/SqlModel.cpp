@@ -353,6 +353,14 @@ int SqlModel::rowCount(const QModelIndex &parent) const
     return _ramData.count() - _removedByFilter.count();
 }
 
+void SqlModel::clearFilters()
+{
+    beginResetModel();
+    _filters.clear();
+    _removedByFilter.clear();
+    endResetModel();
+}
+
 void SqlModel::filterColumn(const QString &role, const QString &filter)
 {
     return filterColumn(roleColumn(role), filter);
@@ -554,6 +562,19 @@ bool SqlModel::delRow(int row)
     return ok;
 }
 
+bool SqlModel::delId(int id)
+{
+    bool ok = false;
+    int row = idToRow(id);
+    if (row >= 0) {
+        ok = removeRows(row, 1);
+    }
+    if (!ok) {
+        logError() << "delId" << id<< "failed";
+    }
+    return ok;
+}
+
 bool SqlModel::delAllRows()
 {
     if (rowCount() == 0) {
@@ -570,18 +591,22 @@ bool SqlModel::delAllRows(const QString &role, const QVariant &value)
 {
     bool ok = true;
     QList<int> toDelete;
-    for(int i = 0; i < rowCount(); i++) {
-        if(get(i, role) == value) {
-            toDelete.push_back(i);
+    int col = roleColumn(role);
+    if (col >= 0) {
+        for(int i = 0; i < rowCount(); i++) {
+            if(_ramData[i][col] == value) {
+                toDelete.push_back(get(i, "id").toInt());
+            }
+        }
+        for(int i = 0; i < toDelete.count(); i++) {
+            if (!delId(toDelete.at(i))) {
+                ok = false;
+            }
         }
     }
-
-    for(int i = 0; i < toDelete.count(); i++) {
-        if (!delRow(toDelete.at(i))) {
-            ok = false;
-        }
+    else {
+        ok = false;
     }
-
     if (!ok) {
         logError() << "del all rows failed:" << role << "=" << value;
     }
@@ -606,6 +631,7 @@ bool SqlModel::set(const QString &role, const QVariant &value)
 QVariant SqlModel::get(const int row, const QString &role) const
 {
     if (!haveRole(role)) {
+        logError()  << "dont have role:" << role;
         return QVariant();
     }
     return data(createIndex(row, 0), _roleInt[role]);
