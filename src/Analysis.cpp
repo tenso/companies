@@ -28,10 +28,6 @@ bool Analysis::init(bool autoReAnalyse)
     }
     _financialsRO.filterColumn("qId", "=1"); //only want FY entries
     _financialsRO.setSort("year", Qt::DescendingOrder);
-    if (!_financialsRO.applyAll()) {
-        logError() << "Analysis::init financials failed";
-        return false;
-    }
 
     buildLookups();
 
@@ -189,10 +185,6 @@ bool Analysis::selectCompany(int cId)
     }
 
     _financialsRO.filterColumn("cId", "=" + QString::number(cId));
-    if (!_financialsRO.applyAll()) {
-        logError() << "failed to select finacials";
-        return false;
-    }
     return true;
 }
 
@@ -436,10 +428,6 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
 bool Analysis::initModel(SqlModel& model, const QString &table)
 {
     if (!model.init(table)) {
-        logError() << "Analysis::initModel" << table << "failed";
-        return false;
-    }
-    if (!model.applyAll()) {
         logError() << "Analysis::initModel" << table << "failed";
         return false;
     }

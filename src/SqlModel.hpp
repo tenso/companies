@@ -24,9 +24,8 @@ public:
                  int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    void setSort(const QString& role, Qt::SortOrder order);
+    void setSort(const QString& role, Qt::SortOrder order); //will re-select
     bool addRelation(const QString& role, const QSqlRelation& relation);
-    bool applyAll();
 
 public slots:
     bool submitAll();
@@ -37,8 +36,8 @@ public slots:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     void filterColumn(const QString& role, const QString& filter = QString());
     QString columnFilter(const QString& role);
-    bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
-    bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: re-writes setRow to added
+    bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: selects new row
+    bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: selects new row
     int selectedRow();
     bool delRow(int row);
     bool delAllRows();
@@ -53,14 +52,12 @@ public slots:
     bool haveRole(const QString& role) const;
     QString roleName(int id);
     QString tableName() const;
+    bool select();
 
 private:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    bool applyRelations(bool empty = false, bool skipSelect = false);
     void applyFilters(bool empty = false);
-
-    //not private per se (just use role instead):
     void setSort(int col, Qt::SortOrder order);
     bool addRelation(int col, const QSqlRelation& relation);
     void filterColumn(int column, const QString& filter);
@@ -69,7 +66,6 @@ private:
     QSqlQuery query();
     QSqlRecord record();
     void setTable(const QString& table);
-    bool select();
 
     int _idColumn { -1 };
     int _numColumns { 0 };
@@ -77,6 +73,7 @@ private:
     QHash<int, QByteArray> _colNames;
     QHash<QString, int> _roleInt; //for simple reverse-lookup
     QHash<int, QString> _filters;
+    QHash<int, Qt::SortOrder> _sorts;
     QHash<int, QSqlRelation> _relations;
     QString _totalFilter;
     int _selectedRow { 0 };
@@ -88,6 +85,7 @@ private:
     enum class RowChange{None, Update, Insert, Remove};
     QList<QVector<RowChange>> _ramDataChanged;
     QList<QString> _ramDataRemoved;
+    bool _printSql { false };
 };
 
 #endif // SqlModel_HPP

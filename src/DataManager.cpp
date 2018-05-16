@@ -127,10 +127,6 @@ bool DataManager::setupTableModels()
     }
     model->addRelation("lId", QSqlRelation("lists", "id", "name"));
     model->addRelation("tId", QSqlRelation("types", "id", "name"));
-    if (!model->applyAll()) {
-        logError() << "companies: failed";
-        return false;
-    }
     _tableModels.push_back(model);
 
     model = new SqlModel(this);
@@ -138,10 +134,6 @@ bool DataManager::setupTableModels()
         return false;
     }
     model->setSort("name", Qt::AscendingOrder);
-    if (!model->applyAll()) {
-        logError() << "types: select failed";
-        return false;
-    }
     _tableModels.push_back(model);
 
     model = new SqlModel(this);
@@ -149,10 +141,6 @@ bool DataManager::setupTableModels()
         return false;
     }
     model->setSort("name", Qt::AscendingOrder);
-    if (!model->applyAll()) {
-        logError() << "lists: select failed";
-        return false;
-    }
     _tableModels.push_back(model);
 
     model = new SqlModel(this);
@@ -162,10 +150,6 @@ bool DataManager::setupTableModels()
     model->setSort("year", Qt::DescendingOrder);
     model->addRelation("cId", QSqlRelation("companies", "id", "name"));
     model->addRelation("qId", QSqlRelation("quarters", "id", "name"));
-    if (!model->applyAll()) {
-        logError() << "financials: failed";
-        return false;
-    }
     _tableModels.push_back(model);
 
     //"simple" models
@@ -180,10 +164,6 @@ bool DataManager::addModel(const QString &table)
 {
     SqlModel* model = new SqlModel(this);
     if (!model->init(table)) {
-        return false;
-    }
-    if (!model->applyAll()) {
-        logError() << table << "select failed";
         return false;
     }
     _tableModels.push_back(model);

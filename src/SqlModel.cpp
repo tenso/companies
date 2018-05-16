@@ -70,13 +70,26 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
     QVariant value;
 
     if (index.isValid()) {
-        int columnIdx = role;
+        int col = role;
         if (role >= Qt::UserRole) {
-            columnIdx = role - Qt::UserRole - 1;
+            col = role - Qt::UserRole - 1;
         }
         if (index.row() < _ramData.count()) {
-            if (columnIdx < _ramData[index.row()].count()) {
-                value = _ramData.at(index.row()).at(columnIdx);
+            if (col < _ramData[index.row()].count()) {
+                if (_relations.contains(col)) {
+                    QSqlQuery q;
+                    QSqlRelation rel = _relations[col];
+                    q.prepare(QString("SELECT ") + rel.displayColumn() +
+                              " FROM " + rel.tableName() +
+                              " WHERE " + rel.indexColumn()
+                              + "=" + _ramData.at(index.row()).at(col).toString());
+                    q.exec();
+                    q.next();
+                    value = q.value(0);
+                }
+                else {
+                    value = _ramData.at(index.row()).at(col);
+                }
             }
         }
     }
@@ -90,7 +103,8 @@ bool SqlModel::setData(const QModelIndex &index, const QVariant &value, int role
 {
     //logStatus() << "setData:" << modelIndex << value;
     if (index.isValid()) {
-        if (data(index, role) != value) { //this is very important, dont update; will trigger heavy stuff like reAnalyse etc
+        //dont update if not needed; will trigger heavy stuff like reAnalyse etc:
+        if (data(index, role) != value) {
             int columnIdx = role;
             if (role >= Qt::UserRole) {
                 columnIdx = role - Qt::UserRole - 1;
@@ -167,32 +181,28 @@ bool SqlModel::removeRows(int row, int count, const QModelIndex &parent)
 
 void SqlModel::setSort(int col, Qt::SortOrder order)
 {
-    //QSqlRelationalTableModel::setSort(col, order);
+    _sorts[col] = order;
+    select();
 }
 
 void SqlModel::setSort(const QString &role, Qt::SortOrder order)
 {
-    //QSqlRelationalTableModel::setSort(roleColumn(role), order);
+    setSort(roleColumn(role), order);
 }
 
 bool SqlModel::addRelation(const QString &role, const QSqlRelation &relation)
 {
-    //return addRelation(roleColumn(role), relation);
+    return addRelation(roleColumn(role), relation);
 }
 
 bool SqlModel::addRelation(int col, const QSqlRelation &relation)
 {
-    /*if (col < 0) {
+    if (col < 0) {
         logError() << "col oob:" << col;
         return false;
     }
-    _relations[col] = relation;*/
+    _relations[col] = relation;
     return true;
-}
-
-bool SqlModel::applyAll()
-{
-    return applyRelations();
 }
 
 bool SqlModel::submitAll()
@@ -205,7 +215,9 @@ bool SqlModel::submitAll()
         if (!q.exec()) {
             logError() << q.lastError();
         }
-        logStatus() << s;
+        if (_printSql) {
+            logStatus() << s;
+        }
     }
 
     for (int row = 0; row < _ramData.count(); row++) {
@@ -230,7 +242,9 @@ bool SqlModel::submitAll()
             if (!q.exec()) {
                 logError() << q.lastError();
             }
-            logStatus() << s;
+            if (_printSql) {
+                logStatus() << s;
+            }
             for (int col = 0; col< _ramData[row].count(); col++) {
                 _ramDataChanged[row][col] = RowChange::None;
             }
@@ -248,7 +262,9 @@ bool SqlModel::submitAll()
                             if (!q.exec()) {
                                 logError() << q.lastError();
                             }
-                            logStatus() << s;
+                            if (_printSql) {
+                                logStatus() << s;
+                            }
                         }
                     }
                 }
@@ -271,28 +287,6 @@ bool SqlModel::selectRow(int row)
     _selectedRow = row;
     return true;
 }
-
-bool SqlModel::applyRelations(bool empty, bool skipSelect)
-{
-    /*if (_relations.size() == 0) {
-        return true;
-    }
-    foreach(int col, _relations.keys()) {
-        if (empty) {
-            setRelation(col, QSqlRelation());
-        }
-        else {
-            setRelation(col, _relations[col]);
-        }
-    }
-    if (!skipSelect && !select()) {
-        logError() << tableName() << "select failed";
-        return false;
-    }
-    */
-    return true;
-}
-
 
 int SqlModel::rowToId(int row) const
 {
@@ -379,8 +373,22 @@ bool SqlModel::select()
     _ramData.clear();
     _ramDataChanged.clear();
     _ramDataRemoved.clear();
+
+    QString sortString;
+    if (_sorts.count()) {
+        sortString = " ORDER BY ";
+        foreach(int col, _sorts.keys()) {
+            sortString += columnRole(col) +  (_sorts[col] == Qt::SortOrder::AscendingOrder ? " ASC" : " DESC") + ",";
+        }
+        sortString.chop(1); //remove last ','
+    }
+
+    QString s = "SELECT * FROM " + tableName() + sortString;
+    if (_printSql) {
+        logStatus() << s;
+    }
     QSqlQuery q = query();
-    q.prepare("select * from " + tableName());
+    q.prepare(s);
     if (!q.exec()) {
         return false;
     }
