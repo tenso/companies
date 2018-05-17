@@ -4,7 +4,7 @@ AItem {
     Theme {id:tm}
 
     id: dataRow
-    width: tm.colW
+    width: tm.wideW
     height: tm.rowH * 10
 
     Rectangle {
@@ -13,7 +13,7 @@ AItem {
         color: "transparent"
 
         Text {
-            width: tm.colW
+            width: tm.wideW
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.leftMargin: tm.margin * 2
@@ -29,9 +29,13 @@ AItem {
         anchors.leftMargin: tm.rowH * 3 + tm.margin
         itemData: dataRow.itemData
         groupName: ""
-        headerModel: [qsTr("Tax"), qsTr("Market premium"), qsTr("Riskfree"), qsTr("Growth yrs."),
-            qsTr("Terminal growth"), qsTr("Sales Mode"), qsTr("Margin mode")]
-        itemRoles:  ["tax", "marketPremium", "riskFreeRate", "growthYears",  "terminalGrowth", "salesGrowthMode", "ebitMarginMode"]
+        headerModel: [qsTr("Tax"), qsTr("Market premium"), qsTr("Riskfree"), qsTr("Risky"), qsTr("Beta"),
+            qsTr("Sales Mode"), qsTr("Margin mode")]
+        itemRoles:  ["tax", "marketPremium", "riskFreeRate", "riskyCompany", "beta",
+            "salesGrowthMode", "ebitMarginMode"]
+        itemCombos: {"salesGrowthMode": modesModel, "ebitMarginMode" : modesModel};
+        inputModes: {"tax": "%", "marketPremium": "%", "riskFreeRate": "%"}
+        itemW: tm.wideW
     }
     CompanyDetailGroup {
         id: m2
@@ -40,19 +44,23 @@ AItem {
         anchors.left: m1.left
 
         groupName: ""
-        headerModel: [qsTr("Beta"), qsTr("Risky"), qsTr("Sales"), qsTr("Margin"), qsTr("Terminal margin"),
-            qsTr("Growth"), qsTr("Sales/Cap.empl"), qsTr("WACC")]
-        itemRoles:  ["beta", "riskyCompany", "sales", "ebitMargin",  "terminalEbitMargin", "salesGrowth", "salesPerCapital", "wacc"]
+        headerModel: [qsTr("Growth yrs."), qsTr("Sales"), qsTr("Margin"), qsTr("Terminal margin"),
+            qsTr("Growth"), qsTr("Terminal growth"), qsTr("Sales/Cap.empl"), qsTr("WACC")]
+        itemRoles:  ["growthYears", "sales", "ebitMargin",  "terminalEbitMargin",
+            "salesGrowth", "terminalGrowth", "salesPerCapital", "wacc"]
+        itemW: tm.wideW
+        inputModes: {"ebitMargin": "%", "terminalEbitMargin": "%", "salesGrowth": "%", "terminalGrowth": "%", "wacc": "%"}
     }
     CompanyDetailGroup {
         id: m3
         itemData: dataRow.itemData
         anchors.top: m2.bottom
         anchors.left: m1.left
-
+        showEdit: false
         groupName: ""
         headerModel: [qsTr("Growth value"), qsTr("Terminal value"), qsTr("Total value")]
         itemRoles:  ["growthValueDiscounted", "terminalValueDiscounted", "totalValue"]
+        itemW: tm.wideW
     }
 
     CompanyHeaderDeligate {

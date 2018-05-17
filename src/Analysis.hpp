@@ -18,7 +18,7 @@ public:
     static constexpr int    SavePrecisionLarge = 1;
     static constexpr int    SavePrecisionHuge = 0;
 
-    enum class Change {Constant, Linear};
+    enum class Change {None, Constant, Linear};
     static constexpr double DoubleMin = std::numeric_limits<double>::min();
     static constexpr double DoubleMax = std::numeric_limits<double>::max();
     static constexpr double DefaultRiskFree = 0.025;

@@ -78,7 +78,7 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         int row = index.row();
         if (row < rowCount()) {
             int aRow = actualRow(row);
-            if (col < _ramData[aRow].count()) {
+            if (col >= 0 && col < _ramData[aRow].count()) {
                 if (_relations.contains(col)) {
                     QSqlQuery q;
                     QSqlRelation rel = _relations[col];
@@ -529,7 +529,21 @@ QVariant SqlModel::get(const int row, const QString &role) const
         logError()  << "dont have role:" << role;
         return QVariant();
     }
-    return data(createIndex(row, 0), _roleInt[role]);
+    if (row >= rowCount()) {
+        logError()  << "row out oob:" << row;
+        return QVariant();
+    }
+
+    QVariant value;
+    int col = roleColumn(role);
+    int aRow = actualRow(row);
+    if (col >= 0 && col < _ramData[aRow].count()) {
+        value = _ramData.at(aRow).at(col);
+    }
+    if (value.isNull()) {
+        return ""; //FIXME: for qml
+    }
+    return value;
 }
 
 void SqlModel::setSort(int col, Qt::SortOrder order)

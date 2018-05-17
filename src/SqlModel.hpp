@@ -54,14 +54,14 @@ public slots:
     bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: selects new row
     bool delRow(int row);
     bool delId(int id);
-    bool delAllRows(); //note: filter based as the rest
-    bool delAllRows(const QString& role, const QVariant& value); //removes all rows where role=value
+    bool delAllRows(); //note: uses filter
+    bool delAllRows(const QString& role, const QVariant& value); //uses filter, removes all rows where role=value
 
     bool set(const QString& role, const QVariant &value); //uses last setRow
     bool set(const int row, const QString& role, const QVariant &value);
+    //NOTE: does not use relations!
     QVariant get(const QString& role) const; //uses last setRow
     QVariant get(const int row, const QString& role) const;
-
 
     void setSort(const QString& role, Qt::SortOrder order); //will re-select
     void setSort(int col, Qt::SortOrder order);

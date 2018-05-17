@@ -13,6 +13,19 @@ AItem {
     width: 100
     height: tm.rowH
 
+    function formatIn(text) {
+        if (inputMode === "%") {
+            return (parseFloat(text) * 100).toFixed(2) + "%";
+        }
+        return text;
+    }
+    function formatOut(text) {
+        if (inputMode === "%") {
+            return (parseFloat(text) / 100);
+        }
+        return text;
+    }
+
     Rectangle {
         id: box
         anchors.fill: parent
@@ -21,11 +34,11 @@ AItem {
         TextInput {
             id: input
             focus: true
-            text: itemData ? itemData[role] : ""
+            text: root.formatIn(itemData ? itemData[role] : "")
             onEditingFinished: {
                 if (itemData && role !== "") {
                     logStatus("id:" + itemData.id + " " + role + "=" + text);
-                    itemData[role] = text; //this will clear itemData...
+                    itemData[role] = root.formatOut(text); //this will clear itemData...
                 }
                 root.updated(text);
             }

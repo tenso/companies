@@ -5,8 +5,9 @@ AItem {
     property alias headerModel: header.itemData
     property alias itemRoles: items.roles
     property alias itemCombos: items.comboModels
+    property alias inputModes: items.inputModes
     property alias groupName:  groupNameItem.text
-
+    property alias itemW: items.singleW
     focusRole: parent.focusRole
     itemData: parent.itemData
     showEdit: parent.showEdit
@@ -23,7 +24,7 @@ AItem {
         spacing: tm.margin
         Rectangle {
             id: group
-            width: groupName !== "" ? tm.colW : 0
+            width: groupName !== "" ? itemW : 0
             height: parent.height
             color: "transparent"
 
@@ -44,7 +45,7 @@ AItem {
         Column {
             CompanyHeaderDeligate {
                 id: header
-                singleW: tm.colW
+                singleW: itemW
                 font: tm.font
                 maximumLineCount: 2
                 height: tm.rowH * 2

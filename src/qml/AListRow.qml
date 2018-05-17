@@ -6,6 +6,7 @@ AItem {
 
     property variant roles: []
     property variant comboModels: ({})
+    property variant inputModes: ({})
     property variant colW: []
     property int singleW: 80
     height: tm.rowH
@@ -54,6 +55,9 @@ AItem {
 
                     if (comboModels[modelData]) {
                         item.comboModel = comboModels[modelData];
+                    }
+                    if (inputModes[modelData]) {
+                        item.inputMode = inputModes[modelData];
                     }
 
                     if (repeater.prevLoad) {

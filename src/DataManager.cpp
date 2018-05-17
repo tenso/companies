@@ -156,6 +156,9 @@ bool DataManager::setupTableModels()
     if (!addModel("quarters")) {
         return false;
     }
+    if (!addModel("modes")) {
+        return false;
+    }
 
     return true;
 }

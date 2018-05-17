@@ -19,6 +19,8 @@ bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
     if (!initModel(_model, "analysis")) {
         return false;
     }
+    _model.addRelation("salesGrowthMode", QSqlRelation("modes", "id", "name"));
+    _model.addRelation("ebitMarginMode", QSqlRelation("modes", "id", "name"));
     if (!initModel(_resultsModel, "analysisResults")) {
         return false;
     }
@@ -416,9 +418,11 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     set("growthValueDiscounted", growthDiscounted);
 
     AnalysisDebug::logTitle("Terminal");
+    cSalesGrowth = terminalGrowth;
+    cEbitMargin = terminalEbitMargin;
     cCapital += reinvest;
     cSales *= 1.0 + cSalesGrowth;
-    reinvest = cSales * terminalGrowth / salesPerCapital;
+    reinvest = cSales * cSalesGrowth / salesPerCapital;
     cEbit = cSales * terminalEbitMargin;
     fcf = cEbit * (1 - tax) - reinvest;
     dcf = fcf / pow(1.0 + wacc, year);
@@ -426,7 +430,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
     saveYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
-    double terminalValue = fcf / (wacc - terminalGrowth);
+    double terminalValue = fcf / (wacc - cSalesGrowth);
     int discountYear = year -1;
     double terminalDiscounted = terminalValue / pow(1 + wacc, discountYear);
     AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);

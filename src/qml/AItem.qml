@@ -9,6 +9,7 @@ FocusScope {
     property string roleSelector: ""
     property string focusRole: ""
     property variant prevFocus: null
+    property string inputMode: ""
     KeyNavigation.left: prevFocus
     KeyNavigation.backtab: prevFocus
 
