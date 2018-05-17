@@ -6,6 +6,12 @@ APage {
     Theme {id:tm}
     rowCount: view.count
 
+    onActiveChanged: {
+        if (active) {
+            financialsModel.filterColumn("qId", "");
+        }
+    }
+
     DataMenu {
         id: controls
         x: pageMenuX

@@ -84,6 +84,7 @@ public slots:
 private:
     void applyFilters();
     int actualRowCount() const;
+
     int _idColumn { -1 };
     int _numColumns { 0 };
     QHash<int, QByteArray> _roles;

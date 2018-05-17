@@ -23,11 +23,6 @@ bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
         return false;
     }
 
-    if(_financials) {
-        _financials->filterColumn("qId", "=1"); //only want FY entries
-        _financials->setSort("year", Qt::DescendingOrder);
-    }
-
     buildLookups();
 
     connect(&_model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
@@ -96,7 +91,8 @@ int Analysis::newAnalysis(int cId, bool empty)
     set("marketPremium", DefaultMarketRiskPremium);
     set("riskFreeRate", DefaultRiskFree);
     set("growthYears", DefaultGrowthYears);
-    set("terminalGrowth", DefaultTerminalGrowth);
+    double terminalGrowth = DefaultTerminalGrowth;
+    set("terminalGrowth", terminalGrowth);
     set("salesGrowthMode", (int)Change::Linear);
     set("ebitMarginMode", (int)Change::Linear);
     set("riskyCompany", DefaultRisky);
@@ -113,6 +109,11 @@ int Analysis::newAnalysis(int cId, bool empty)
     double interestDebt = means["liabCurrInt"] + means["liabLongInt"];
     double defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
     double r = wacc(means["equity"], interestDebt, coeCAPM(),cod(defRate));
+
+    if (r <= terminalGrowth) {
+        r = terminalGrowth + 0.01;
+    }
+
     set("wacc", r);
 
     _changeUpdates = true;
@@ -168,6 +169,16 @@ bool Analysis::analyse(int aId)
     _changeUpdates = false;
     _resultsModel.delAllRows("aId", _model.rowToId(_model.selectedRow()));
 
+    //sanity check inputs
+    double wacc = get("wacc");
+    double terminalGrowth = get("terminalGrowth");
+    if (wacc <= terminalGrowth) {
+        set("wacc", terminalGrowth + 0.001);
+    }
+    if (get("salesPerCapital") <= 0) {
+        set("salesPerCapital", 1);
+    }
+
     dcfEquityValue(get("sales"), get("ebitMargin"), get("terminalEbitMargin"), get("salesGrowth"),
                    get("salesPerCapital"), get("wacc"), get("terminalGrowth"), get("growthYears"),
                    get("tax"), (Change)get("salesGrowthMode"), (Change)get("ebitMarginMode"));
@@ -180,6 +191,7 @@ bool Analysis::selectCompany(int cId)
 {
     if (_financials) {
         _financials->filterColumn("cId", "=" + QString::number(cId));
+        _financials->filterColumn("qId", "=1"); //only want FY entries
     }
     return true;
 }
@@ -301,6 +313,9 @@ double Analysis::wacc(double equity, double interestBearingLiab, double coe, dou
 
 double Analysis::salesPerCapital(double sales, double capitalEmployed)
 {
+    if (capitalEmployed == 0) {
+        return 0;
+    }
     return sales / capitalEmployed;
 }
 
@@ -344,7 +359,12 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
                                 Change salesGrowthChange, Change ebitMarginChange)
 {
     if (salesPerCapital == 0) {
+        AnalysisDebug::logNote("setting salesPerCapital=1");
         salesPerCapital = 1;
+    }
+    if (wacc <= terminalGrowth) {
+        AnalysisDebug::logNote("setting wacc=terminalGrowth + 1%");
+        wacc = terminalGrowth + 0.01;
     }
 
     double cSalesGrowth = salesGrowth;
@@ -485,10 +505,10 @@ double Analysis::get(const QString &role)
 
 bool Analysis::set(const QString &role, double val)
 {
-    if (val < 1) {
+    if (fabs(val) < 1) {
         return _model.set(role, QString::number(val, 'f', SavePrecisionSmall));
     }
-    else if (val < 100) {
+    else if (fabs(val) < 100) {
         return _model.set(role, QString::number(val, 'f', SavePrecisionLarge));
     }
     else {
@@ -498,10 +518,10 @@ bool Analysis::set(const QString &role, double val)
 
 bool Analysis::yearSet(const QString &role, double val)
 {
-    if (val < 1) {
+    if (fabs(val) < 1) {
         return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionSmall));
     }
-    else if (val < 100) {
+    else if (fabs(val) < 100) {
         return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionLarge));
     }
     else {
