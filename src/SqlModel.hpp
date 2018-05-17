@@ -27,51 +27,59 @@ public:
                  int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    void setSort(const QString& role, Qt::SortOrder order); //will re-select
-    bool addRelation(const QString& role, const QSqlRelation& relation);
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 public slots:
+    bool select();
     bool submitAll();
     bool revertAll();
+
     bool selectRow(int row);
-    int rowToId(int row) const;
-    int idToRow(int id);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-
-    //remember: filters will make new rowCount and all operations have new row meaning (filtered)
-    void clearFilters();
-    void filterColumn(const QString& role, const QString& filter = QString());
-    void filterColumn(int column, const QString& filter);
-    int actualRow(int filteredRow) const;
-    QString columnFilter(const QString& role);
-    QString columnFilter(int column);
-
-    bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: selects new row
-    bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: selects new row
     int selectedRow();
-    bool delRow(int row);
-    bool delId(int id);
-    bool delAllRows(); //note: filter based as the rest
-    //FIXME: this does not use relation, should??
-    bool delAllRows(const QString& role, const QVariant& value); //removes all rows where role=value
-    bool set(const int row, const QString& role, const QVariant &value);
-    bool set(const QString& role, const QVariant &value); //uses last setRow
-    QVariant get(const int row, const QString& role) const;
-    QVariant get(const QString& role) const; //uses last setRow
+
+    void setTable(const QString& table);
+    QString tableName() const;
+
     int roleId(const QString& role) const;
     int roleColumn(const QString& role) const;
     QString columnRole(int column) const;
     bool haveRole(const QString& role) const;
     QString roleName(int id);
-    QString tableName() const;
-    bool select();
-    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+    int rowToId(int row) const;
+    int idToRow(int id);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    bool newRow(int col = -1, const QVariant &value = QVariant()); //NOTE: selects new row
+    bool newRow(const QString& role, const QVariant &value = QVariant()); //NOTE: selects new row
+    bool delRow(int row);
+    bool delId(int id);
+    bool delAllRows(); //note: filter based as the rest
+    bool delAllRows(const QString& role, const QVariant& value); //removes all rows where role=value
+
+    bool set(const QString& role, const QVariant &value); //uses last setRow
+    bool set(const int row, const QString& role, const QVariant &value);
+    QVariant get(const QString& role) const; //uses last setRow
+    QVariant get(const int row, const QString& role) const;
+
+
+    void setSort(const QString& role, Qt::SortOrder order); //will re-select
     void setSort(int col, Qt::SortOrder order);
+
+    //NOTE: this affects display only; all input is without realtion
+    bool addRelation(const QString& role, const QSqlRelation& relation);
     bool addRelation(int col, const QSqlRelation& relation);
+
+    //NOTE: filters will make new rowCount and all operations have new row meaning (filtered)
+    void clearFilters();
+    void filterColumn(const QString& role, const QString& filter = QString());
+    void filterColumn(int column, const QString& filter);
+    QString columnFilter(const QString& role);
+    QString columnFilter(int column);
+    int actualRow(int filteredRow) const;
+
     QSqlQuery query();
     QSqlRecord record();
-    void setTable(const QString& table);
 
 private:
     void applyFilters();

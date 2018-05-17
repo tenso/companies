@@ -212,29 +212,41 @@ bool SqlModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-void SqlModel::setSort(int col, Qt::SortOrder order)
+bool SqlModel::select()
 {
-    _sorts[col] = order;
-    select();
-}
+    beginResetModel();
+    _ramData.clear();
+    _ramDataChanged.clear();
+    _ramDataRemoved.clear();
 
-void SqlModel::setSort(const QString &role, Qt::SortOrder order)
-{
-    setSort(roleColumn(role), order);
-}
+    QString sortString;
+    if (_sorts.count()) {
+        sortString = " ORDER BY ";
+        foreach(int col, _sorts.keys()) {
+            sortString += columnRole(col) +  (_sorts[col] == Qt::SortOrder::AscendingOrder ? " ASC" : " DESC") + ",";
+        }
+        sortString.chop(1); //remove last ','
+    }
 
-bool SqlModel::addRelation(const QString &role, const QSqlRelation &relation)
-{
-    return addRelation(roleColumn(role), relation);
-}
-
-bool SqlModel::addRelation(int col, const QSqlRelation &relation)
-{
-    if (col < 0) {
-        logError() << "col oob:" << col;
+    QString s = "SELECT * FROM " + tableName() + sortString;
+    if (_printSql) {
+        logStatus() << s;
+    }
+    QSqlQuery q = query();
+    q.prepare(s);
+    if (!q.exec()) {
         return false;
     }
-    _relations[col] = relation;
+    while (q.next()) {
+        QSqlRecord r = q.record();
+        _ramData.append(QVector<QVariant>());
+        _ramDataChanged.append(QVector<RowChange>());
+        for(int i = 0; i < r.count(); i++) {
+            _ramData.last().append(r.value(i));
+            _ramDataChanged.last().append(RowChange::None);
+        }
+    }
+    endResetModel();
     return true;
 }
 
@@ -321,6 +333,61 @@ bool SqlModel::selectRow(int row)
     return true;
 }
 
+int SqlModel::selectedRow()
+{
+    return _selectedRow;
+}
+
+void SqlModel::setTable(const QString &table)
+{
+    _table = table;
+}
+
+QString SqlModel::tableName() const
+{
+    return _table;
+}
+
+int SqlModel::roleId(const QString &role) const
+{
+    if (!haveRole(role)) {
+        logError() << "faulty role on" << tableName() << role;
+        return -1;
+    }
+    return _roleInt[role];
+}
+
+int SqlModel::roleColumn(const QString &role) const
+{
+    int qtIndex = roleId(role);
+    if (qtIndex < 0) {
+        return qtIndex;
+    }
+    return (qtIndex - Qt::UserRole - 1);
+}
+
+QString SqlModel::columnRole(int column) const
+{
+    if (!_roles.contains(column + Qt::UserRole + 1)) {
+        logError() << "no such column role" << column;
+        return "";
+    }
+    return _roles[column + Qt::UserRole + 1];
+}
+
+bool SqlModel::haveRole(const QString &role) const
+{
+    return _roleInt.contains(role);
+}
+
+QString SqlModel::roleName(int id)
+{
+    if (_roles.contains(id)) {
+        return _roles[id];
+    }
+    return "";
+}
+
 int SqlModel::rowToId(int row) const
 {
     if (_idColumn < 0) {
@@ -353,177 +420,6 @@ int SqlModel::rowCount(const QModelIndex &parent) const
     return _ramData.count() - _removedByFilter.count();
 }
 
-void SqlModel::clearFilters()
-{
-    beginResetModel();
-    _filters.clear();
-    _removedByFilter.clear();
-    endResetModel();
-}
-
-void SqlModel::filterColumn(const QString &role, const QString &filter)
-{
-    return filterColumn(roleColumn(role), filter);
-}
-
-void SqlModel::filterColumn(int column, const QString &filter)
-{
-    if (filter.count()) {
-        _filters[column] = filter;
-    }
-    else {
-        _filters.remove(column);
-    }
-    applyFilters();
-}
-
-//FIXME: there is better way to do this:
-int SqlModel::actualRow(int filteredRow) const
-{
-    if (!_removedByFilter.count()) {
-        return filteredRow;
-    }
-    if (filteredRow >= rowCount()) {
-        return filteredRow;
-    }
-
-    int i;
-    for (i = 0; i < actualRowCount(); i++) {
-        if (!_removedByFilter.contains(i)) {
-            filteredRow--;
-        }
-        if (filteredRow < 0) {
-            break;
-        }
-    }
-    return i;
-}
-
-QString SqlModel::columnFilter(int column)
-{
-    if (_filters.contains(column)) {
-        return _filters[column];
-    }
-    return "";
-}
-
-QString SqlModel::columnFilter(const QString &role)
-{
-    return columnFilter(roleColumn(role));
-}
-
-QSqlQuery SqlModel::query()
-{
-    return QSqlQuery(_db);
-}
-
-QSqlRecord SqlModel::record()
-{
-    return _db.record(_table);
-}
-
-void SqlModel::setTable(const QString &table)
-{
-    _table = table;
-}
-
-void SqlModel::applyFilters()
-{
-    beginResetModel();
-    _removedByFilter.clear();
-
-    //loop through rows and filter data
-    //FIXME: fix filters
-    for (int column = 0; column < _numColumns; column++) {
-        if (!_filters.contains(column)) {
-            continue;
-        }
-        QString filter = _filters[column];
-
-        for (int row = 0; row < actualRowCount(); row++) {
-            if (filter.startsWith("=")) {
-                if (_ramData.at(row).at(column) != filter.mid(1)) {
-                    _removedByFilter.push_back(row);
-                }
-            }
-            else if (filter.startsWith("!=")) {
-                if (_ramData.at(row).at(column) == filter.mid(2)) {
-                    _removedByFilter.push_back(row);
-                }
-            }
-            else if (filter.startsWith("<")) {
-                if (_ramData.at(row).at(column).toDouble() >= filter.mid(1).toDouble()) {
-                    _removedByFilter.push_back(row);
-                }
-            }
-            else if (filter.startsWith(">")) {
-                if (_ramData.at(row).at(column).toDouble() <= filter.mid(1).toDouble()) {
-                    _removedByFilter.push_back(row);
-                }
-            }
-
-            QRegExp rx("like '%(.*)%'");
-            rx.setCaseSensitivity(Qt::CaseInsensitive);
-            if (rx.indexIn(filter) >= 0) {
-                if (!_ramData.at(row).at(column).toString().contains(rx.cap(1), Qt::CaseInsensitive)) {
-                    _removedByFilter.push_back(row);
-                }
-            }
-        }
-    }
-    //logStatus() << "actual rows removed by filter:" << _removedByFilter;
-
-    endResetModel();
-}
-
-int SqlModel::actualRowCount() const
-{
-    return _ramData.count();
-}
-
-QString SqlModel::tableName() const
-{
-    return _table;
-}
-
-bool SqlModel::select()
-{
-    beginResetModel();
-    _ramData.clear();
-    _ramDataChanged.clear();
-    _ramDataRemoved.clear();
-
-    QString sortString;
-    if (_sorts.count()) {
-        sortString = " ORDER BY ";
-        foreach(int col, _sorts.keys()) {
-            sortString += columnRole(col) +  (_sorts[col] == Qt::SortOrder::AscendingOrder ? " ASC" : " DESC") + ",";
-        }
-        sortString.chop(1); //remove last ','
-    }
-
-    QString s = "SELECT * FROM " + tableName() + sortString;
-    if (_printSql) {
-        logStatus() << s;
-    }
-    QSqlQuery q = query();
-    q.prepare(s);
-    if (!q.exec()) {
-        return false;
-    }
-    while (q.next()) {
-        QSqlRecord r = q.record();
-        _ramData.append(QVector<QVariant>());
-        _ramDataChanged.append(QVector<RowChange>());
-        for(int i = 0; i < r.count(); i++) {
-            _ramData.last().append(r.value(i));
-            _ramDataChanged.last().append(RowChange::None);
-        }
-    }
-    endResetModel();
-    return true;
-}
-
 bool SqlModel::newRow(int col, const QVariant &value)
 {
     if (insertRows(-1, 1)) {
@@ -545,11 +441,6 @@ bool SqlModel::newRow(const QString &role, const QVariant &value)
         return newRow();
     }
     return newRow(roleColumn(role), value);
-}
-
-int SqlModel::selectedRow()
-{
-    return _selectedRow;
 }
 
 bool SqlModel::delRow(int row)
@@ -613,6 +504,10 @@ bool SqlModel::delAllRows(const QString &role, const QVariant &value)
     return ok;
 }
 
+bool SqlModel::set(const QString &role, const QVariant &value)
+{
+    return set(_selectedRow, role, value);
+}
 
 bool SqlModel::set(const int row, const QString &role, const QVariant &value)
 {
@@ -623,9 +518,9 @@ bool SqlModel::set(const int row, const QString &role, const QVariant &value)
     return setData(createIndex(row, 0), value, _roleInt[role]);
 }
 
-bool SqlModel::set(const QString &role, const QVariant &value)
+QVariant SqlModel::get(const QString &role) const
 {
-    return set(_selectedRow, role, value);
+    return get(_selectedRow, role);
 }
 
 QVariant SqlModel::get(const int row, const QString &role) const
@@ -637,47 +532,152 @@ QVariant SqlModel::get(const int row, const QString &role) const
     return data(createIndex(row, 0), _roleInt[role]);
 }
 
-QVariant SqlModel::get(const QString &role) const
+void SqlModel::setSort(int col, Qt::SortOrder order)
 {
-    return get(_selectedRow, role);
+    _sorts[col] = order;
+    select();
 }
 
-int SqlModel::roleId(const QString &role) const
+void SqlModel::setSort(const QString &role, Qt::SortOrder order)
 {
-    if (!haveRole(role)) {
-        logError() << "faulty role on" << tableName() << role;
-        return -1;
+    setSort(roleColumn(role), order);
+}
+
+bool SqlModel::addRelation(const QString &role, const QSqlRelation &relation)
+{
+    return addRelation(roleColumn(role), relation);
+}
+
+bool SqlModel::addRelation(int col, const QSqlRelation &relation)
+{
+    if (col < 0) {
+        logError() << "col oob:" << col;
+        return false;
     }
-    return _roleInt[role];
+    _relations[col] = relation;
+    return true;
 }
 
-int SqlModel::roleColumn(const QString &role) const
+
+void SqlModel::clearFilters()
 {
-    int qtIndex = roleId(role);
-    if (qtIndex < 0) {
-        return qtIndex;
+    beginResetModel();
+    _filters.clear();
+    _removedByFilter.clear();
+    endResetModel();
+}
+
+void SqlModel::filterColumn(const QString &role, const QString &filter)
+{
+    return filterColumn(roleColumn(role), filter);
+}
+
+void SqlModel::filterColumn(int column, const QString &filter)
+{
+    if (filter.count()) {
+        _filters[column] = filter;
     }
-    return (qtIndex - Qt::UserRole - 1);
-}
-
-QString SqlModel::columnRole(int column) const
-{
-    if (!_roles.contains(column + Qt::UserRole + 1)) {
-        logError() << "no such column role" << column;
-        return "";
+    else {
+        _filters.remove(column);
     }
-    return _roles[column + Qt::UserRole + 1];
+    applyFilters();
 }
 
-bool SqlModel::haveRole(const QString &role) const
+QString SqlModel::columnFilter(const QString &role)
 {
-    return _roleInt.contains(role);
+    return columnFilter(roleColumn(role));
 }
 
-QString SqlModel::roleName(int id)
+QString SqlModel::columnFilter(int column)
 {
-    if (_roles.contains(id)) {
-        return _roles[id];
+    if (_filters.contains(column)) {
+        return _filters[column];
     }
     return "";
+}
+
+//FIXME: there is better way to do this:
+int SqlModel::actualRow(int filteredRow) const
+{
+    if (!_removedByFilter.count()) {
+        return filteredRow;
+    }
+    if (filteredRow >= rowCount()) {
+        return filteredRow;
+    }
+
+    int i;
+    for (i = 0; i < actualRowCount(); i++) {
+        if (!_removedByFilter.contains(i)) {
+            filteredRow--;
+        }
+        if (filteredRow < 0) {
+            break;
+        }
+    }
+    return i;
+}
+
+QSqlQuery SqlModel::query()
+{
+    return QSqlQuery(_db);
+}
+
+QSqlRecord SqlModel::record()
+{
+    return _db.record(_table);
+}
+
+void SqlModel::applyFilters()
+{
+    beginResetModel();
+    _removedByFilter.clear();
+
+    //loop through rows and filter data
+    //FIXME: fix filters
+    for (int column = 0; column < _numColumns; column++) {
+        if (!_filters.contains(column)) {
+            continue;
+        }
+        QString filter = _filters[column];
+
+        for (int row = 0; row < actualRowCount(); row++) {
+            if (filter.startsWith("=")) {
+                if (_ramData.at(row).at(column) != filter.mid(1)) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+            else if (filter.startsWith("!=")) {
+                if (_ramData.at(row).at(column) == filter.mid(2)) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+            else if (filter.startsWith("<")) {
+                if (_ramData.at(row).at(column).toDouble() >= filter.mid(1).toDouble()) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+            else if (filter.startsWith(">")) {
+                if (_ramData.at(row).at(column).toDouble() <= filter.mid(1).toDouble()) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+
+            QRegExp rx("like '%(.*)%'");
+            rx.setCaseSensitivity(Qt::CaseInsensitive);
+            if (rx.indexIn(filter) >= 0) {
+                if (!_ramData.at(row).at(column).toString().contains(rx.cap(1), Qt::CaseInsensitive)) {
+                    _removedByFilter.push_back(row);
+                }
+            }
+        }
+    }
+    //logStatus() << "actual rows removed by filter:" << _removedByFilter;
+
+    endResetModel();
+}
+
+int SqlModel::actualRowCount() const
+{
+    return _ramData.count();
 }
