@@ -30,18 +30,6 @@ Rectangle {
             ok = false;
         }
 
-        if (analysisModel.submitAll()) {
-        }
-        else {
-            ok = false;
-        }
-
-        if (analysisResultsModel.submitAll()) {
-        }
-        else {
-            ok = false;
-        }
-
         if (ok) {
             showStatus(qsTr("Save successfull"));
         }
@@ -55,8 +43,7 @@ Rectangle {
     function revert() {
         companiesModel.revertAll();
         financialsModel.revertAll();
-        analysisModel.revertAll();
-        analysisResultsModel.revertAll();
+        analysisEngine.revertAll();
         showStatus(qsTr("Revert complete"));
     }
 

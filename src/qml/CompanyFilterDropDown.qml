@@ -6,7 +6,7 @@ AItem {
     property alias model: select.comboModel
     property string role: ""
     property string filter: ""
-    signal idUpdate(string id);
+    signal textUpdate(string text);
 
     onFilterChanged: {
         companiesModel.filterColumn(role, filter)
@@ -25,7 +25,7 @@ AItem {
             text: ""
             showEdit: true
             onUpdated: {
-                root.idUpdate(id);
+                root.textUpdate(visbileText); //dont use 'id' filters use related value!
             }
         }
 
@@ -50,7 +50,7 @@ AItem {
 
             onPressed: {
                 select.text = "";
-                root.idUpdate(undefined);
+                root.textUpdate("");
             }
         }
     }

@@ -66,6 +66,16 @@ bool Analysis::test()
     return true;
 }
 
+SqlModel *Analysis::model()
+{
+    return &_model;
+}
+
+SqlModel *Analysis::resultsModel()
+{
+    return &_resultsModel;
+}
+
 int Analysis::newAnalysis(int cId, bool empty)
 {
     _changeUpdates = false;
@@ -139,6 +149,12 @@ bool Analysis::submitAll()
     ok &= _model.submitAll();
     ok &= _resultsModel.submitAll();
     return ok;
+}
+
+void Analysis::revertAll()
+{
+    _model.revertAll();
+    _resultsModel.revertAll();
 }
 
 bool Analysis::delAnalysis(int aId)

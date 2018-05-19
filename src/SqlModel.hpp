@@ -22,6 +22,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant dataNoFilter(int row, int col);
 
     bool setData(const QModelIndex &index, const QVariant &value,
                  int role = Qt::EditRole) override;
@@ -41,6 +42,7 @@ public slots:
     void setTable(const QString& table);
     QString tableName() const;
 
+    int columnToRoleId(int column) const;
     int roleId(const QString& role) const;
     int roleColumn(const QString& role) const;
     QString columnRole(int column) const;
@@ -62,13 +64,19 @@ public slots:
     //NOTE: does not use relations!
     QVariant get(const QString& role) const; //uses last setRow
     QVariant get(const int row, const QString& role) const;
+    QVariant get(const int row, const int col) const;
+    int findRow(const QString& role, const QVariant& value);
 
     void setSort(const QString& role, Qt::SortOrder order); //will re-select
     void setSort(int col, Qt::SortOrder order);
 
     //NOTE: this affects display only; all input is without realtion
+    //FIXME: remove?
     bool addRelation(const QString& role, const QSqlRelation& relation);
     bool addRelation(int col, const QSqlRelation& relation);
+
+    //will add 'role' as virtual if it does not exist as a real db-column
+    bool addRelated(const QString& role, SqlModel* model, const QString& relatedRole, const QString& displayRole);
 
     //NOTE: filters will make new rowCount and all operations have new row meaning (filtered)
     void clearFilters();
@@ -81,12 +89,24 @@ public slots:
     QSqlQuery query();
     QSqlRecord record();
 
+private slots:
+    void relatedDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+
 private:
+
+    class SqlModelRelation {
+    public:
+        SqlModel* model;
+        QString relatedRole;
+        QString displayRole;
+    };
+    QHash<int, SqlModelRelation> _related;
+
     void applyFilters();
     int actualRowCount() const;
 
-    int _idColumn { -1 };
-    int _numColumns { 0 };
+    int _idColumn {-1};
+    int _numColumns {0};
     QHash<int, QByteArray> _roles;
     QHash<int, QByteArray> _colNames;
     QHash<QString, int> _roleInt; //for simple reverse-lookup
@@ -94,8 +114,8 @@ private:
     QHash<int, Qt::SortOrder> _sorts;
     QHash<int, QSqlRelation> _relations;
     QString _totalFilter;
-    int _selectedRow { 0 };
-    int _nextPrimary { 0 };
+    int _selectedRow {0};
+    int _nextPrimary {0};
     QSqlDatabase _db;
     QString _table;
 
@@ -105,7 +125,8 @@ private:
     enum class RowChange{None, Update, Insert, Remove};
     QList<QVector<RowChange>> _ramDataChanged;
     QList<QString> _ramDataRemoved;
-    bool _printSql { false };
+    int _nextRole {0};
+    bool _printSql {false};
 };
 
 #endif // SqlModel_HPP

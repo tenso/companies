@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
         logError() << "Analysis: unit tests failed";
         return -1;
     }
+    data.getModel("companies")->addRelated("aId", analysis.model(), "id", "rebate");
 
     QApplication::setFont( QFont("Roboto") );
 

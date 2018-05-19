@@ -127,7 +127,7 @@ bool DataManager::setupTableModels()
     }
     model->addRelation("lId", QSqlRelation("lists", "id", "name"));
     model->addRelation("tId", QSqlRelation("types", "id", "name"));
-    model->addRelation("aId", QSqlRelation("analysis", "id", "rebate"));
+
     _tableModels.push_back(model);
 
     model = new SqlModel(this);

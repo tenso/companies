@@ -26,14 +26,16 @@ bool SqlModel::init(const QString &table)
     }
 
     _numColumns = record().count();
+    _nextRole = Qt::UserRole + 1;
     for (int i = 0; i < _numColumns; i++) {
         QByteArray name = record().fieldName(i).toUtf8();
         if (name == "id") {
             _idColumn = i;
         }
-        _roles[Qt::UserRole + i + 1] = name;
+        _roles[_nextRole] = name;
         _colNames[i] = name;
-        _roleInt[name] = Qt::UserRole + i + 1;
+        _roleInt[name] = _nextRole;
+        _nextRole++;
     }
 
     if (_idColumn < 0) {
@@ -79,13 +81,15 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         if (row < rowCount()) {
             int aRow = actualRow(row);
             if (col >= 0 && col < _ramData[aRow].count()) {
+                value = _ramData.at(aRow).at(col);
+
                 if (_relations.contains(col)) {
                     QSqlQuery q;
                     QSqlRelation rel = _relations[col];
                     QString s = QString("SELECT ") + rel.displayColumn() +
                             " FROM " + rel.tableName() +
                             " WHERE " + rel.indexColumn()
-                            + "=" + _ramData.at(aRow).at(col).toString();
+                            + "=" + value.toString();
 
                     q.prepare(s);
                     if (!q.exec()) {
@@ -95,10 +99,62 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
                         value = q.value(0);
                     }
                 }
-                else {
-                    value = _ramData.at(aRow).at(col);
+                else if (_related.contains(col)) {
+                    int relatedRow = _related[col].model->findRow(_related[col].relatedRole, value);
+                    int relatedCol = _related[col].model->roleColumn(_related[col].displayRole);
+                    if (relatedRow >= 0 && relatedCol >= 0) {
+                        value = _related[col].model->get(relatedRow, relatedCol);
+                    }
+                    else {
+                        logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
+                        value = "";
+                    }
                 }
             }
+        }
+    }
+    if (value.isNull()) {
+        return ""; //FIXME: for qml
+    }
+    return value;
+}
+
+QVariant SqlModel::dataNoFilter(int row, int col)
+{
+    QVariant value;
+    if (row < 0 || row >= _ramData.count()) {
+        return QVariant();
+    }
+    if (col < 0 || col >= _ramData[row].count()) {
+        return QVariant();
+    }
+    value = _ramData.at(row).at(col);
+
+    if (_relations.contains(col)) {
+        QSqlQuery q;
+        QSqlRelation rel = _relations[col];
+        QString s = QString("SELECT ") + rel.displayColumn() +
+                " FROM " + rel.tableName() +
+                " WHERE " + rel.indexColumn()
+                + "=" + value.toString();
+
+        q.prepare(s);
+        if (!q.exec()) {
+            logError() << QString("relation") << s << "failed:" << q.lastError();
+        }
+        if (q.next()) {
+            value = q.value(0);
+        }
+    }
+    else if (_related.contains(col)) {
+        int relatedRow = _related[col].model->findRow(_related[col].relatedRole, value);
+        int relatedCol = _related[col].model->roleColumn(_related[col].displayRole);
+        if (relatedRow >= 0 && relatedCol >= 0) {
+            value = _related[col].model->get(relatedRow, relatedCol);
+        }
+        else {
+            logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
+            value = "";
         }
     }
     if (value.isNull()) {
@@ -348,6 +404,11 @@ QString SqlModel::tableName() const
     return _table;
 }
 
+int SqlModel::columnToRoleId(int column) const
+{
+    return column + Qt::UserRole + 1;
+}
+
 int SqlModel::roleId(const QString &role) const
 {
     if (!haveRole(role)) {
@@ -368,11 +429,11 @@ int SqlModel::roleColumn(const QString &role) const
 
 QString SqlModel::columnRole(int column) const
 {
-    if (!_roles.contains(column + Qt::UserRole + 1)) {
+    if (!_roles.contains(columnToRoleId(column))) {
         logError() << "no such column role" << column;
         return "";
     }
-    return _roles[column + Qt::UserRole + 1];
+    return _roles[columnToRoleId(column)];
 }
 
 bool SqlModel::haveRole(const QString &role) const
@@ -529,13 +590,18 @@ QVariant SqlModel::get(const int row, const QString &role) const
         logError()  << "dont have role:" << role;
         return QVariant();
     }
+    int col = roleColumn(role);
+    return get(row, col);
+}
+
+QVariant SqlModel::get(const int row, const int col) const
+{
     if (row >= rowCount()) {
-        logError()  << "row out oob:" << row << role;
+        logError()  << "row out oob:" << row << "col:" << col;
         return QVariant();
     }
 
     QVariant value;
-    int col = roleColumn(role);
     int aRow = actualRow(row);
     if (col >= 0 && col < _ramData[aRow].count()) {
         value = _ramData.at(aRow).at(col);
@@ -543,7 +609,20 @@ QVariant SqlModel::get(const int row, const QString &role) const
     if (value.isNull()) {
         return ""; //FIXME: for qml
     }
+
     return value;
+}
+
+int SqlModel::findRow(const QString &role, const QVariant &value)
+{
+    int col = roleColumn(role);
+    for (int i = 0; i < rowCount(); i++) {
+        QVariant val = get(i, col);
+        if (val == value) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void SqlModel::setSort(int col, Qt::SortOrder order)
@@ -570,6 +649,34 @@ bool SqlModel::addRelation(int col, const QSqlRelation &relation)
     }
     _relations[col] = relation;
     return true;
+}
+
+bool SqlModel::addRelated(const QString &role, SqlModel *model, const QString &relatedRole, const QString &displayRole)
+{
+    bool ok = true;
+    beginResetModel();
+
+    if (!_roleInt.contains(role)) {
+        logStatus() << "added virtual relation on" << role;
+        _roles[_nextRole++] = role.toUtf8();
+    }
+
+    SqlModelRelation rel;
+    rel.model = model;
+    rel.relatedRole = relatedRole;
+    rel.displayRole = displayRole;
+    int col = roleColumn(role);
+    if (col >= 0) {
+        _related[col] = rel;
+    }
+    else {
+        logError() << "failed to add relation";
+        ok = false;
+    }
+    connect(rel.model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this, SLOT(relatedDataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    endResetModel();
+    return ok;
 }
 
 
@@ -642,6 +749,32 @@ QSqlRecord SqlModel::record()
     return _db.record(_table);
 }
 
+void SqlModel::relatedDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+    if (topLeft != bottomRight) {
+        logError() << "not supported";
+    }
+    bool changed = false;
+    QList<SqlModelRelation> relations = _related.values();
+    foreach(const SqlModelRelation& rel, relations) {
+        if (rel.model == sender()) {
+            foreach(int roleId, roles) {
+                QString changedRole = rel.model->roleName(roleId);
+                if (rel.displayRole == changedRole) {
+                    //logStatus() << "it changed!" << changedRole << rel.model->get(topLeft.row(), changedRole);
+                    //QModelIndex index = createIndex()    //emit dataChanged();
+                    changed = true;
+                }
+            }
+        }
+    }
+    //FIXME: dont do this:
+    if (changed) {
+        beginResetModel();
+        endResetModel();
+    }
+}
+
 void SqlModel::applyFilters()
 {
     beginResetModel();
@@ -656,23 +789,24 @@ void SqlModel::applyFilters()
         QString filter = _filters[column];
 
         for (int row = 0; row < actualRowCount(); row++) {
+            QVariant value = dataNoFilter(row, column); //get(row, column);
             if (filter.startsWith("=")) {
-                if (_ramData.at(row).at(column) != filter.mid(1)) {
+                if (value != filter.mid(1)) {
                     _removedByFilter.push_back(row);
                 }
             }
             else if (filter.startsWith("!=")) {
-                if (_ramData.at(row).at(column) == filter.mid(2)) {
+                if (value == filter.mid(2)) {
                     _removedByFilter.push_back(row);
                 }
             }
             else if (filter.startsWith("<")) {
-                if (_ramData.at(row).at(column).toDouble() >= filter.mid(1).toDouble()) {
+                if (value.toDouble() >= filter.mid(1).toDouble()) {
                     _removedByFilter.push_back(row);
                 }
             }
             else if (filter.startsWith(">")) {
-                if (_ramData.at(row).at(column).toDouble() <= filter.mid(1).toDouble()) {
+                if (value.toDouble() <= filter.mid(1).toDouble()) {
                     _removedByFilter.push_back(row);
                 }
             }
@@ -680,7 +814,7 @@ void SqlModel::applyFilters()
             QRegExp rx("like '%(.*)%'");
             rx.setCaseSensitivity(Qt::CaseInsensitive);
             if (rx.indexIn(filter) >= 0) {
-                if (!_ramData.at(row).at(column).toString().contains(rx.cap(1), Qt::CaseInsensitive)) {
+                if (!value.toString().contains(rx.cap(1), Qt::CaseInsensitive)) {
                     _removedByFilter.push_back(row);
                 }
             }

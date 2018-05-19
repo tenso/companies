@@ -27,7 +27,9 @@ AItem {
                     logStatus("id:" + itemData.id + " " + role + "=" + text);
                     itemData[role] = root.formatOut(text); //this will clear itemData...
                 }
-                root.updated(text);
+                else {
+                    root.updated(text);
+                }
             }
             verticalAlignment: Text.AlignVCenter
             color: root.fontColor

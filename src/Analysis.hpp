@@ -33,6 +33,8 @@ public:
     bool init(SqlModel* financialsModel, bool autoReanalyse = true);
     bool registerProperties(QQmlContext *context);
     bool test();
+    SqlModel* model();
+    SqlModel* resultsModel();
 
 signals:
 
@@ -41,6 +43,7 @@ public slots:
     //autofills from available data of not empty=true
     int newAnalysis(int cId, bool empty = false);
     bool submitAll();
+    void revertAll();
     //removes all results:
     bool delAnalysis(int aId);
     bool delAllAnalysis(int cId);

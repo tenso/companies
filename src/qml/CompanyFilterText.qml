@@ -5,6 +5,7 @@ AItem {
     clip: true
     property string role: ""
     property string filter: ""
+    property alias inputMode: select.inputMode
     signal textUpdate(string text);
     height: row.height
     onFilterChanged: {

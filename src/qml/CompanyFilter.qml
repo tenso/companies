@@ -40,9 +40,9 @@ Rectangle {
             role: "lId"
             model: listsModel
             width: colW[2]
-            onIdUpdate: {
-                if (id) {
-                    filter = "=" + id;
+            onTextUpdate: {
+                if (text) {
+                    filter = "=" + text;
                 }
                 else {
                     filter = "";
@@ -55,9 +55,9 @@ Rectangle {
             role: "tId"
             model: typesModel
             width: colW[3]
-            onIdUpdate: {
-                if (id) {
-                    filter = "=" + id;
+            onTextUpdate: {
+                if (text) {
+                    filter = "=" + text;
                 }
                 else {
                     filter = "";

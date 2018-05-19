@@ -11,6 +11,7 @@ AItem {
     property bool down: false
     property alias color: box.color
     readonly property color visibleColor: (loader.item ? loader.item.currentColor : root.color)
+    readonly property string visbileText: (loader.item ? loader.item.currentText : "")
     signal updated(int id)
 
     onActiveFocusChanged: {
@@ -65,10 +66,13 @@ AItem {
                 onActivated: {
                     var comboId = root.comboModel.rowToId(currentIndex);
                     if (root.itemData && root.role !== "") {
-                        root.itemData[root.role] = comboId;
                         logStatus("id:" + root.itemData.id + " " + root.role + "=" + comboId);
+                        //this might destroy this object (e.g re-analyse when changeing salesMode)
+                        root.itemData[root.role] = comboId;
                     }
-                    root.updated(comboId);
+                    else {
+                        root.updated(comboId);
+                    }
                 }
                 Component.onCompleted: {
                     currentIndex = find(currentUserText);
