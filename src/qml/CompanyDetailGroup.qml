@@ -6,6 +6,8 @@ AItem {
     property alias itemRoles: items.roles
     property alias itemCombos: items.comboModels
     property alias inputModes: items.inputModes
+    property alias colorModes: items.colorModes
+    property alias fontColors: items.fontColors
     property alias groupName:  groupNameItem.text
     property alias itemW: items.singleW
     focusRole: parent.focusRole

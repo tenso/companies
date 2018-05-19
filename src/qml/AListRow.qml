@@ -7,6 +7,8 @@ AItem {
     property variant roles: []
     property variant comboModels: ({})
     property variant inputModes: ({})
+    property variant colorModes: ({})
+    property variant fontColors: ({})
     property variant colW: []
     property int singleW: 80
     height: tm.rowH
@@ -58,6 +60,12 @@ AItem {
                     }
                     if (inputModes[modelData]) {
                         item.inputMode = inputModes[modelData];
+                    }
+                    if (colorModes[modelData]) {
+                        item.colorMode = colorModes[modelData];
+                    }
+                    if (fontColors[modelData]) {
+                        item.fontColor = fontColors[modelData];
                     }
 
                     if (repeater.prevLoad) {

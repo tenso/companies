@@ -199,7 +199,7 @@ bool Analysis::analyse(int aId)
     if (shares > 0) {
         double shareValue = total / shares;
         set("shareValue", shareValue);
-        set("rebate", 1.0 - shareValue / price );
+        set("rebate", (shareValue / price) - 1.0);
     }
     else {
         set("shareValue", 0);

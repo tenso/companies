@@ -6,25 +6,12 @@ AItem {
     property alias enabled: input.enabled
     property alias text: input.text
     property alias font: input.font
-    property color color: tm.editBg(enabled)
+    property color color: getColor()
     readonly property color visibleColor: box.color
     signal updated(string text)
 
     width: 100
     height: tm.rowH
-
-    function formatIn(text) {
-        if (inputMode === "%") {
-            return (parseFloat(text) * 100).toFixed(2) + "%";
-        }
-        return text;
-    }
-    function formatOut(text) {
-        if (inputMode === "%") {
-            return (parseFloat(text) / 100);
-        }
-        return text;
-    }
 
     Rectangle {
         id: box
@@ -43,7 +30,7 @@ AItem {
                 root.updated(text);
             }
             verticalAlignment: Text.AlignVCenter
-            color: tm.editFg(parent.enabled)
+            color: root.fontColor
             clip: true
             anchors.fill: parent
             anchors.leftMargin: 12

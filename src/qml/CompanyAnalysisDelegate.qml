@@ -75,6 +75,12 @@ AItem {
         headerModel: [qsTr("Growth value"), qsTr("Terminal value"), qsTr("Total value"), qsTr("Value/share"), qsTr("Rebate")]
         itemRoles:  ["growthValueDiscounted", "terminalValueDiscounted", "totalValue", "shareValue", "rebate"]
         inputModes: {"rebate": "%"}
+        colorModes: {
+            "rebate": { "limits": [-0.1, 0.1], "colors": [tm.fail, tm.warn, tm.ok] }
+        }
+        fontColors: {
+            "rebate": tm.inActive
+        }
         itemW: tm.wideW
     }
 

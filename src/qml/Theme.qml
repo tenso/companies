@@ -44,6 +44,10 @@ QtObject {
     property color graph3: "#c6be39"
     property color graph4: "#bc0d27"
 
+    property color ok: graph1
+    property color warn: graph3
+    property color fail: graph4
+
     function editBg(enabled) {
         return enabled ? active : inActive;
     }

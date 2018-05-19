@@ -10,10 +10,44 @@ FocusScope {
     property string focusRole: ""
     property variant prevFocus: null
     property string inputMode: ""
+    property variant colorMode
+    property color fontColor: tm.editFg(root.enabled)
     KeyNavigation.left: prevFocus
     KeyNavigation.backtab: prevFocus
 
     signal select(int index)
+
+    function getColor() {
+        var val = 0;
+        var i = 0;
+        if (colorMode) {
+            if (colorMode.limits) {
+                val = itemData ? itemData[role] : 0;
+                if (val <= colorMode.limits[0]) {
+                    return colorMode.colors[0];
+                }
+                if (val >= colorMode.limits[1]) {
+                    return colorMode.colors[2];
+                }
+                return colorMode.colors[1];
+            }
+        }
+        return tm.editBg(root.enabled)
+    }
+
+    function formatIn(text) {
+        if (inputMode === "%") {
+            return (parseFloat(text) * 100).toFixed(2) + "%";
+        }
+        return text;
+    }
+
+    function formatOut(text) {
+        if (inputMode === "%") {
+            return (parseFloat(text) / 100);
+        }
+        return text;
+    }
 
     onRoleSelectorChanged: {
         if (role !== "" && roleSelector === role) {
