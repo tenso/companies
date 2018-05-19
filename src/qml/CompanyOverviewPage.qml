@@ -46,7 +46,7 @@ APage {
             height: tm.rowH
             colW: page.colW
             x: tm.margin
-            itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
+            itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description"), qsTr("Rebate")]
         }
         CompanyFilter {
             id: filter
@@ -68,10 +68,8 @@ APage {
         anchors.top: head.bottom
         anchors.bottom: parent.bottom
 
-        delegate: AListRow {
+        delegate: CompanyRow {
             itemData: model
-            roles:  ["id", "name", "lId", "tId", "watch", "description"]
-            comboModels: { "lId": listsModel, "tId": typesModel }
             width: page.width
             height: tm.rowH
             colW: page.colW

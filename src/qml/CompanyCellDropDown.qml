@@ -6,7 +6,6 @@ AItem {
     Theme{id:tm}
     width: 100
     height: tm.rowH
-    enabled: false
     property var comboModel
     property var text: itemData ? itemData[role] : ""
     property bool down: false
@@ -16,14 +15,16 @@ AItem {
 
     onActiveFocusChanged: {
         if (activeFocus) {
-            loader.item.forceActiveFocus();
+            if (loader.item) {
+                loader.item.forceActiveFocus();
+            }
         }
     }
 
     Rectangle {
         id: box
         anchors.fill: parent
-        color: tm.editBg(enabled)
+        color: tm.editBg(root.showEdit)
 
         Component {
             id: editBox
@@ -35,7 +36,7 @@ AItem {
                 activeFocusOnTab: false
                 model: root.comboModel
                 flat: true
-                visible: root.enabled
+                visible: root.showEdit
                 anchors.fill: parent
                 textRole: "name"
                 font: tm.font
@@ -80,13 +81,13 @@ AItem {
         }
         Loader {
             id: loader
-            active: parent.enabled
+            active: root.showEdit
             anchors.fill: parent
             sourceComponent: editBox
         }
 
         CompanyCellText {
-            visible: !parent.enabled
+            visible: !root.showEdit
             width: parent.width
             text: root.text
             x: 12 //this is the built in padding in the ComboBox

@@ -2,6 +2,7 @@ import QtQuick 2.9
 
 AItem {
     id: root
+    clip: true
     property string role: ""
     property string filter: ""
     signal textUpdate(string text);
@@ -19,6 +20,7 @@ AItem {
             id: select
             color: tm.inActive
             width: parent.width - clear.width
+            showEdit: true
             focus: true
             onUpdated: {
                 root.textUpdate(text);

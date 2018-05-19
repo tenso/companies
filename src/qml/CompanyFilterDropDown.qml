@@ -23,7 +23,7 @@ AItem {
             color: tm.inActive
             width: parent.width - clear.width
             text: ""
-            enabled: true
+            showEdit: true
             onUpdated: {
                 root.idUpdate(id);
             }

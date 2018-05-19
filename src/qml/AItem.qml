@@ -11,7 +11,7 @@ FocusScope {
     property variant prevFocus: null
     property string inputMode: ""
     property variant colorMode
-    property color fontColor: tm.editFg(root.enabled)
+    property color fontColor: tm.editFg(root.showEdit)
     KeyNavigation.left: prevFocus
     KeyNavigation.backtab: prevFocus
 
@@ -32,7 +32,7 @@ FocusScope {
                 return colorMode.colors[1];
             }
         }
-        return tm.editBg(root.enabled)
+        return tm.editBg(root.showEdit)
     }
 
     function formatIn(text) {
@@ -71,7 +71,7 @@ FocusScope {
     }
     MouseArea {
         anchors.fill: parent
-        enabled: !showEdit
+        enabled: !root.showEdit
         onClicked: {
             root.select(index);
         }

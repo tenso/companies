@@ -17,19 +17,19 @@ Rectangle {
         height: tm.rowH
         colW: root.colW
         x: tm.margin
-        itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description")]
+        itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description"), qsTr("Rebate")]
     }
 
-    AListRow {
+    CompanyRow {
         id: currentCompany
-        roles:  ["id", "name", "lId", "tId", "watch", "description"]
-        comboModels: { "lId": listsModel, "tId": typesModel }
         anchors.left: parent.left
         anchors.leftMargin: tm.margin
         anchors.right: parent.right
         anchors.top: listHead.bottom
         showEdit: true
         colW: root.colW
-        onItemDataChanged: selectionChanged()
+        onItemDataChanged: {
+            selectionChanged()
+        }
     }
 }

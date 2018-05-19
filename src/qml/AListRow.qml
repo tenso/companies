@@ -9,6 +9,7 @@ AItem {
     property variant inputModes: ({})
     property variant colorModes: ({})
     property variant fontColors: ({})
+    property variant colEdit: ({})
     property variant colW: []
     property int singleW: 80
     height: tm.rowH
@@ -29,7 +30,7 @@ AItem {
                 CompanyCellEditText {
                     roleSelector: root.focusRole
                     itemData: root.itemData
-                    enabled: root.showEdit
+                    showEdit: root.showEdit
                     onSelect: {
                         root.select(index)
                     }
@@ -40,7 +41,7 @@ AItem {
                 CompanyCellDropDown {
                     roleSelector: root.focusRole
                     itemData: root.itemData
-                    enabled: root.showEdit
+                    showEdit: root.showEdit
                     onSelect: {
                         root.select(index)
                     }
@@ -50,6 +51,7 @@ AItem {
             delegate: Loader {
                 id: loader
                 width: root.colW.length ? root.colW[index] : root.singleW
+                visible: width > 0
                 height: root.height
                 sourceComponent:  comboModels[modelData] ? dropDown : text
                 onLoaded: {
@@ -67,6 +69,10 @@ AItem {
                     if (fontColors[modelData]) {
                         item.fontColor = fontColors[modelData];
                     }
+                    if (typeof(colEdit[modelData]) !== "undefined") {
+                        item.showEdit = colEdit[modelData];
+                    }
+
 
                     if (repeater.prevLoad) {
                         item.prevFocus = repeater.prevLoad;

@@ -100,9 +100,15 @@ int Analysis::newAnalysis(int cId, bool empty)
     set("riskyCompany", DefaultRisky);
 
     //from company latest data
-    _financials->selectRow(0);
-    set("shares", fin("shares"));
-    set("sharePrice", fin("sharePrice"));
+    if (_financials->rowCount() > 0) {
+        _financials->selectRow(0);
+        set("shares", fin("shares"));
+        set("sharePrice", fin("sharePrice"));
+    }
+    else {
+        set("shares", 0);
+        set("sharePrice", 0);
+    }
 
     //from company means
     QHash<QString, double> means = fetchMeans();

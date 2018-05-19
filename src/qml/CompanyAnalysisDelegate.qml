@@ -3,7 +3,8 @@ import QtQuick 2.9
 AItem {
     Theme {id:tm}
 
-    id: dataRow
+    property int myIndex: 0
+    id: root
     width: tm.wideW
     height: tm.rowH * 10
 
@@ -27,7 +28,7 @@ AItem {
         id: m1
         anchors.left: parent.left
         anchors.leftMargin: tm.rowH * 3 + tm.margin
-        itemData: dataRow.itemData
+        itemData: root.itemData
         groupName: ""
         headerModel: [qsTr("Tax"), qsTr("Market premium"), qsTr("Riskfree"), qsTr("Risky"), qsTr("Beta"),
             qsTr("Sales Mode"), qsTr("Margin mode")]
@@ -40,7 +41,7 @@ AItem {
 
     CompanyDetailGroup {
         id: m2
-        itemData: dataRow.itemData
+        itemData: root.itemData
         anchors.top: m1.bottom
         anchors.left: m1.left
 
@@ -55,7 +56,7 @@ AItem {
 
     CompanyDetailGroup {
         id: m3
-        itemData: dataRow.itemData
+        itemData: root.itemData
         anchors.top: m2.bottom
         anchors.left: m2.left
 
@@ -67,7 +68,7 @@ AItem {
 
     CompanyDetailGroup {
         id: m4
-        itemData: dataRow.itemData
+        itemData: root.itemData
         anchors.top: m3.bottom
         anchors.left: m3.left
         showEdit: false
@@ -106,7 +107,7 @@ AItem {
     Rectangle {
         id: analysisResults
         anchors.left: m1.left
-        anchors.right: parent.right
+        width: resultHeader.width
         anchors.top: resultHeader.bottom
         anchors.bottom: parent.bottom
         color: "transparent"
@@ -126,7 +127,7 @@ AItem {
                 Loader {
                     id: delegateLoader
                     anchors.fill: parent
-                    active: itemData.aId === dataRow.itemData.id
+                    active: itemData.aId === root.itemData.id
                     sourceComponent: delegate
                 }
                 Component {
@@ -134,7 +135,7 @@ AItem {
                     CompanyAnalysisResultsDelegate {
                         itemData: resultRow.itemData
                         onSelect: {
-                            view.currentIndex = index;
+                            root.select(root.myIndex);
                         }
                     }
                 }

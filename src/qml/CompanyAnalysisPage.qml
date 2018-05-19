@@ -60,13 +60,9 @@ APage {
             snapMode: ListView.SnapToItem
             delegate: CompanyAnalysisDelegate {
                 width: view.width
-                height: 650 //its a tradegy: can use height from ancestors...gets bugged calculating page.height.
-                /*onHeightChanged: {
-                    logStatus(height)
-                }*/
-
+                myIndex: index
+                height: 900 //bugg? cant use page.height - head.height?
                 itemData: model
-
                 onSelect: {
                     view.currentIndex = index;
                 }

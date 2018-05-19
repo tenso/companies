@@ -6,8 +6,8 @@ ApplicationWindow {
     Theme {id:tm}
     id: window
     visible: true
-    width: 1280
-    height: 800
+    width: 1460
+    height: 1024
     title: qsTr("Companies")
 
     property string status: ""
@@ -56,8 +56,9 @@ ApplicationWindow {
         anchors.topMargin: mainMenu.height
         currentIndex: statusBar.currentTab
 
-        property int totColW: window.width - 5*10
-        property variant colW: [70, 300, 300, 300, 70, pages.totColW - 1060]
+        property int totColW: window.width - 8*10
+        property int descW: pages.totColW - 1170
+        property variant colW: [70, 300, 300, 300, 70, descW >= tm.colW ? descW : 0, tm.wideW]
 
         CompanyOverviewPage {
             id: overview

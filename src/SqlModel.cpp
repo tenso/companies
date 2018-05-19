@@ -530,7 +530,7 @@ QVariant SqlModel::get(const int row, const QString &role) const
         return QVariant();
     }
     if (row >= rowCount()) {
-        logError()  << "row out oob:" << row;
+        logError()  << "row out oob:" << row << role;
         return QVariant();
     }
 

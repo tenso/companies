@@ -3,7 +3,6 @@ import QtQuick 2.9
 AItem {
     id: root
     Theme {id:tm}
-    property alias enabled: input.enabled
     property alias text: input.text
     property alias font: input.font
     property color color: getColor()
@@ -22,6 +21,7 @@ AItem {
             id: input
             focus: true
             text: root.formatIn(itemData ? itemData[role] : "")
+            enabled: root.showEdit
             onEditingFinished: {
                 if (itemData && role !== "") {
                     logStatus("id:" + itemData.id + " " + role + "=" + text);
