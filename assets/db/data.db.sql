@@ -136,6 +136,7 @@ CREATE TABLE IF NOT EXISTS `analysisResults` (
 	`aId`	INTEGER,
 	`type`	INTEGER,
 	`step`	INTEGER,
+	`year`	TEXT,
 	`sales`	NUMERIC,
 	`ebit`	NUMERIC,
 	`ebitMargin`	NUMERIC,
@@ -166,6 +167,10 @@ CREATE TABLE IF NOT EXISTS `analysis` (
 	`ebitMarginMode`	INTEGER,
 	`growthValueDiscounted`	NUMERIC,
 	`terminalValueDiscounted`	NUMERIC,
-	`totalValue`	NUMERIC
+	`totalValue`	NUMERIC,
+	`shares`	NUMERIC,
+	`sharePrice`	NUMERIC,
+	`shareValue`	NUMERIC,
+	`rebate`	NUMERIC
 );
 COMMIT;

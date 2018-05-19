@@ -3,6 +3,7 @@ import QtQuick 2.9
 Rectangle {
     id: root
     height: tm.rowH * 2 + tm.margin
+    width: parent.width
     color: tm.headBg
 
     property variant colW
