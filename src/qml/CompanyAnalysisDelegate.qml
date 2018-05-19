@@ -37,6 +37,7 @@ AItem {
         inputModes: {"tax": "%", "marketPremium": "%", "riskFreeRate": "%"}
         itemW: tm.wideW
     }
+
     CompanyDetailGroup {
         id: m2
         itemData: dataRow.itemData
@@ -51,22 +52,40 @@ AItem {
         itemW: tm.wideW
         inputModes: {"ebitMargin": "%", "terminalEbitMargin": "%", "salesGrowth": "%", "terminalGrowth": "%", "wacc": "%"}
     }
+
     CompanyDetailGroup {
         id: m3
         itemData: dataRow.itemData
         anchors.top: m2.bottom
-        anchors.left: m1.left
-        showEdit: false
+        anchors.left: m2.left
+
         groupName: ""
-        headerModel: [qsTr("Growth value"), qsTr("Terminal value"), qsTr("Total value")]
-        itemRoles:  ["growthValueDiscounted", "terminalValueDiscounted", "totalValue"]
+        headerModel: [qsTr("Shares"), qsTr("Share price")]
+        itemRoles:  ["shares", "sharePrice"]
         itemW: tm.wideW
     }
 
+    CompanyDetailGroup {
+        id: m4
+        itemData: dataRow.itemData
+        anchors.top: m3.bottom
+        anchors.left: m3.left
+        showEdit: false
+        groupName: ""
+        headerModel: [qsTr("Growth value"), qsTr("Terminal value"), qsTr("Total value"), qsTr("Value/share"), qsTr("Rebate")]
+        itemRoles:  ["growthValueDiscounted", "terminalValueDiscounted", "totalValue", "shareValue", "rebate"]
+        inputModes: {"rebate": "%"}
+        itemW: tm.wideW
+    }
+
+    /****************/
+    /* Calculations */
+    /****************/
+
     CompanyHeaderDeligate {
         id: resultHeader
-        anchors.left: m1.left
-        anchors.top:  m3.bottom
+        anchors.left: m4.left
+        anchors.top:  m4.bottom
         singleW: tm.colW
         font: tm.font
         maximumLineCount: 2

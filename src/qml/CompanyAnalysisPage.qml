@@ -60,7 +60,7 @@ APage {
             snapMode: ListView.SnapToItem
             delegate: CompanyAnalysisDelegate {
                 width: view.width
-                height: 660 //its a tradegy: can use height from ancestors...gets bugged calculating page.height.
+                height: 650 //its a tradegy: can use height from ancestors...gets bugged calculating page.height.
                 /*onHeightChanged: {
                     logStatus(height)
                 }*/

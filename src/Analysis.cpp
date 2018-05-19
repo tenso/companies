@@ -99,6 +99,11 @@ int Analysis::newAnalysis(int cId, bool empty)
     set("ebitMarginMode", (int)Change::Linear);
     set("riskyCompany", DefaultRisky);
 
+    //from company latest data
+    _financials->selectRow(0);
+    set("shares", fin("shares"));
+    set("sharePrice", fin("sharePrice"));
+
     //from company means
     QHash<QString, double> means = fetchMeans();
     set("sales", means["sales"]);
@@ -184,6 +189,22 @@ bool Analysis::analyse(int aId)
     dcfEquityValue(get("sales"), get("ebitMargin"), get("terminalEbitMargin"), get("salesGrowth"),
                    get("salesPerCapital"), get("wacc"), get("terminalGrowth"), get("growthYears"),
                    get("tax"), (Change)get("salesGrowthMode"), (Change)get("ebitMarginMode"));
+
+
+    //convenience data
+    double shares = get("shares");
+    double total = get("totalValue");
+    double price = get("sharePrice");
+
+    if (shares > 0) {
+        double shareValue = total / shares;
+        set("shareValue", shareValue);
+        set("rebate", 1.0 - shareValue / price );
+    }
+    else {
+        set("shareValue", 0);
+        set("rebate", 0);
+    }
 
     _changeUpdates = true;
     return true;
@@ -385,7 +406,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     double fcf = cEbit * (1 - tax) - reinvest;
     double dcf = fcf;
     AnalysisDebug::logYear(year, cSales, 0, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital); //y0
-    saveYear(year, cSales, 0, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital); //y0
+    saveYear("initial", year, cSales, 0, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital); //y0
 
     AnalysisDebug::logTitle(QString("Growth Years, sales:") + (salesGrowthChange == Change::Constant ? "Constant" : "Linear")
                             + " ebit:" + (ebitMarginChange == Change::Constant ? "Constant" : "Linear"));
@@ -402,7 +423,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
         dcf = fcf / pow(1.0 + wacc, year);
         growthDiscounted += dcf;
         AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
-        saveYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
+        saveYear(QString("+") +QString::number(year), year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
         double pos = (growthYears - year) / (double)growthYears;
         //update sales growth for next year
@@ -428,7 +449,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     dcf = fcf / pow(1.0 + wacc, year);
     AnalysisDebug::logYear();
     AnalysisDebug::logYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
-    saveYear(year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
+    saveYear("terminal", year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
     double terminalValue = fcf / (wacc - cSalesGrowth);
     int discountYear = year -1;
@@ -509,10 +530,10 @@ double Analysis::get(const QString &role)
 
 bool Analysis::set(const QString &role, double val)
 {
-    if (fabs(val) < 1) {
+    if (fabs(val) <= 10) {
         return _model.set(role, QString::number(val, 'f', SavePrecisionSmall));
     }
-    else if (fabs(val) < 100) {
+    else if (fabs(val) <= 100) {
         return _model.set(role, QString::number(val, 'f', SavePrecisionLarge));
     }
     else {
@@ -522,10 +543,10 @@ bool Analysis::set(const QString &role, double val)
 
 bool Analysis::yearSet(const QString &role, double val)
 {
-    if (fabs(val) < 1) {
+    if (fabs(val) <= 10) {
         return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionSmall));
     }
-    else if (fabs(val) < 100) {
+    else if (fabs(val) <= 100) {
         return _resultsModel.set(role, QString::number(val, 'f', SavePrecisionLarge));
     }
     else {
@@ -538,8 +559,12 @@ bool Analysis::yearSet(const QString &role, int val)
     return _resultsModel.set(role, val);
 }
 
+bool Analysis::yearSet(const QString &role, const QString& val)
+{
+    return _resultsModel.set(role, val);
+}
 
-bool Analysis::saveYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin, double reinvest,
+bool Analysis::saveYear(const QString& year, int step, double sales, double cSalesGrowth, double ebit, double cEbitMargin, double reinvest,
                         double fcf, double dcf, double investedCapital)
 {
     if (!_resultsModel.newRow("aId", _model.rowToId(_model.selectedRow()))) {
@@ -547,7 +572,8 @@ bool Analysis::saveYear(int year, double sales, double cSalesGrowth, double ebit
         return false;
     }
     yearSet("type", 1);
-    yearSet("step", year);
+    yearSet("step", step);
+    yearSet("year", year);
     yearSet("sales", sales);
     yearSet("ebit", ebit);
     yearSet("ebitMargin", cEbitMargin);

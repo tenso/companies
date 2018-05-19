@@ -94,7 +94,8 @@ private:
 
     bool yearSet(const QString &role, double val);
     bool yearSet(const QString &role, int val);
-    bool saveYear(int year, double sales, double cSalesGrowth, double ebit, double cEbitMargin,
+    bool yearSet(const QString &role, const QString& val);
+    bool saveYear(const QString &year, int step, double sales, double cSalesGrowth, double ebit, double cEbitMargin,
                   double reinvest, double fcf, double dcf, double investedCapital);
 
     class RatingLookup {
