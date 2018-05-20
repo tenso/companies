@@ -80,46 +80,13 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         int row = index.row();
         if (row < rowCount()) {
             int aRow = actualRow(row);
-            if (col >= 0 && col < _ramData[aRow].count()) {
-                value = _ramData.at(aRow).at(col);
-
-                if (_relations.contains(col)) {
-                    QSqlQuery q;
-                    QSqlRelation rel = _relations[col];
-                    QString s = QString("SELECT ") + rel.displayColumn() +
-                            " FROM " + rel.tableName() +
-                            " WHERE " + rel.indexColumn()
-                            + "=" + value.toString();
-
-                    q.prepare(s);
-                    if (!q.exec()) {
-                        logError() << QString("relation") << s << "failed:" << q.lastError();
-                    }
-                    if (q.next()) {
-                        value = q.value(0);
-                    }
-                }
-                else if (_related.contains(col)) {
-                    int relatedRow = _related[col].model->findRow(_related[col].relatedRole, value);
-                    int relatedCol = _related[col].model->roleColumn(_related[col].displayRole);
-                    if (relatedRow >= 0 && relatedCol >= 0) {
-                        value = _related[col].model->get(relatedRow, relatedCol);
-                    }
-                    else {
-                        logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
-                        value = "";
-                    }
-                }
-            }
+            return dataNoFilter(aRow, col);
         }
-    }
-    if (value.isNull()) {
-        return ""; //FIXME: for qml
     }
     return value;
 }
 
-QVariant SqlModel::dataNoFilter(int row, int col)
+QVariant SqlModel::dataNoFilter(int row, int col) const
 {
     QVariant value;
     if (row < 0 || row >= _ramData.count()) {
@@ -147,15 +114,22 @@ QVariant SqlModel::dataNoFilter(int row, int col)
         }
     }
     else if (_related.contains(col)) {
-        int relatedRow = _related[col].model->findRow(_related[col].relatedRole, value);
-        int relatedCol = _related[col].model->roleColumn(_related[col].displayRole);
+        SqlModel* model = _related[col].model;
+        bool prevFilt = model->filtersEnabled(); //dont lookup related with any filtering
+        model->setFiltersEnabled(false);
+        int relatedRow = model->findRow(_related[col].relatedRole, value);
+        int relatedCol = model->roleColumn(_related[col].displayRole);
+        //logStatus() << tableName() << row << relatedRow << relatedCol;
         if (relatedRow >= 0 && relatedCol >= 0) {
-            value = _related[col].model->get(relatedRow, relatedCol);
+            //logStatus() << "rel:" << row << col << value << _related[col].relatedRole << _related[col].displayRole << relatedRow << relatedCol;
+            value = model->get(relatedRow, relatedCol);
+            //logStatus() << value;
         }
         else {
-            logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
+            //logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
             value = "";
         }
+        model->setFiltersEnabled(prevFilt);
     }
     if (value.isNull()) {
         return ""; //FIXME: for qml
@@ -214,7 +188,7 @@ bool SqlModel::insertRows(int row, int count, const QModelIndex &parent)
         row = rowCount();
     }
 
-    if (_removedByFilter.count() && aRow < actualRowCount()) {
+    if (_filtersEnabled && _removedByFilter.count() && aRow < actualRowCount()) {
         logError() << "adding below actualRowCount() not allowed when filters active";
         return false;
     }
@@ -383,9 +357,10 @@ bool SqlModel::revertAll()
 bool SqlModel::selectRow(int row)
 {
     if (row < 0) {
+        logError() << "select row:" << row << "failed";
         return false;
     }
-    _selectedRow = actualRow(row);
+    _selectedRow = row;
     return true;
 }
 
@@ -477,6 +452,9 @@ int SqlModel::idToRow(int id)
 
 int SqlModel::rowCount(const QModelIndex &parent) const
 {
+    if (!_filtersEnabled) {
+        return actualRowCount();
+    }
     Q_UNUSED(parent);
     return _ramData.count() - _removedByFilter.count();
 }
@@ -597,7 +575,7 @@ QVariant SqlModel::get(const int row, const QString &role) const
 QVariant SqlModel::get(const int row, const int col) const
 {
     if (row >= rowCount()) {
-        logError()  << "row out oob:" << row << "col:" << col;
+        logError()  << tableName() << "row out oob:" << row << "col:" << col;
         return QVariant();
     }
 
@@ -663,6 +641,7 @@ bool SqlModel::addRelated(const QString &role, SqlModel *model, const QString &r
 
     SqlModelRelation rel;
     rel.model = model;
+    rel.role = role;
     rel.relatedRole = relatedRole;
     rel.displayRole = displayRole;
     int col = roleColumn(role);
@@ -677,6 +656,16 @@ bool SqlModel::addRelated(const QString &role, SqlModel *model, const QString &r
             this, SLOT(relatedDataChanged(QModelIndex,QModelIndex,QVector<int>)));
     endResetModel();
     return ok;
+}
+
+void SqlModel::setFiltersEnabled(bool enabled)
+{
+    _filtersEnabled = enabled;
+}
+
+bool SqlModel::filtersEnabled() const
+{
+    return _filtersEnabled;
 }
 
 
@@ -720,6 +709,10 @@ QString SqlModel::columnFilter(int column)
 //FIXME: there is better way to do this:
 int SqlModel::actualRow(int filteredRow) const
 {
+    if (!_filtersEnabled) {
+        return filteredRow;
+    }
+
     if (!_removedByFilter.count()) {
         return filteredRow;
     }
@@ -758,20 +751,19 @@ void SqlModel::relatedDataChanged(const QModelIndex &topLeft, const QModelIndex 
     QList<SqlModelRelation> relations = _related.values();
     foreach(const SqlModelRelation& rel, relations) {
         if (rel.model == sender()) {
-            foreach(int roleId, roles) {
-                QString changedRole = rel.model->roleName(roleId);
+            foreach(int id, roles) {
+                QString changedRole = rel.model->roleName(id);
                 if (rel.displayRole == changedRole) {
-                    //logStatus() << "it changed!" << changedRole << rel.model->get(topLeft.row(), changedRole);
-                    //QModelIndex index = createIndex()    //emit dataChanged();
+                    //FIXME: this will update all rows in model...:
                     changed = true;
+                    int col = roleColumn(rel.role);
+                    QModelIndex left = createIndex(0, col);
+                    QModelIndex right = createIndex(rowCount(), col);
+                    //logStatus() << "data change:" << left << right << rel.role;
+                    emit dataChanged(left, right, QVector<int>() << roleId(rel.role));
                 }
             }
         }
-    }
-    //FIXME: dont do this:
-    if (changed) {
-        beginResetModel();
-        endResetModel();
     }
 }
 
@@ -799,7 +791,7 @@ void SqlModel::applyFilters()
                 value = dataNoFilter(row, column);
             }
             else {
-                 value = get(row, column);
+                 value = _ramData[row][column];
             }
 
             if (filter.startsWith("=")) {

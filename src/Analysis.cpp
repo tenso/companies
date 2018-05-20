@@ -161,7 +161,10 @@ bool Analysis::delAnalysis(int aId)
 {
     //logStatus() << "delete analysis:" << aId;
     _resultsModel.delAllRows("aId", aId);
-    return _model.delRow(_model.idToRow(aId));
+    //logStatus() << "rows done";
+    bool ok = _model.delRow(_model.idToRow(aId));
+    //logStatus() << "done";
+    return ok;
 }
 
 bool Analysis::delAllAnalysis(int cId)
@@ -191,12 +194,13 @@ bool Analysis::delAllAnalysis(int cId)
 
 bool Analysis::analyse(int aId)
 {
-    if (!_model.selectRow(_model.idToRow(aId)))  {
+    int row = _model.idToRow(aId);
+    if (!_model.selectRow(row))  {
         logError() << "failed to select aId:" << aId;
         return false;
     }
     _changeUpdates = false;
-    _resultsModel.delAllRows("aId", _model.rowToId(_model.selectedRow()));
+    _resultsModel.delAllRows("aId", aId);
 
     //sanity check inputs
     double wacc = get("wacc");

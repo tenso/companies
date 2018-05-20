@@ -36,14 +36,14 @@ FocusScope {
     }
 
     function formatIn(text) {
-        if (inputMode === "%") {
+        if (inputMode === "%" && text !== "") {
             return (parseFloat(text) * 100).toFixed(2) + "%";
         }
         return text;
     }
 
     function formatOut(text) {
-        if (inputMode === "%") {
+        if (inputMode === "%" && text !== "") {
             return (parseFloat(text) / 100);
         }
         return text;

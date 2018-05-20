@@ -3,17 +3,14 @@
 # TODO
 
 ## Prio ##
-* dont reset whole model if related value changes
-* Virtual relation to get data to qml
-
+* Check: Virtual relation to get data to qml
 * Analysis: check: presented. Shown in overview.
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
 
 ## goals ##
-* Third detail: assumptions sensitivity analysis (margins etc)
+* magic formula
+* assumptions sensitivity analysis (margins etc)
 * detail: compare companies; present analys in valulation-overview-page
-
-## Possible-goals ##
 * Calculate bottom up beta: levered/delevered beta
 
 ## issues ##
@@ -24,3 +21,4 @@
 * proper data-dirs
 * disable multiple same year entries
 * Show number of financials on all rows in overview.
+* dont dataChanged on all rows in model if related value changes

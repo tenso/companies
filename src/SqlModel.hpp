@@ -9,6 +9,18 @@
 #include <QList>
 #include <QVector>
 
+/* NOTES
+ * FILTERS: affects every operation unless explicitly stated in function name that it does not
+ *          this incldues rowCount, set/get data.
+ *
+ * RELATIONS: only a display feature i.e. does not affect functions more than data()
+ *            get() a value will return the key, setting a value will set the key.
+ *            filters can be made to look on the related value though.
+ *
+ * SORT: affects underlying data order (everything). no issues.
+ *
+ */
+
 class SqlModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -22,7 +34,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QVariant dataNoFilter(int row, int col);
+    QVariant dataNoFilter(int row, int col) const;
 
     bool setData(const QModelIndex &index, const QVariant &value,
                  int role = Qt::EditRole) override;
@@ -61,7 +73,6 @@ public slots:
 
     bool set(const QString& role, const QVariant &value); //uses last setRow
     bool set(const int row, const QString& role, const QVariant &value);
-    //NOTE: does not use relations!
     QVariant get(const QString& role) const; //uses last setRow
     QVariant get(const int row, const QString& role) const;
     QVariant get(const int row, const int col) const;
@@ -79,7 +90,10 @@ public slots:
     bool addRelated(const QString& role, SqlModel* model, const QString& relatedRole, const QString& displayRole);
 
     //NOTE: filters will make new rowCount and all operations have new row meaning (filtered)
-    //NOTE: start filter with & to make it follow relations e.g. "&rebate<1.0"
+    //NOTE: start filter with & to make it filter on the related value and not the "key" e.g. "&rebate<1.0"
+
+    void setFiltersEnabled(bool enabled);
+    bool filtersEnabled() const;
     void clearFilters();
     void filterColumn(const QString& role, const QString& filter = QString());
     void filterColumn(int column, const QString& filter);
@@ -98,6 +112,7 @@ private:
     class SqlModelRelation {
     public:
         SqlModel* model;
+        QString role;
         QString relatedRole;
         QString displayRole;
     };
@@ -128,6 +143,7 @@ private:
     QList<QString> _ramDataRemoved;
     int _nextRole {0};
     bool _printSql {false};
+    bool _filtersEnabled { true };
 };
 
 #endif // SqlModel_HPP
