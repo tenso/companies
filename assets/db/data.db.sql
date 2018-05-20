@@ -129,7 +129,8 @@ CREATE TABLE IF NOT EXISTS `companies` (
 	`lId`	INTEGER,
 	`tId`	INTEGER,
 	`watch`	INTEGER,
-	`description`	TEXT
+	`description`	TEXT,
+	`aId`	INTEGER
 );
 CREATE TABLE IF NOT EXISTS `analysisResults` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,8 +145,7 @@ CREATE TABLE IF NOT EXISTS `analysisResults` (
 	`reinvestments`	NUMERIC,
 	`fcf`	NUMERIC,
 	`dcf`	NUMERIC,
-	`investedCapital`	NUMERIC,
-	`discountYear`	INTEGER
+	`investedCapital`	NUMERIC
 );
 CREATE TABLE IF NOT EXISTS `analysis` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,

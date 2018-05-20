@@ -140,6 +140,10 @@ QVariant SqlModel::dataNoFilter(int row, int col) const
 bool SqlModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     //logStatus() << "setData:" << modelIndex << value;
+    if (_virtualRoles.contains(role)) {
+        logError() << "setting value on virtual role not allowed";
+        return false;
+    }
     if (index.isValid()) {
         //dont update if not needed; will trigger heavy stuff like reAnalyse etc:
         if (data(index, role) != value) {
@@ -636,7 +640,9 @@ bool SqlModel::addRelated(const QString &role, SqlModel *model, const QString &r
 
     if (!_roleInt.contains(role)) {
         logStatus() << "added virtual relation on" << role;
-        _roles[_nextRole++] = role.toUtf8();
+        _roles[_nextRole] = role.toUtf8();
+        _virtualRoles[_nextRole] = role.toUtf8();
+        _nextRole++;
     }
 
     SqlModelRelation rel;
