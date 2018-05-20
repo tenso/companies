@@ -24,7 +24,10 @@ Rectangle {
             text: qsTr("Financials")
         }
         ATabButton {
-            text: qsTr("Analysis")
+            text: qsTr("DCF")
+        }
+        ATabButton {
+            text: qsTr("Magic formula")
         }
     }
     Text {

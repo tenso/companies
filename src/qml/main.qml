@@ -56,9 +56,9 @@ ApplicationWindow {
         anchors.topMargin: mainMenu.height
         currentIndex: statusBar.currentTab
 
-        property int totColW: window.width - 8*10
-        property int descW: pages.totColW - 1170
-        property variant colW: [70, 300, 300, 300, 70, descW >= tm.colW ? descW : 0, tm.wideW]
+        property int totColW: window.width - 9*10
+        property int descW: pages.totColW - 1260
+        property variant colW: [70, 300, 300, 300, 70, descW >= tm.colW ? descW : 0, tm.wideW, tm.colW]
 
         CompanyOverviewPage {
             id: overview
@@ -77,6 +77,12 @@ ApplicationWindow {
             colW: pages.colW
             selectedData: overview.selectedData
             active: pages.currentIndex == 2
+        }
+        CompanyMagicFormulaPage {
+            id: magic
+            colW: pages.colW
+            selectedData: overview.selectedData
+            active: pages.currentIndex == 3
         }
     }
 

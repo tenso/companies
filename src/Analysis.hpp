@@ -8,6 +8,11 @@
 
 class QQmlContext;
 
+/* Nomenclature:
+ * debt: interest bearing liablities
+ * total debt = short term ibl + long term ibl
+ */
+
 class Analysis : public QObject
 {
     Q_OBJECT
@@ -35,20 +40,24 @@ public:
     bool test();
     SqlModel* model();
     SqlModel* resultsModel();
+    SqlModel* magicModel();
 
 signals:
 
 public slots:
     //returns id of new analysis or -1 on error
     //autofills from available data of not empty=true
-    int newAnalysis(int cId, bool empty = false);
+    int newDCFAnalysis(int cId, bool empty = false);
+    int newMagicAnalysis(int cId);
     bool submitAll();
     void revertAll();
     //removes all results:
-    bool delAnalysis(int aId);
+    bool delDCFAnalysis(int aId);
+    bool delMagicAnalysis(int aId);
     bool delAllAnalysis(int cId);
 
-    bool analyse(int aId);
+    bool analyseDCF(int aId);
+    bool analyseMagic(int aId);
 
     bool selectCompany(int cId);
     QHash<QString, double> fetchMeans();
@@ -73,9 +82,12 @@ public slots:
     double salesPerCapital(double sales, double capitalEmployed);
     double workingCapital(double currentAssets, double cash, double currentLiabilities, double currentDebt);
     double capitalEmployed(double workingCapital, double ppe);
+    double mcap(double shares, double sharePrice);
+    double ev(double mcap, double cash, double currentDebt, double longDebt); //FIXME: needs more terms
 
 private slots:
-    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    void dcfDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    void magicDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 
 private:
     //dcf
@@ -91,8 +103,8 @@ private:
     bool initModel(SqlModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
-    double get(const QString& role); //remember to run _financials.selectRow() before!
-    bool set(const QString& role, double val);
+    double get(const QString& role, SqlModel *model = nullptr); //remember to run _financials.selectRow() before!
+    bool set(const QString& role, double val, SqlModel *model = nullptr);
 
 
     bool yearSet(const QString &role, double val);
@@ -117,6 +129,7 @@ private:
     //this class owns data:
     SqlModel _model;
     SqlModel _resultsModel;
+    SqlModel _magicModel;
 
     //not owned data; only lookup, dont share will set own filters,sort etc
     SqlModel* _financials {nullptr};

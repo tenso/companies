@@ -5,7 +5,7 @@ Rectangle {
     Theme {id: tm}
     id: companyRow
     color: tm.headBg
-    property variant colW: [0, 0, 0, 0, 0, 0, 0]
+    property variant colW: [0, 0, 0, 0, 0, 0, 0, 0]
     width: filterRow.width
     height: tm.rowH
 
@@ -94,7 +94,16 @@ Rectangle {
             onTextUpdate: {
                 filter = "&" + text;
             }
-            prevFocus: type
+            prevFocus: description
+        }
+        CompanyFilterText {
+            id: mscore
+            role: "maId"
+            width: colW[7]
+            onTextUpdate: {
+                filter = "&" + text;
+            }
+            prevFocus: rebate
         }
     }
 }

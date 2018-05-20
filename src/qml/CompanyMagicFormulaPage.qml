@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 
 APage {
     id: page
-
+    Theme {id:tm}
     DataMenu {
         id: controls
         x: pageMenuX
@@ -17,15 +17,15 @@ APage {
                 logError("no selection");
                 return;
             }
-            var aId = analysisEngine.newDCFAnalysis(selectedData.id);
+            var aId = analysisEngine.newMagicAnalysis(selectedData.id);
             if (aId < 0) {
-                logError("failed to create new analysis");
+                logError("failed to magic analyse " + aId);
             }
         }
 
         onWillDelete: {
-            var id = analysisModel.rowToId(view.currentIndex);
-            analysisEngine.delDCFAnalysis(id);
+            var id = magicModel.rowToId(view.currentIndex);
+            analysisEngine.delMagicAnalysis(id);
         }
     }
 
@@ -36,7 +36,7 @@ APage {
 
         onSelectionChanged: {
             if (selectedData) {
-                analysisModel.filterColumn("cId", "=" + selectedData.id);
+                magicModel.filterColumn("cId", "=" + selectedData.id);
             }
         }
     }
@@ -50,14 +50,27 @@ APage {
 
         AList {
             id: view
-            model: analysisModel
+            model: magicModel
             anchors.fill: parent
+            anchors.leftMargin: tm.rowH * 3 + tm.margin
             snapMode: ListView.SnapToItem
-            delegate: CompanyAnalysisDelegate {
-                width: view.width
-                myIndex: index
-                height: 900 //bugg? cant use page.height - head.height?
+            delegate: CompanyDetailGroup {
                 itemData: model
+                width: view.width
+                height: tm.rowH * 3
+                groupName: ""
+                focusRole: ""
+                showEdit: false
+                headerModel: [qsTr("Ebit"), qsTr("EV"), qsTr("Cap. Employed"), qsTr("Score")]
+                itemRoles:  ["ebit", "ev", "capitalEmployed", "score"]
+                colorModes: {
+                    "score": { "limits": [0.1, 0.25], "colors": [tm.fail, tm.warn, tm.ok] }
+                }
+                fontColors: {
+                    "score": tm.inActive
+                }
+                colEdit: {"score": false}
+                itemW: tm.wideW
                 onSelect: {
                     view.currentIndex = index;
                 }

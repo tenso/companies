@@ -3,17 +3,18 @@
 # TODO
 
 ## Prio ##
-* Check: Virtual relation to get data to qml
 * Analysis: check: presented. Shown in overview.
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
 
 ## goals ##
-* magic formula
 * assumptions sensitivity analysis (margins etc)
 * detail: compare companies; present analys in valulation-overview-page
 * Calculate bottom up beta: levered/delevered beta
 
 ## issues ##
+* capitalize leases
+* capitalize r&d
+* Check: Virtual relation to get data to qml
 * showEdit vs enabled
 * Analysis: really use means for equity and liab for default newAnalysis?
 * shared data-pointers but own filters?

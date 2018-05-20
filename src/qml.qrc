@@ -30,5 +30,6 @@
         <file>qml/CompanyAnalysisDelegate.qml</file>
         <file>qml/CompanyAnalysisResultsDelegate.qml</file>
         <file>qml/CompanyRow.qml</file>
+        <file>qml/CompanyMagicFormulaPage.qml</file>
     </qresource>
 </RCC>

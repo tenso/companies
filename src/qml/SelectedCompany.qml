@@ -17,7 +17,8 @@ Rectangle {
         height: tm.rowH
         colW: root.colW
         x: tm.margin
-        itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"), qsTr("Description"), qsTr("Rebate")]
+        itemData: [qsTr("Id"), qsTr("Name"), qsTr("List"), qsTr("Type"), qsTr("Watch"),
+            qsTr("Description"), qsTr("Rebate"), qsTr("MScore")]
     }
 
     CompanyRow {

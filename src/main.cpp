@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     data.getModel("companies")->addRelated("aId", analysis.model(), "id", "rebate");
+    data.getModel("companies")->addRelated("maId", analysis.magicModel(), "id", "score");
 
     QApplication::setFont( QFont("Roboto") );
 

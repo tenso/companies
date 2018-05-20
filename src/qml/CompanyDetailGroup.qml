@@ -8,6 +8,7 @@ AItem {
     property alias inputModes: items.inputModes
     property alias colorModes: items.colorModes
     property alias fontColors: items.fontColors
+    property alias colEdit: items.colEdit
     property alias groupName:  groupNameItem.text
     property alias itemW: items.singleW
     focusRole: parent.focusRole
@@ -15,7 +16,9 @@ AItem {
     showEdit: parent.showEdit
 
     onSelect: {
-        parent.select(index);
+        if (parent.select) {
+            parent.select(index);
+        }
     }
 
     height: tm.rowH * 3

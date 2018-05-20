@@ -21,14 +21,22 @@ bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
     }
     _model.addRelation("salesGrowthMode", QSqlRelation("modes", "id", "name"));
     _model.addRelation("ebitMarginMode", QSqlRelation("modes", "id", "name"));
+
     if (!initModel(_resultsModel, "analysisResults")) {
+        return false;
+    }
+
+    if (!initModel(_magicModel, "magicFormula")) {
         return false;
     }
 
     buildLookups();
 
     connect(&_model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-            this, SLOT(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+            this, SLOT(dcfDataChanged(QModelIndex,QModelIndex,QVector<int>)));
+
+    connect(&_magicModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this, SLOT(magicDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     return true;
 }
@@ -38,6 +46,7 @@ bool Analysis::registerProperties(QQmlContext *context)
     context->setContextProperty("analysisEngine", this);
     context->setContextProperty("analysisModel", &_model);
     context->setContextProperty("analysisResultsModel", &_resultsModel);
+    context->setContextProperty("magicModel", &_magicModel);
     return true;
 }
 
@@ -76,15 +85,22 @@ SqlModel *Analysis::resultsModel()
     return &_resultsModel;
 }
 
-int Analysis::newAnalysis(int cId, bool empty)
+SqlModel *Analysis::magicModel()
+{
+    return &_magicModel;
+}
+
+int Analysis::newDCFAnalysis(int cId, bool empty)
 {
     _changeUpdates = false;
+    //DCF
     if (!_model.newRow("cId", cId)) {
         logError() << "new analysis failed";
         _changeUpdates = true;
         return -1;
     }
     int aId = _model.get("id").toInt();
+
     if (empty) {
         logStatus() << "new analys (empty) for" << cId;
         _changeUpdates = true;
@@ -129,9 +145,9 @@ int Analysis::newAnalysis(int cId, bool empty)
     set("salesPerCapital", means["salesPerCapital"]);
 
      //FIXME: use means for: equity, liab, DONT forget to run selectRow to last year if using fin()
-    double interestDebt = means["liabCurrInt"] + means["liabLongInt"];
+    double totalDebt = means["liabCurrInt"] + means["liabLongInt"];
     double defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
-    double r = wacc(means["equity"], interestDebt, coeCAPM(),cod(defRate));
+    double r = wacc(means["equity"], totalDebt, coeCAPM(), cod(defRate));
 
     if (r <= terminalGrowth) {
         r = terminalGrowth + 0.01;
@@ -139,6 +155,33 @@ int Analysis::newAnalysis(int cId, bool empty)
 
     set("wacc", r);
 
+    if (!analyseDCF(aId)) {
+        logError() << "failed to analyse" << aId;
+    }
+
+    _changeUpdates = true;
+    return aId;
+}
+
+int Analysis::newMagicAnalysis(int cId)
+{
+    //MAGIC FORMULA
+    int aId = -1;
+    _changeUpdates = false;
+    if (!_magicModel.newRow("cId", cId)) {
+        logError() << "new magicforumla";
+    }
+    else {
+        aId = _magicModel.get("id").toInt();
+        QHash<QString, double> means = fetchMeans();
+
+        set("ebit", means["ebit"], &_magicModel);
+        set("capitalEmployed", means["capitalEmployed"], &_magicModel);
+        double mCap = mcap(fin("shares"), fin("sharePrice"));
+        double eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
+        set("ev", eV, &_magicModel);
+        analyseMagic(aId);
+    }
     _changeUpdates = true;
     return aId;
 }
@@ -148,6 +191,7 @@ bool Analysis::submitAll()
     bool ok = true;
     ok &= _model.submitAll();
     ok &= _resultsModel.submitAll();
+    ok &= _magicModel.submitAll();
     return ok;
 }
 
@@ -155,15 +199,19 @@ void Analysis::revertAll()
 {
     _model.revertAll();
     _resultsModel.revertAll();
+    _magicModel.revertAll();
 }
 
-bool Analysis::delAnalysis(int aId)
+bool Analysis::delDCFAnalysis(int aId)
 {
-    //logStatus() << "delete analysis:" << aId;
     _resultsModel.delAllRows("aId", aId);
-    //logStatus() << "rows done";
     bool ok = _model.delRow(_model.idToRow(aId));
-    //logStatus() << "done";
+    return ok;
+}
+
+bool Analysis::delMagicAnalysis(int aId)
+{
+    bool ok = _magicModel.delRow(_magicModel.idToRow(aId));
     return ok;
 }
 
@@ -172,6 +220,7 @@ bool Analysis::delAllAnalysis(int cId)
     bool ok = true;
     QList<int> toDelete;
 
+    //DCF
     for(int i = 0; i < _model.rowCount(); i++) {
         if(_model.get(i, "cId") == cId) {
             toDelete.push_back(_model.rowToId(i));
@@ -179,8 +228,23 @@ bool Analysis::delAllAnalysis(int cId)
     }
 
     for(int i = 0; i < toDelete.size(); i++) {
-        if (!delAnalysis(toDelete.at(i))) {
+        if (!delDCFAnalysis(toDelete.at(i))) {
             logError() << "failed to delete row";
+            ok = false;
+        }
+    }
+
+    //MAGIC
+    toDelete.clear();
+    for(int i = 0; i < _magicModel.rowCount(); i++) {
+        if(_magicModel.get(i, "cId") == cId) {
+            toDelete.push_back(_magicModel.rowToId(i));
+        }
+    }
+
+    for(int i = 0; i < toDelete.size(); i++) {
+        if (!delMagicAnalysis(toDelete.at(i))) {
+            logError() << "failed to delete magic row";
             ok = false;
         }
     }
@@ -192,7 +256,7 @@ bool Analysis::delAllAnalysis(int cId)
 
 }
 
-bool Analysis::analyse(int aId)
+bool Analysis::analyseDCF(int aId)
 {
     int row = _model.idToRow(aId);
     if (!_model.selectRow(row))  {
@@ -236,6 +300,30 @@ bool Analysis::analyse(int aId)
     return true;
 }
 
+bool Analysis::analyseMagic(int aId)
+{
+    int row = _magicModel.idToRow(aId);
+    if (!_magicModel.selectRow(row))  {
+        logError() << "(magic) failed to select aId:" << aId;
+        return false;
+    }
+    _changeUpdates = false;
+
+    double ce = get("capitalEmployed", &_magicModel);
+    double eV = get("ev", &_magicModel);
+    double e = get("ebit", &_magicModel);
+    double score = 0;
+    double ok = false;
+    if (ce != 0 && e != 0) {
+        score = 0.5 * e / ce + 0.5 * e / eV;
+        ok = true;
+    }
+    set("score", score, &_magicModel);
+
+    _changeUpdates = true;
+    return ok;
+}
+
 bool Analysis::selectCompany(int cId)
 {
     if (_financials) {
@@ -260,6 +348,8 @@ QHash<QString, double> Analysis::fetchMeans()
     means["salesPerCapital"] = 0;
     means["liabCurrInt"] = 0;
     means["liabLongInt"] = 0;
+    means["capitalEmployed"] = 0;
+    means["assetsCurrCash"] = 0;
 
     if (entries == 0) {
         return means;
@@ -287,10 +377,12 @@ QHash<QString, double> Analysis::fetchMeans()
         means["liabCurrInt"] += fin("liabCurrInt");
         means["liabLongInt"] += fin("liabLongInt");
         means["interestPayed"] += fin("interestPayed");
+        means["assetsCurrCash"] += fin("assetsCurrCash");
         double wc = workingCapital(fin("assetsCurr"), fin("assetsCurrCash"),
                                    fin("liabCurr"), fin("liabCurrInt"));
 
         double capEmployed = capitalEmployed(wc, fin("assetsFixedPpe"));
+        means["capitalEmployed"] += capEmployed;
         means["salesPerCapital"] += salesPerCapital(newSale, capEmployed);
     }
 
@@ -301,6 +393,8 @@ QHash<QString, double> Analysis::fetchMeans()
     means["interestPayed"] /= (double)entries;
     means["liabCurrInt"] /= (double)entries;
     means["liabLongInt"] /= (double)entries;
+    means["capitalEmployed"] /= (double)entries;
+    means["assetsCurrCash"] /= (double)entries;
 
     if (means["sales"] != 0) {
         means["ebitMargin"] = means["ebit"] / means["sales"];
@@ -351,13 +445,13 @@ double Analysis::coeCAPM(double beta, double marketRiskPremium, double riskFree)
     return riskFree + beta * (marketRiskPremium - riskFree);
 }
 
-double Analysis::wacc(double equity, double interestBearingLiab, double coe, double cod, double taxRate)
+double Analysis::wacc(double equity, double totalDebt, double coe, double cod, double taxRate)
 {
-    double assets = equity + interestBearingLiab;
+    double assets = equity + totalDebt;
     if (assets == 0) {
         return 0;
     }
-    return (equity/assets) * coe + (interestBearingLiab/assets) * (1 - taxRate) * cod;
+    return (equity / assets) * coe + (totalDebt / assets) * (1 - taxRate) * cod;
 }
 
 double Analysis::salesPerCapital(double sales, double capitalEmployed)
@@ -379,7 +473,17 @@ double Analysis::capitalEmployed(double workingCapital, double ppe)
     return workingCapital + ppe;
 }
 
-void Analysis::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+double Analysis::mcap(double shares, double sharePrice)
+{
+    return shares * sharePrice;
+}
+
+double Analysis::ev(double mcap, double cash, double currentDebt, double longDebt)
+{
+    return mcap + currentDebt + longDebt - cash;
+}
+
+void Analysis::dcfDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
     if (!_changeUpdates) {
         return;
@@ -396,9 +500,25 @@ void Analysis::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
         int row = topLeft.row();
         int aId = _model.rowToId(row);
         logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
-        analyse(aId);
+        analyseDCF(aId);
         _changeUpdates = true; //precautionary
         logStatus() << "auto reAnalyse done";
+    }
+}
+
+void Analysis::magicDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+    if (!_changeUpdates) {
+        return;
+    }
+    Q_UNUSED(bottomRight); //FIXME: only handlig topLeft for now
+
+    if (roles.length() && _autoReAnalyse) {
+        _changeUpdates = false; //precautionary
+        int row = topLeft.row();
+        int aId = _magicModel.rowToId(row);
+        analyseMagic(aId);
+        _changeUpdates = true; //precautionary
     }
 }
 
@@ -549,21 +669,27 @@ double Analysis::fin(const QString &role)
     return 0;
 }
 
-double Analysis::get(const QString &role)
+double Analysis::get(const QString &role, SqlModel* model)
 {
-    return _model.get(role).toDouble();
+    if (model == nullptr) {
+        model = &_model;
+    }
+    return model->get(role).toDouble();
 }
 
-bool Analysis::set(const QString &role, double val)
+bool Analysis::set(const QString &role, double val, SqlModel* model)
 {
+    if (model == nullptr) {
+        model = &_model;
+    }
     if (fabs(val) <= 10) {
-        return _model.set(role, QString::number(val, 'f', SavePrecisionSmall));
+        return model->set(role, QString::number(val, 'f', SavePrecisionSmall));
     }
     else if (fabs(val) <= 100) {
-        return _model.set(role, QString::number(val, 'f', SavePrecisionLarge));
+        return model->set(role, QString::number(val, 'f', SavePrecisionLarge));
     }
     else {
-        return _model.set(role, QString::number(val, 'f', SavePrecisionHuge));
+        return model->set(role, QString::number(val, 'f', SavePrecisionHuge));
     }
 }
 
