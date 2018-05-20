@@ -15,7 +15,7 @@ Rectangle {
     property var showOrder
 
     property string filterRole: ""
-    property string filterEqValue: ""
+    property variant filterEqValue
 
     property var _showVisible
     property var setColors: ({})

@@ -12,6 +12,13 @@ APage {
         }
     }
 
+    function savePos() {
+        view.savePos();
+    }
+    function resetPos() {
+        view.resetPos();
+    }
+
     DataMenu {
         id: controls
         x: pageMenuX
@@ -73,6 +80,6 @@ APage {
         setColors: {"sales": tm.graph2, "ebit": tm.graph1, "dividend": tm.graph3}
 
         filterRole: "qId"
-        filterEqValue: "FY"
+        filterEqValue: 1
     }
 }

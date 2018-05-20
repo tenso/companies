@@ -4,6 +4,13 @@ import QtQuick.Controls 2.2
 APage {
     id: page
 
+    function savePos() {
+        view.savePos();
+    }
+    function resetPos() {
+        view.resetPos();
+    }
+
     DataMenu {
         id: controls
         x: pageMenuX

@@ -36,10 +36,17 @@ ApplicationWindow {
     MainMenu {
         id: mainMenu
         onWillSave: {
+            //FIXME:!
             overview.savePos();
+            details.savePos();
+            analysis.savePos();
+            magic.savePos();
         }
         onSaveDone: {
             overview.resetPos();
+            details.resetPos();
+            analysis.resetPos();
+            magic.resetPos();
         }
     }
 
