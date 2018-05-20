@@ -21,7 +21,7 @@ protected:
     bool loadDB(const QString &file);
     void loadFonts();
     bool setupTableModels();
-    bool addModel(const QString& table);
+    SqlModel *addModel(const QString& table);
     QVector<SqlModel*> _tableModels;
 };
 

@@ -787,9 +787,21 @@ void SqlModel::applyFilters()
             continue;
         }
         QString filter = _filters[column];
+        bool followRelation = false;
+        if (filter.startsWith("&")) {
+            followRelation = true;
+            filter = filter.mid(1);
+        }
 
         for (int row = 0; row < actualRowCount(); row++) {
-            QVariant value = dataNoFilter(row, column); //get(row, column);
+            QVariant value;
+            if (followRelation) {
+                value = dataNoFilter(row, column);
+            }
+            else {
+                 value = get(row, column);
+            }
+
             if (filter.startsWith("=")) {
                 if (value != filter.mid(1)) {
                     _removedByFilter.push_back(row);

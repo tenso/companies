@@ -18,7 +18,7 @@ Rectangle {
             role: "id"
             width: colW[0]
             onTextUpdate: {
-                filter = text;
+                filter = "&" + text;
             }
             prevFocus: description
         }
@@ -28,7 +28,7 @@ Rectangle {
             width: colW[1]
             onTextUpdate: {
                 if (text) {
-                    filter = "like '%" + text + "%'";
+                    filter = "&like '%" + text + "%'";
                 } else {
                     filter = "";
                 }
@@ -42,7 +42,7 @@ Rectangle {
             width: colW[2]
             onTextUpdate: {
                 if (text) {
-                    filter = "=" + text;
+                    filter = "&=" + text;
                 }
                 else {
                     filter = "";
@@ -57,7 +57,7 @@ Rectangle {
             width: colW[3]
             onTextUpdate: {
                 if (text) {
-                    filter = "=" + text;
+                    filter = "&=" + text;
                 }
                 else {
                     filter = "";
@@ -70,7 +70,7 @@ Rectangle {
             role: "watch"
             width: colW[4]
             onTextUpdate: {
-                filter = text;
+                filter = "&" + text;
             }
             prevFocus: type
         }
@@ -80,7 +80,7 @@ Rectangle {
             width: colW[5]
             onTextUpdate: {
                 if (text) {
-                    filter = "like '%" + text + "%'";
+                    filter = "&like '%" + text + "%'";
                 } else {
                     filter = "";
                 }
@@ -92,7 +92,7 @@ Rectangle {
             role: "aId"
             width: colW[6]
             onTextUpdate: {
-                filter = text;
+                filter = "&" + text;
             }
             prevFocus: type
         }

@@ -79,6 +79,7 @@ public slots:
     bool addRelated(const QString& role, SqlModel* model, const QString& relatedRole, const QString& displayRole);
 
     //NOTE: filters will make new rowCount and all operations have new row meaning (filtered)
+    //NOTE: start filter with & to make it follow relations e.g. "&rebate<1.0"
     void clearFilters();
     void filterColumn(const QString& role, const QString& filter = QString());
     void filterColumn(int column, const QString& filter);

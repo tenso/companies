@@ -120,58 +120,51 @@ void DataManager::loadFonts()
 
 bool DataManager::setupTableModels()
 {
+    SqlModel* model = nullptr;
+    if (!addModel("quarters")) {
+        return false;
+    }
 
-    SqlModel* model = new SqlModel(this);
-    if (!model->init("companies")) {
+    if (!addModel("modes")) {
+        return false;
+    }
+
+    if (!(model = addModel("types"))) {
+        return false;
+    }
+    model->setSort("name", Qt::AscendingOrder);
+
+    if (!(model = addModel("lists"))) {
+        return false;
+    }
+    model->setSort("name", Qt::AscendingOrder);
+
+    //COMPANIES
+    if (!(model = addModel("companies"))) {
         return false;
     }
     model->addRelation("lId", QSqlRelation("lists", "id", "name"));
     model->addRelation("tId", QSqlRelation("types", "id", "name"));
 
-    _tableModels.push_back(model);
-
-    model = new SqlModel(this);
-    if (!model->init("types")) {
-        return false;
-    }
-    model->setSort("name", Qt::AscendingOrder);
-    _tableModels.push_back(model);
-
-    model = new SqlModel(this);
-    if (!model->init("lists")) {
-        return false;
-    }
-    model->setSort("name", Qt::AscendingOrder);
-    _tableModels.push_back(model);
-
-    model = new SqlModel(this);
-    if (!model->init("financials")) {
+    //FINANCIALS
+    if (!(model = addModel("financials"))) {
         return false;
     }
     model->setSort("year", Qt::DescendingOrder);
     model->addRelation("cId", QSqlRelation("companies", "id", "name"));
     model->addRelation("qId", QSqlRelation("quarters", "id", "name"));
-    _tableModels.push_back(model);
-
-    //"simple" models
-    if (!addModel("quarters")) {
-        return false;
-    }
-    if (!addModel("modes")) {
-        return false;
-    }
 
     return true;
 }
 
-bool DataManager::addModel(const QString &table)
+SqlModel* DataManager::addModel(const QString &table)
 {
     SqlModel* model = new SqlModel(this);
     if (!model->init(table)) {
-        return false;
+        return nullptr;
     }
     _tableModels.push_back(model);
-    return true;
+    return model;
 }
 
 bool DataManager::registerTableModels(QQmlContext *context)
