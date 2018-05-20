@@ -31,5 +31,7 @@
         <file>qml/CompanyAnalysisResultsDelegate.qml</file>
         <file>qml/CompanyRow.qml</file>
         <file>qml/CompanyMagicFormulaPage.qml</file>
+        <file>qml/CompanyMagicFormulaDelegate.qml</file>
+        <file>qml/ACheckBox.qml</file>
     </qresource>
 </RCC>

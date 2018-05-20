@@ -3,6 +3,8 @@
 # TODO
 
 ## Prio ##
+* save resets scroll in analysis and magic, and more?
+* CompanyAnalysisDeligate and MagicFormulaDeligate shares base
 * Analysis: check: presented. Shown in overview.
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
 

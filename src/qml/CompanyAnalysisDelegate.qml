@@ -1,12 +1,17 @@
 import QtQuick 2.9
+import QtQuick.Controls 2.2
 
 AItem {
     Theme {id:tm}
 
+    property variant buttonGroup
     property int myIndex: 0
+    property alias checked: checkButton.checked
     id: root
     width: tm.wideW
     height: tm.rowH * 10
+
+    signal setAnalysis(int id);
 
     Rectangle {
         id: bg
@@ -14,12 +19,22 @@ AItem {
         color: "transparent"
 
         Text {
+            id: idText
             width: tm.wideW
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.leftMargin: tm.margin * 2
             anchors.topMargin: tm.margin
             text: itemData ? "(" + itemData.id + ")" : ""
+        }
+        RadioButton {
+            id: checkButton
+            anchors.left: idText.left
+            anchors.top: idText.bottom
+            ButtonGroup.group: buttonGroup
+            onCheckedChanged: {
+                setAnalysis(root.itemData.id)
+            }
         }
     }
 

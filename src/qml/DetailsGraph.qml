@@ -179,28 +179,12 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         Repeater {
             model: dataPlot.showOrder
-            delegate: CheckBox {
+            delegate: ACheckBox {
                 id: control
                 checked: true
                 text: modelData
-
-                indicator: Rectangle {
-                    implicitWidth: 26
-                    implicitHeight: 26
-                    x: control.leftPadding
-                    y: parent.height / 2 - height / 2
-                    radius: 3
-                    border.color: tm.border
-
-                    Rectangle {
-                        width: 14
-                        height: 14
-                        x: 6
-                        y: 6
-                        radius: 2
-                        color: dataPlot.setColors[modelData] ? dataPlot.setColors[modelData] : tm.graph1
-                        visible: control.checked
-                    }
+                checkColor: {
+                    dataPlot.setColors[modelData] ? dataPlot.setColors[modelData] : tm.graph1
                 }
 
                 onCheckedChanged: {

@@ -53,13 +53,31 @@ APage {
             model: analysisModel
             anchors.fill: parent
             snapMode: ListView.SnapToItem
+            ButtonGroup {
+                id: presentedGroup
+            }
             delegate: CompanyAnalysisDelegate {
                 width: view.width
                 myIndex: index
-                height: 900 //bugg? cant use page.height - head.height?
+                height: 874 //bugg? cant use page.height - head.height?
                 itemData: model
+                buttonGroup: presentedGroup
                 onSelect: {
                     view.currentIndex = index;
+                }
+                checked: {
+                    if (selectedData) {
+                        var row = companiesModel.idToRow(selectedData.id);
+                        return companiesModel.get(row, "aId") === itemData.id;
+                    }
+                    return false;
+                }
+                onSetAnalysis: {
+                    if (selectedData) {
+                        var row = companiesModel.idToRow(selectedData.id);
+                        logStatus("set presented:" + selectedData.id + "=" + id);
+                        companiesModel.set(row, "aId", id);
+                    }
                 }
             }
         }

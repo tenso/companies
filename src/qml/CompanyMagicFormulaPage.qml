@@ -52,27 +52,32 @@ APage {
             id: view
             model: magicModel
             anchors.fill: parent
-            anchors.leftMargin: tm.rowH * 3 + tm.margin
             snapMode: ListView.SnapToItem
-            delegate: CompanyDetailGroup {
-                itemData: model
+            ButtonGroup {
+                id: presentedGroup
+            }
+            delegate: CompanyMagicFormulaDelegate {
                 width: view.width
-                height: tm.rowH * 3
-                groupName: ""
-                focusRole: ""
-                showEdit: false
-                headerModel: [qsTr("Ebit"), qsTr("EV"), qsTr("Cap. Employed"), qsTr("Score")]
-                itemRoles:  ["ebit", "ev", "capitalEmployed", "score"]
-                colorModes: {
-                    "score": { "limits": [0.1, 0.25], "colors": [tm.fail, tm.warn, tm.ok] }
-                }
-                fontColors: {
-                    "score": tm.inActive
-                }
-                colEdit: {"score": false}
-                itemW: tm.wideW
+                myIndex: index
+                itemData: model
+                buttonGroup: presentedGroup
                 onSelect: {
                     view.currentIndex = index;
+                }
+                checked: {
+                    if (selectedData) {
+                        var row = companiesModel.idToRow(selectedData.id);
+                        return companiesModel.get(row, "maId") === itemData.id;
+                    }
+                    return false;
+                }
+
+                onSetAnalysis: {
+                    if (selectedData) {
+                        var row = companiesModel.idToRow(selectedData.id);
+                        logStatus("set presented:" + selectedData.id + "=" + id);
+                        companiesModel.set(row, "maId", id);
+                    }
                 }
             }
         }
