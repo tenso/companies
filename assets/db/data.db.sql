@@ -79,6 +79,14 @@ CREATE TABLE IF NOT EXISTS `modes` (
 );
 INSERT INTO `modes` VALUES (1,'Constant');
 INSERT INTO `modes` VALUES (2,'Linear');
+CREATE TABLE IF NOT EXISTS `magicFormula` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`cId`	INTEGER,
+	`ebit`	NUMERIC,
+	`ev`	NUMERIC,
+	`capitalEmployed`	NUMERIC,
+	`score`	NUMERIC
+);
 CREATE TABLE IF NOT EXISTS `lists` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT
@@ -130,7 +138,8 @@ CREATE TABLE IF NOT EXISTS `companies` (
 	`tId`	INTEGER,
 	`watch`	INTEGER,
 	`description`	TEXT,
-	`aId`	INTEGER
+	`aId`	INTEGER,
+	`maId`	INTEGER
 );
 CREATE TABLE IF NOT EXISTS `analysisResults` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
