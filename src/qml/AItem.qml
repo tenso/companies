@@ -57,6 +57,8 @@ FocusScope {
 
     onActiveFocusChanged: {
         if (role !== "" && activeFocus) {
+            root.select(index);
+
             var nextParent = parent;
             while (nextParent) {
                 if (typeof(nextParent.selectedRole) !== "undefined") {

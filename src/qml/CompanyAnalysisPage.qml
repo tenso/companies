@@ -4,6 +4,14 @@ import QtQuick.Controls 2.2
 APage {
     id: page
 
+    onActiveChanged: {
+        if (page.active) {
+            if (selectedData) {
+                analysisModel.filterColumn("cId", "=" + selectedData.id);
+            }
+        }
+    }
+
     function savePos() {
         view.savePos();
     }
@@ -42,8 +50,10 @@ APage {
         colW: page.colW
 
         onSelectionChanged: {
-            if (selectedData) {
-                analysisModel.filterColumn("cId", "=" + selectedData.id);
+            if (page.active) {
+                if (selectedData) {
+                    analysisModel.filterColumn("cId", "=" + selectedData.id);
+                }
             }
         }
     }
@@ -69,8 +79,10 @@ APage {
                 height: 874 //bugg? cant use page.height - head.height?
                 itemData: model
                 buttonGroup: presentedGroup
+                //FIXME: move to AItem?
                 onSelect: {
                     view.currentIndex = index;
+                    view.positionViewAtIndex(view.currentIndex, ListView.Contain)
                 }
                 checked: {
                     if (selectedData) {
@@ -82,7 +94,7 @@ APage {
                 onSetAnalysis: {
                     if (selectedData) {
                         var row = companiesModel.idToRow(selectedData.id);
-                        logStatus("set presented:" + selectedData.id + "=" + id);
+                        logDebug("set presented:" + selectedData.id + "=" + id);
                         companiesModel.set(row, "aId", id);
                     }
                 }

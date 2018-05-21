@@ -5,6 +5,14 @@ APage {
     id: page
     Theme {id:tm}
 
+    onActiveChanged: {
+        if (page.active) {
+            if (selectedData) {
+                magicModel.filterColumn("cId", "=" + selectedData.id);
+            }
+        }
+    }
+
     function savePos() {
         view.savePos();
     }
@@ -43,8 +51,10 @@ APage {
         colW: page.colW
 
         onSelectionChanged: {
-            if (selectedData) {
-                magicModel.filterColumn("cId", "=" + selectedData.id);
+            if (page.active) {
+                if (selectedData) {
+                    magicModel.filterColumn("cId", "=" + selectedData.id);
+                }
             }
         }
     }
@@ -69,8 +79,10 @@ APage {
                 myIndex: index
                 itemData: model
                 buttonGroup: presentedGroup
+                //FIXME: move to AItem?
                 onSelect: {
                     view.currentIndex = index;
+                    view.positionViewAtIndex(view.currentIndex, ListView.Contain)
                 }
                 checked: {
                     if (selectedData) {
@@ -83,7 +95,7 @@ APage {
                 onSetAnalysis: {
                     if (selectedData) {
                         var row = companiesModel.idToRow(selectedData.id);
-                        logStatus("set presented:" + selectedData.id + "=" + id);
+                        logDebug("set presented:" + selectedData.id + "=" + id);
                         companiesModel.set(row, "maId", id);
                     }
                 }

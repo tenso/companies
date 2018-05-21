@@ -24,7 +24,7 @@ AItem {
             enabled: root.showEdit
             onEditingFinished: {
                 if (itemData && role !== "") {
-                    logStatus("id:" + itemData.id + " " + role + "=" + text);
+                    logDebug("id:" + itemData.id + " " + role + "=" + text);
                     itemData[role] = root.formatOut(text); //this will clear itemData...
                 }
                 else {

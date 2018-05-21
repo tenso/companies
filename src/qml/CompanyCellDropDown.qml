@@ -66,7 +66,7 @@ AItem {
                 onActivated: {
                     var comboId = root.comboModel.rowToId(currentIndex);
                     if (root.itemData && root.role !== "") {
-                        logStatus("id:" + root.itemData.id + " " + root.role + "=" + comboId);
+                        logDebug("id:" + root.itemData.id + " " + root.role + "=" + comboId);
                         //this might destroy this object (e.g re-analyse when changeing salesMode)
                         root.itemData[root.role] = comboId;
                     }

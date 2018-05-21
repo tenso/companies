@@ -3,9 +3,11 @@
 # TODO
 
 ## Prio ##
+* overview loses item focus on leave!
+* dont use means for ev!
+* aId and maId related in companies gets set to 1 on adding new rows
 * save resets scroll in analysis and magic, and more?
 * CompanyAnalysisDeligate and MagicFormulaDeligate shares base
-* Analysis: check: presented. Shown in overview.
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
 
 ## goals ##

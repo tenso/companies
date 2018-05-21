@@ -9,6 +9,10 @@ APage {
     onActiveChanged: {
         if (active) {
             financialsModel.filterColumn("qId", "");
+            if (selectedData) {
+                financialsModel.filterColumn("cId", "=" + selectedData.id);
+            }
+            graph.redraw();
         }
     }
 
@@ -37,10 +41,12 @@ APage {
         colW: page.colW
 
         onSelectionChanged: {
-            if (selectedData) {
-                financialsModel.filterColumn("cId", "=" + selectedData.id);
+            if (page.active) {
+                if (selectedData) {
+                    financialsModel.filterColumn("cId", "=" + selectedData.id);
+                }
+                graph.redraw();
             }
-            graph.redraw();
         }
     }
 
@@ -49,7 +55,7 @@ APage {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: head.bottom
-        height: tm.rowH * 10 + view.spacing
+        height: (tm.rowH * 10 + view.spacing) * 2
         color: tm.inActive
 
         AList {
@@ -61,8 +67,10 @@ APage {
                 width: view.width
                 itemData: model
 
+                //FIXME: move to AItem?
                 onSelect: {
                     view.currentIndex = index;
+                    view.positionViewAtIndex(view.currentIndex, ListView.Contain)
                 }
             }
         }

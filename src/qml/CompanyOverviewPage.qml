@@ -75,9 +75,10 @@ APage {
             height: tm.rowH
             colW: page.colW
 
+            //FIXME: move to AItem?
             onSelect: {
                 view.currentIndex = index;
-                //NOTE: cant force focus here; will steal filter focus.
+                view.positionViewAtIndex(view.currentIndex, ListView.Contain)
             }
         }
     }

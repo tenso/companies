@@ -2,6 +2,7 @@ import QtQuick 2.9
 
 AListRow {
     Theme {id:tm}
+
     roles:  ["id", "name", "lId", "tId", "watch", "description", "aId", "maId"]
     comboModels: { "lId": listsModel, "tId": typesModel }
     inputModes: {"aId": "%"}
