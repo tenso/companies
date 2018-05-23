@@ -52,6 +52,7 @@ AItem {
         itemCombos: {"salesGrowthMode": modesModel, "ebitMarginMode" : modesModel};
         inputModes: {"tax": "%", "marketPremium": "%", "riskFreeRate": "%"}
         itemW: tm.wideW
+        prevFocus: m3.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -67,6 +68,7 @@ AItem {
             "salesGrowth", "terminalGrowth", "salesPerCapital", "wacc"]
         itemW: tm.wideW
         inputModes: {"ebitMargin": "%", "terminalEbitMargin": "%", "salesGrowth": "%", "terminalGrowth": "%", "wacc": "%"}
+        prevFocus: m1.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -79,6 +81,7 @@ AItem {
         headerModel: [qsTr("Shares"), qsTr("Share price")]
         itemRoles:  ["shares", "sharePrice"]
         itemW: tm.wideW
+        prevFocus: m2.lastFocusItem
     }
 
     CompanyDetailGroup {

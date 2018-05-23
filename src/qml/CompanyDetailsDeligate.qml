@@ -28,6 +28,7 @@ AItem {
         headerModel: [qsTr("Year"), qsTr("Quarter"), qsTr("Shares"), qsTr("Share Price")]
         itemRoles:  ["year", "qId", "shares", "sharePrice"]
         itemCombos: { "qId": quartersModel }
+        prevFocus: liabilities.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -40,6 +41,7 @@ AItem {
         headerModel: [qsTr("Sales"), qsTr("Ebit"), qsTr("Dividend"), qsTr("Remuneration"),
             qsTr("Interest payed"), qsTr("Debt maturity")]
         itemRoles:  ["sales", "ebit", "dividend", "managRemun",  "interestPayed", "debtMaturity"]
+        prevFocus: basics.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -51,6 +53,7 @@ AItem {
         groupName: "Assets"
         headerModel: [qsTr("Fixed"), qsTr("PPE"), qsTr("Current"), qsTr("Cash")]
         itemRoles:  ["assetsFixed", "assetsFixedPpe", "assetsCurr", "assetsCurrCash"]
+        prevFocus: income.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -61,8 +64,8 @@ AItem {
         anchors.leftMargin: tm.rowH * 2
         groupName: "Equity"
         headerModel: [qsTr("Equity")]
-
         itemRoles:  ["equity"]
+        prevFocus: assets.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -74,6 +77,7 @@ AItem {
         groupName: "Leasing"
         headerModel: [qsTr("This y."), qsTr("+1"), qsTr("+2-5"), qsTr("+5")]
         itemRoles:  ["leasingY", "leasingY1", "leasingY2Y5", "leaingY5Up"]
+        prevFocus: equity.lastFocusItem
     }
 
     CompanyDetailGroup {
@@ -83,7 +87,7 @@ AItem {
         anchors.left: equity.left
         groupName: "Liabilities"
         headerModel: [qsTr("Long"), qsTr("Long Intb."), qsTr("Current"), qsTr("Current Intb.")]
-
         itemRoles:  ["liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
+        prevFocus: leasing.lastFocusItem
     }
 }

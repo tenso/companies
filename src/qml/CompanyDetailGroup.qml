@@ -1,7 +1,7 @@
 import QtQuick 2.9
 
 AItem {
-    id: dataRow
+    id: root
     property alias headerModel: header.itemData
     property alias itemRoles: items.roles
     property alias itemCombos: items.comboModels
@@ -11,6 +11,9 @@ AItem {
     property alias colEdit: items.colEdit
     property alias groupName:  groupNameItem.text
     property alias itemW: items.singleW
+    property alias firstFocusItem: items.firstChild
+    property alias lastFocusItem: items.lastChild
+
     focusRole: parent.focusRole
     itemData: parent.itemData
     showEdit: parent.showEdit
@@ -60,12 +63,13 @@ AItem {
             }
             AListRow {
                 id: items
-                itemData: dataRow.itemData
-                onSelect: dataRow.select(index);
+                itemData: root.itemData
+                onSelect: root.select(index);
                 focus: true
-                showEdit: dataRow.showEdit
-                focusRole: dataRow.focusRole
+                showEdit: root.showEdit
+                focusRole: root.focusRole
                 singleW: tm.colW
+                prevFocus: root.prevFocus
             }
         }
     }

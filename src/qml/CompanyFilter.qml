@@ -20,7 +20,7 @@ Rectangle {
             onTextUpdate: {
                 filter = "&" + text;
             }
-            prevFocus: description
+            prevFocus: mscore
         }
         CompanyFilterText {
             id: name

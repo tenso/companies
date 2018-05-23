@@ -12,6 +12,8 @@ AItem {
     property variant colEdit: ({})
     property variant colW: []
     property int singleW: 80
+    property variant firstChild: null
+    property variant lastChild: null
     height: tm.rowH
     width: row.width
 
@@ -22,8 +24,6 @@ AItem {
         Repeater {
             id: repeater
             model: root.roles
-            property variant prevLoad: null
-            property variant firstChild: null
 
             Component {
                 id: text
@@ -74,20 +74,27 @@ AItem {
                     }
 
 
-                    if (repeater.prevLoad) {
-                        item.prevFocus = repeater.prevLoad;
+                    if (root.lastChild) {
+                        item.prevFocus = root.lastChild;
                     }
                     else {
-                        repeater.firstChild = item;
+                        root.firstChild = item;
                     }
 
-                    repeater.prevLoad = item;
+                    root.lastChild = item;
                 }
             }
         }
         Component.onCompleted: {
-            if (repeater.firstChild) {
-                repeater.firstChild.prevFocus = repeater.prevLoad;
+            if (root.firstChild) {
+                if (root.prevFocus) {
+                    root.firstChild.prevFocus = root.prevFocus;
+                    root.prevFocus.KeyNavigation.tab = root.firstChild;
+                    root.prevFocus.KeyNavigation.right = root.firstChild;
+                }
+                else {
+                    root.firstChild.prevFocus = root.lastChild;
+                }
             }
         }
     }
