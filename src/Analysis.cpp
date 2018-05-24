@@ -173,12 +173,21 @@ int Analysis::newMagicAnalysis(int cId)
     }
     else {
         aId = _magicModel.get("id").toInt();
+
+        //from means
         QHash<QString, double> means = fetchMeans();
 
         set("ebit", means["ebit"], &_magicModel);
         set("capitalEmployed", means["capitalEmployed"], &_magicModel);
-        double mCap = mcap(fin("shares"), fin("sharePrice"));
-        double eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
+
+        //from latest statement
+        double eV = 0;
+        if (_financials->rowCount() > 0) {
+            _financials->selectRow(0);
+            double mCap = mcap(fin("shares"), fin("sharePrice"));
+            eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
+            logStatus() << mCap << eV;
+        }
         set("ev", eV, &_magicModel);
         analyseMagic(aId);
     }
