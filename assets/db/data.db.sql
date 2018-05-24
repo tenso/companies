@@ -141,6 +141,12 @@ CREATE TABLE IF NOT EXISTS `companies` (
 	`aId`	INTEGER,
 	`maId`	INTEGER
 );
+CREATE TABLE IF NOT EXISTS `calcModes` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`name`	TEXT
+);
+INSERT INTO `calcModes` VALUES (1,'Means');
+INSERT INTO `calcModes` VALUES (2,'Last');
 CREATE TABLE IF NOT EXISTS `analysisResults` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`aId`	INTEGER,
@@ -174,6 +180,7 @@ CREATE TABLE IF NOT EXISTS `analysis` (
 	`tax`	NUMERIC,
 	`salesGrowthMode`	INTEGER,
 	`ebitMarginMode`	INTEGER,
+	`financialsMode`	INTEGER,
 	`growthValueDiscounted`	NUMERIC,
 	`terminalValueDiscounted`	NUMERIC,
 	`totalValue`	NUMERIC,

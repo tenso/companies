@@ -21,6 +21,7 @@ bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
     }
     _model.addRelation("salesGrowthMode", QSqlRelation("modes", "id", "name"));
     _model.addRelation("ebitMarginMode", QSqlRelation("modes", "id", "name"));
+    _model.addRelation("financialsMode", QSqlRelation("calcModes", "id", "name"));
 
     if (!initModel(_resultsModel, "analysisResults")) {
         return false;
@@ -123,11 +124,12 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     set("terminalGrowth", terminalGrowth);
     set("salesGrowthMode", (int)Change::Linear);
     set("ebitMarginMode", (int)Change::Linear);
+    set("financialsMode", (int)CalcMode::Means);
     set("riskyCompany", DefaultRisky);
 
     //from company latest data
-    if (_financials->rowCount() > 0) {
-        _financials->selectRow(0);
+    if (_financials && _financials->rowCount() > 0) {
+        selectLatestYear();
         set("shares", fin("shares"));
         set("sharePrice", fin("sharePrice"));
     }
@@ -143,17 +145,6 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     set("terminalEbitMargin", means["ebitMargin"]);
     set("salesGrowth", means["salesGrowth"]);
     set("salesPerCapital", means["salesPerCapital"]);
-
-     //FIXME: use means for: equity, liab, DONT forget to run selectRow to last year if using fin()
-    double totalDebt = means["liabCurrInt"] + means["liabLongInt"];
-    double defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
-    double r = wacc(means["equity"], totalDebt, coeCAPM(), cod(defRate));
-
-    if (r <= terminalGrowth) {
-        r = terminalGrowth + 0.01;
-    }
-
-    set("wacc", r);
 
     if (!analyseDCF(aId)) {
         logError() << "failed to analyse" << aId;
@@ -182,8 +173,8 @@ int Analysis::newMagicAnalysis(int cId)
 
         //from latest statement
         double eV = 0;
-        if (_financials->rowCount() > 0) {
-            _financials->selectRow(0);
+        if (_financials && _financials->rowCount() > 0) {
+            selectLatestYear();
             double mCap = mcap(fin("shares"), fin("sharePrice"));
             eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
             logStatus() << mCap << eV;
@@ -275,12 +266,48 @@ bool Analysis::analyseDCF(int aId)
     _changeUpdates = false;
     _resultsModel.delAllRows("aId", aId);
 
-    //sanity check inputs
-    double wacc = get("wacc");
-    double terminalGrowth = get("terminalGrowth");
-    if (wacc <= terminalGrowth) {
-        set("wacc", terminalGrowth + 0.001);
+    //calc wacc
+    CalcMode mode = (CalcMode)get("financialsMode");
+    double totalDebt = 0;
+    double defRate = 0;
+    double equity = 0;
+    if (mode == CalcMode::Means) {
+        QHash<QString, double> means = fetchMeans();
+        logInfo("using means of all year for wacc calc");
+        totalDebt = means["liabCurrInt"] + means["liabLongInt"];
+        defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
+        equity = means["equity"];
     }
+    else if (mode == CalcMode::Last) {
+        if (_financials && _financials->rowCount() > 0) {
+            logInfo("using last year for wacc calc");
+            selectLatestYear();
+            totalDebt = fin("liabCurrInt") + fin("liabLongInt");
+            defRate = defaultRate(interestCoverage(fin("ebit"), fin("interestPayed")));
+            equity = fin("equity");
+        }
+    }
+    else {
+        logError() << "unknown mode";
+    }
+    double coe = coeCAPM(get("beta"), get("marketPremium"), get("riskFreeRate"));
+    double cd = cod(defRate, get("riskFreeRate"));
+    double r = wacc(equity, totalDebt, coe, cd);
+    double terminalGrowth = get("terminalGrowth");
+    if (r <= terminalGrowth) {
+        r = terminalGrowth + 0.001;
+    }
+    set("wacc", r);
+
+    QString infoString = QString::asprintf
+            ("wacc inputs:\n"
+             "equity: %.1f\n"
+             "coe: %.1f%%\n"
+             "total debt: %.1f\n"
+             "def rate: %.1f%%\n"
+             "cod: %.1f%%\n", equity, coe * 100, totalDebt, defRate * 100, cd * 100);
+    logInfo(infoString);
+
     if (get("salesPerCapital") <= 0) {
         set("salesPerCapital", 1);
     }
@@ -340,6 +367,11 @@ bool Analysis::selectCompany(int cId)
         _financials->filterColumn("qId", "=1"); //only want FY entries
     }
     return true;
+}
+
+void Analysis::selectLatestYear()
+{
+    _financials->selectRow(0);
 }
 
 QHash<QString, double> Analysis::fetchMeans()

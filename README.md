@@ -4,6 +4,8 @@
 
 ## Prio ##
 
+* sales/capital really on capital-employed!?!
+
 * aId and maId related in companies gets set to 1 on adding new rows
 * CompanyAnalysisDeligate and MagicFormulaDeligate shares base
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
@@ -15,6 +17,7 @@
 * Calculate bottom up beta: levered/delevered beta
 
 ## issues ##
+* dont use database for "modes" and such!
 * overview loses item focus on leave!
 * company row: can tab into read-only green fields
 * capitalize leases

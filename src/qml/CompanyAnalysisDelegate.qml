@@ -46,10 +46,11 @@ AItem {
         itemData: root.itemData
         groupName: ""
         headerModel: [qsTr("Tax"), qsTr("Market premium"), qsTr("Riskfree"), qsTr("Risky"), qsTr("Beta"),
-            qsTr("Sales Mode"), qsTr("Margin mode")]
+            qsTr("Sales Mode"), qsTr("Margin mode"), qsTr("Financials year")]
         itemRoles:  ["tax", "marketPremium", "riskFreeRate", "riskyCompany", "beta",
-            "salesGrowthMode", "ebitMarginMode"]
-        itemCombos: {"salesGrowthMode": modesModel, "ebitMarginMode" : modesModel};
+            "salesGrowthMode", "ebitMarginMode", "financialsMode"]
+        itemCombos: {"salesGrowthMode": modesModel, "ebitMarginMode" : modesModel,
+                     "financialsMode": calcModesModel};
         inputModes: {"tax": "%", "marketPremium": "%", "riskFreeRate": "%"}
         itemW: tm.wideW
         prevFocus: m3.lastFocusItem
@@ -63,9 +64,9 @@ AItem {
 
         groupName: ""
         headerModel: [qsTr("Growth yrs."), qsTr("Sales"), qsTr("Margin"), qsTr("Terminal margin"),
-            qsTr("Growth"), qsTr("Terminal growth"), qsTr("Sales/Cap.empl"), qsTr("WACC")]
+            qsTr("Growth"), qsTr("Terminal growth"), qsTr("Sales/Cap.empl")]
         itemRoles:  ["growthYears", "sales", "ebitMargin",  "terminalEbitMargin",
-            "salesGrowth", "terminalGrowth", "salesPerCapital", "wacc"]
+            "salesGrowth", "terminalGrowth", "salesPerCapital"]
         itemW: tm.wideW
         inputModes: {"ebitMargin": "%", "terminalEbitMargin": "%", "salesGrowth": "%", "terminalGrowth": "%", "wacc": "%"}
         prevFocus: m1.lastFocusItem
@@ -91,9 +92,9 @@ AItem {
         anchors.left: m3.left
         showEdit: false
         groupName: ""
-        headerModel: [qsTr("Growth value"), qsTr("Terminal value"), qsTr("Total value"), qsTr("Value/share"), qsTr("Rebate")]
-        itemRoles:  ["growthValueDiscounted", "terminalValueDiscounted", "totalValue", "shareValue", "rebate"]
-        inputModes: {"rebate": "%"}
+        headerModel: [qsTr("WACC"), qsTr("Growth value"), qsTr("Terminal value"), qsTr("Total value"), qsTr("Value/share"), qsTr("Rebate")]
+        itemRoles:  ["wacc", "growthValueDiscounted", "terminalValueDiscounted", "totalValue", "shareValue", "rebate"]
+        inputModes: {"wacc": "%", "rebate": "%"}
         colorModes: {
             "rebate": { "limits": [-0.1, 0.1], "colors": [tm.fail, tm.warn, tm.ok] }
         }

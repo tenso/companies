@@ -24,6 +24,7 @@ public:
     static constexpr int    SavePrecisionHuge = 0;
 
     enum class Change {None, Constant, Linear};
+    enum class CalcMode {None, Means, Last};
     static constexpr double DoubleMin = std::numeric_limits<double>::min();
     static constexpr double DoubleMax = std::numeric_limits<double>::max();
     static constexpr double DefaultRiskFree = 0.025;
@@ -43,6 +44,7 @@ public:
     SqlModel* magicModel();
 
 signals:
+    void logInfo(const QString& text);
 
 public slots:
     //returns id of new analysis or -1 on error
@@ -60,6 +62,7 @@ public slots:
     bool analyseMagic(int aId);
 
     bool selectCompany(int cId);
+    void selectLatestYear();
     QHash<QString, double> fetchMeans();
 
     //double bottomUpBeta();

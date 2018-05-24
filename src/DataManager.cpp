@@ -129,6 +129,10 @@ bool DataManager::setupTableModels()
         return false;
     }
 
+    if (!addModel("calcModes")) {
+        return false;
+    }
+
     if (!(model = addModel("types"))) {
         return false;
     }

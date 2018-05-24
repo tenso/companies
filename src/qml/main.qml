@@ -27,13 +27,20 @@ ApplicationWindow {
         //addStatus("DEBUG " + text);
     }
     function logStatus(text) {
-        console.log("STATUS " + text);
-        addStatus("STATUS " + text);
+        console.log(text);
+        addStatus(text);
     }
 
     function logError(text) {
         console.log("ERROR " + text);
         addStatus("ERROR " + text);
+    }
+
+    Connections {
+        target: analysisEngine
+        onLogInfo : {
+            logStatus(text);
+        }
     }
 
     MainMenu {
@@ -111,7 +118,7 @@ ApplicationWindow {
         visible: false
 
         height: parent.height / 2
-        width: 400
+        width: 600
         x: parent.width - width
         y: parent.height - height
 

@@ -97,39 +97,41 @@ QVariant SqlModel::dataNoFilter(int row, int col) const
     }
     value = _ramData.at(row).at(col);
 
-    if (_relations.contains(col)) {
-        QSqlQuery q;
-        QSqlRelation rel = _relations[col];
-        QString s = QString("SELECT ") + rel.displayColumn() +
-                " FROM " + rel.tableName() +
-                " WHERE " + rel.indexColumn()
-                + "=" + value.toString();
+    if (!value.isNull()) {
+        if (_relations.contains(col)) {
+            QSqlQuery q;
+            QSqlRelation rel = _relations[col];
+            QString s = QString("SELECT ") + rel.displayColumn() +
+                    " FROM " + rel.tableName() +
+                    " WHERE " + rel.indexColumn()
+                    + "=" + value.toString();
 
-        q.prepare(s);
-        if (!q.exec()) {
-            logError() << QString("relation") << s << "failed:" << q.lastError();
+            q.prepare(s);
+            if (!q.exec()) {
+                logError() << QString("relation") << s << "failed:" << q.lastError();
+            }
+            if (q.next()) {
+                value = q.value(0);
+            }
         }
-        if (q.next()) {
-            value = q.value(0);
+        else if (_related.contains(col)) {
+            SqlModel* model = _related[col].model;
+            bool prevFilt = model->filtersEnabled(); //dont lookup related with any filtering
+            model->setFiltersEnabled(false);
+            int relatedRow = model->findRow(_related[col].relatedRole, value);
+            int relatedCol = model->roleColumn(_related[col].displayRole);
+            //logStatus() << tableName() << row << relatedRow << relatedCol;
+            if (relatedRow >= 0 && relatedCol >= 0) {
+                //logStatus() << "rel:" << row << col << value << _related[col].relatedRole << _related[col].displayRole << relatedRow << relatedCol;
+                value = model->get(relatedRow, relatedCol);
+                //logStatus() << value;
+            }
+            else {
+                //logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
+                value = "";
+            }
+            model->setFiltersEnabled(prevFilt);
         }
-    }
-    else if (_related.contains(col)) {
-        SqlModel* model = _related[col].model;
-        bool prevFilt = model->filtersEnabled(); //dont lookup related with any filtering
-        model->setFiltersEnabled(false);
-        int relatedRow = model->findRow(_related[col].relatedRole, value);
-        int relatedCol = model->roleColumn(_related[col].displayRole);
-        //logStatus() << tableName() << row << relatedRow << relatedCol;
-        if (relatedRow >= 0 && relatedCol >= 0) {
-            //logStatus() << "rel:" << row << col << value << _related[col].relatedRole << _related[col].displayRole << relatedRow << relatedCol;
-            value = model->get(relatedRow, relatedCol);
-            //logStatus() << value;
-        }
-        else {
-            //logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
-            value = "";
-        }
-        model->setFiltersEnabled(prevFilt);
     }
     if (value.isNull()) {
         return ""; //FIXME: for qml
