@@ -9,6 +9,7 @@
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
 
 ## goals ##
+* re-work overview or add financialoverview with list of companies and their mcap/sales/.../metrics
 * assumptions sensitivity analysis (margins etc)
 * detail: compare companies; present analys in valulation-overview-page
 * Calculate bottom up beta: levered/delevered beta
