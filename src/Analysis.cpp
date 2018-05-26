@@ -249,17 +249,15 @@ bool Analysis::analyseDCF(int aId)
 
     //calc wacc
     CalcMode mode = (CalcMode)get("financialsMode");
-    double totalDebt = 0;
     double defRate = 0;
     double equity = 0;
     QHash<QString, double> data = fetchData(mode);
-    totalDebt = data["liabCurrInt"] + data["liabLongInt"];
     defRate = defaultRate(interestCoverage(data["ebit"], data["interestPayed"]));
     equity = data["equity"];
 
     double coe = coeCAPM(get("beta"), get("marketPremium"), get("riskFreeRate"));
     double cd = cod(defRate, get("riskFreeRate"));
-    double r = wacc(equity, totalDebt, coe, cd);
+    double r = wacc(equity, data["totalDebt"], coe, cd);
     double terminalGrowth = get("terminalGrowth");
     if (r <= terminalGrowth) {
         r = terminalGrowth + 0.001;
@@ -272,7 +270,7 @@ bool Analysis::analyseDCF(int aId)
              "coe: %.1f%%\n"
              "total debt: %.1f\n"
              "def rate: %.1f%%\n"
-             "cod: %.1f%%\n", equity, coe * 100, totalDebt, defRate * 100, cd * 100);
+             "cod: %.1f%%\n", equity, coe * 100, data["totalDebt"], defRate * 100, cd * 100);
     logInfo(infoString);
 
     if (get("salesPerCapital") <= 0) {
@@ -391,8 +389,11 @@ QHash<QString, double> Analysis::fetchData(CalcMode mode)
             _financials->selectRow(i);
         }
 
-        //NOTE we calculated our COD without capitalized leases (def rate could chage)
-        //LeasesCapitalized leases = leasesAsDebt(cd, fin("leasingY"), fin("leasingY1"), fin("leasingY2Y5"), fin("leasingY5Up"));
+        //NOTE we calculated our COD without capitalized leases
+        //def rate could chage as ebit changes!
+        double defRate = defaultRate(interestCoverage(fin("ebit"), fin("interestPayed")));
+        double cd = cod(defRate, get("riskFreeRate"));
+        LeasesCapitalized leases = capLeases(cd, fin("leasingY"), fin("leasingY1"), fin("leasingY2Y5"), fin("leasingY5Up"));
 
         newSale = fin("sales");
         if (i > 0) {
@@ -401,14 +402,14 @@ QHash<QString, double> Analysis::fetchData(CalcMode mode)
         lastSale = newSale;
 
         means["sales"] += newSale;
-        means["ebit"] += fin("ebit");
+        means["ebit"] += fin("ebit") + leases.ebitAdd;
         means["equity"] += fin("equity");
-        means["liabCurrInt"] += fin("liabCurrInt");
+        means["liabCurrInt"] += fin("liabCurrInt") + leases.debtAdd;
         means["liabLongInt"] += fin("liabLongInt");
         means["interestPayed"] += fin("interestPayed");
         means["assetsCurrCash"] += fin("assetsCurrCash");
-        means["capitalEmployed"] += finCapEmployed();
-        means["salesPerCapital"] += salesPerCapital(newSale, finCapEmployed());
+        means["capitalEmployed"] += finCapEmployed(leases);
+        means["salesPerCapital"] += salesPerCapital(newSale, finCapEmployed(leases));
     }
 
     means["sales"] /= (double)entries;
@@ -427,11 +428,12 @@ QHash<QString, double> Analysis::fetchData(CalcMode mode)
     means["salesGrowth"] = pow(salesGrowth, 1/(double)(entries - 1));
 
     means["ev"] = ev(means["mcap"], means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
+    means["totalDebt"] = means["liabCurrInt"] + means["liabLongInt"];
 
     return means;
 }
 
-Analysis::LeasesCapitalized Analysis::leasesAsDebt(double cod, double yThis, double y1, double y2to4, double y5)
+Analysis::LeasesCapitalized Analysis::capLeases(double cod, double yThis, double y1, double y2to4, double y5)
 {
     LeasesCapitalized ret;
 
@@ -712,10 +714,10 @@ double Analysis::fin(const QString &role)
     return 0;
 }
 
-double Analysis::finCapEmployed()
+double Analysis::finCapEmployed(LeasesCapitalized leases)
 {
-    double wc = workingCapital(fin("assetsCurr"), fin("assetsCurrCash"),
-                               fin("liabCurr"), fin("liabCurrInt"));
+    double wc = workingCapital(fin("assetsCurr") + leases.debtAdd, fin("assetsCurrCash"),
+                               fin("liabCurr") + leases.debtAdd, fin("liabCurrInt") + leases.debtAdd);
 
     return capitalEmployed(wc, fin("assetsFixedPpe"));
 }

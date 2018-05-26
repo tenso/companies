@@ -87,7 +87,7 @@ AItem {
         anchors.left: equity.left
         groupName: "Leasing"
         headerModel: [qsTr("This y."), qsTr("+1"), qsTr("+2-5"), qsTr("+5")]
-        itemRoles:  ["leasingY", "leasingY1", "leasingY2Y5", "leaingY5Up"]
+        itemRoles:  ["leasingY", "leasingY1", "leasingY2Y5", "leasingY5Up"]
         prevFocus: leasing.lastFocusItem
     }
 

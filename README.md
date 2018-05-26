@@ -5,8 +5,6 @@
 ## Prio ##
 
 * New analysis with two or more empty financials: NaN
-* drop-down for fin mode on magicformula
-* capitalize leases: increase ebit and coc, need to decrease ROIC (add to current-assets, current liab+int.current.liab) (dropdown-mode)
 * sales/capital really on capital-employed: add dropdown mode.
 
 ## goals ##

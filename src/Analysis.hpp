@@ -70,12 +70,11 @@ public:
     //double bottomUpBeta();
     //double researchAsAssets();
 
-    class LeasesCapitalized {
-    public:
-        double ebitAdd;
-        double debtAdd;
+    struct LeasesCapitalized {
+        double ebitAdd {0};
+        double debtAdd {0};
     };
-    LeasesCapitalized leasesAsDebt(double cod, double yThis, double y1, double y2to4, double y5);
+    LeasesCapitalized capLeases(double cod, double yThis, double y1, double y2to4, double y5);
 
 
     //defaultRate and rating
@@ -115,7 +114,7 @@ private:
     bool initModel(RamTableModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
-    double finCapEmployed();
+    double finCapEmployed(LeasesCapitalized leases);
     double get(const QString& role, RamTableModel *model = nullptr); //remember to run _financials.selectRow() before!
     bool set(const QString& role, double val, RamTableModel *model = nullptr);
     bool setInt(const QString& role, int val, RamTableModel *model = nullptr);
