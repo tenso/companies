@@ -10,7 +10,7 @@ Analysis::Analysis(QObject *parent) : QObject(parent)
 
 }
 
-bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
+bool Analysis::init(RamTableModel *financialsModel, bool autoReAnalyse)
 {
     _financials = financialsModel;
     if (_financials == nullptr) {
@@ -79,17 +79,17 @@ bool Analysis::test()
     return true;
 }
 
-SqlModel *Analysis::model()
+RamTableModel *Analysis::model()
 {
     return &_model;
 }
 
-SqlModel *Analysis::resultsModel()
+RamTableModel *Analysis::resultsModel()
 {
     return &_resultsModel;
 }
 
-SqlModel *Analysis::magicModel()
+RamTableModel *Analysis::magicModel()
 {
     return &_magicModel;
 }
@@ -125,9 +125,9 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     set("growthYears", DefaultGrowthYears);
     double terminalGrowth = DefaultTerminalGrowth;
     set("terminalGrowth", terminalGrowth);
-    set("salesGrowthMode", (int)Change::Linear);
-    set("ebitMarginMode", (int)Change::Linear);
-    set("financialsMode", (int)CalcMode::Means);
+    setInt("salesGrowthMode", (int)Change::Linear);
+    setInt("ebitMarginMode", (int)Change::Linear);
+    setInt("financialsMode", (int)CalcMode::Means);
     set("riskyCompany", DefaultRisky);
 
     //from company latest data
@@ -663,7 +663,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     return total;
 }
 
-bool Analysis::initModel(SqlModel& model, const QString &table)
+bool Analysis::initModel(RamTableModel& model, const QString &table)
 {
     if (!model.init(table)) {
         logError() << "Analysis::initModel" << table << "failed";
@@ -716,7 +716,7 @@ double Analysis::fin(const QString &role)
     return 0;
 }
 
-double Analysis::get(const QString &role, SqlModel* model)
+double Analysis::get(const QString &role, RamTableModel* model)
 {
     if (model == nullptr) {
         model = &_model;
@@ -724,7 +724,7 @@ double Analysis::get(const QString &role, SqlModel* model)
     return model->get(role).toDouble();
 }
 
-bool Analysis::set(const QString &role, double val, SqlModel* model)
+bool Analysis::set(const QString &role, double val, RamTableModel* model)
 {
     if (model == nullptr) {
         model = &_model;
@@ -738,6 +738,14 @@ bool Analysis::set(const QString &role, double val, SqlModel* model)
     else {
         return model->set(role, QString::number(val, 'f', SavePrecisionHuge));
     }
+}
+
+bool Analysis::setInt(const QString &role, int val, RamTableModel *model)
+{
+    if (model == nullptr) {
+        model = &_model;
+    }
+    return model->set(role, val);
 }
 
 bool Analysis::yearSet(const QString &role, double val)

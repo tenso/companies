@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-class SqlModel;
+class RamTableModel;
 class QQmlContext;
 
 class DataManager : public QObject
@@ -15,14 +15,14 @@ public:
 
     bool init(const QString& dataPath);
     bool registerTableModels(QQmlContext* context);
-    SqlModel* getModel(const QString& name);
+    RamTableModel* getModel(const QString& name);
 protected:
     bool setupDataStore(const QString &path);
     bool loadDB(const QString &file);
     void loadFonts();
     bool setupTableModels();
-    SqlModel *addModel(const QString& table);
-    QVector<SqlModel*> _tableModels;
+    RamTableModel *addSqlModel(const QString& table);
+    QVector<RamTableModel*> _tableModels;
 };
 
 #endif // DATAMANAGER_HPP

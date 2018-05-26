@@ -6,7 +6,7 @@
 #include "DataManager.hpp"
 #include "Log.hpp"
 #include "Analysis.hpp"
-#include "SqlModel.hpp"
+#include "RamTableModel.hpp"
 #include "GlobalData.hpp"
 
 int main(int argc, char *argv[])

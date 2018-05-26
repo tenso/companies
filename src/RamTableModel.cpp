@@ -71,14 +71,11 @@ QVariant RamTableModel::dataNoFilter(int row, int col) const
             model->setFiltersEnabled(false);
             int relatedRow = model->findRow(_related[col].relatedRole, value);
             int relatedCol = model->roleColumn(_related[col].displayRole);
-            //logStatus() << tableName() << row << relatedRow << relatedCol;
+
             if (relatedRow >= 0 && relatedCol >= 0) {
-                //logStatus() << "rel:" << row << col << value << _related[col].relatedRole << _related[col].displayRole << relatedRow << relatedCol;
                 value = model->get(relatedRow, relatedCol);
-                //logStatus() << value;
             }
             else {
-                //logError() << "did not find related value" << _related[col].relatedRole << _related[col].displayRole;
                 value = "";
             }
             model->setFiltersEnabled(prevFilt);
@@ -330,6 +327,7 @@ int RamTableModel::rowCount(const QModelIndex &parent) const
 
 int RamTableModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return _roles.count();
 }
 
@@ -602,6 +600,9 @@ int RamTableModel::idColumn() const
 void RamTableModel::relatedDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
     //FIXME: this will update all rows in model... (only affected roles though)
+    Q_UNUSED(topLeft);
+    Q_UNUSED(bottomRight);
+    //FIX
 
     QList<RamTableModelRelation> relations = _related.values();
     foreach(const RamTableModelRelation& rel, relations) {

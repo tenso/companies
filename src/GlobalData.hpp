@@ -4,12 +4,12 @@
 #include <QString>
 
 class DataManager;
-class SqlModel;
+class RamTableModel;
 
 class GlobalData {
 public:
     static void init(DataManager* dataManager);
-    static SqlModel* getModel(const QString& name);
+    static RamTableModel* getModel(const QString& name);
 private:
     static DataManager* _data;
 };

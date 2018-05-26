@@ -1,5 +1,6 @@
 #include "DataManager.hpp"
 #include "Log.hpp"
+#include "RamTableModel.hpp"
 #include "SqlModel.hpp"
 
 #include <QSqlDatabase>
@@ -120,38 +121,38 @@ void DataManager::loadFonts()
 
 bool DataManager::setupTableModels()
 {
-    SqlModel* model = nullptr;
-    if (!addModel("quarters")) {
+    RamTableModel* model = nullptr;
+    if (!addSqlModel("quarters")) {
         return false;
     }
 
-    if (!addModel("modes")) {
+    if (!addSqlModel("modes")) {
         return false;
     }
 
-    if (!addModel("calcModes")) {
+    if (!addSqlModel("calcModes")) {
         return false;
     }
 
-    if (!(model = addModel("types"))) {
+    if (!(model = addSqlModel("types"))) {
         return false;
     }
     model->setSort("name", Qt::AscendingOrder);
 
-    if (!(model = addModel("lists"))) {
+    if (!(model = addSqlModel("lists"))) {
         return false;
     }
     model->setSort("name", Qt::AscendingOrder);
 
     //COMPANIES
-    if (!(model = addModel("companies"))) {
+    if (!(model = addSqlModel("companies"))) {
         return false;
     }
     model->addRelated("lId", getModel("lists"), "id", "name");
     model->addRelated("tId", getModel("types"), "id", "name");
 
     //FINANCIALS
-    if (!(model = addModel("financials"))) {
+    if (!(model = addSqlModel("financials"))) {
         return false;
     }
     model->setSort("year", Qt::DescendingOrder);
@@ -161,9 +162,9 @@ bool DataManager::setupTableModels()
     return true;
 }
 
-SqlModel* DataManager::addModel(const QString &table)
+RamTableModel* DataManager::addSqlModel(const QString &table)
 {
-    SqlModel* model = new SqlModel(this);
+    RamTableModel* model = new SqlModel(this);
     if (!model->init(table)) {
         return nullptr;
     }
@@ -182,7 +183,7 @@ bool DataManager::registerTableModels(QQmlContext *context)
     return true;
 }
 
-SqlModel *DataManager::getModel(const QString &name)
+RamTableModel *DataManager::getModel(const QString &name)
 {
     for(int i = 0; i < _tableModels.length(); i++) {
         if (_tableModels[i]->tableName() == name) {

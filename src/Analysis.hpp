@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QList>
 #include "SqlModel.hpp"
+#include "RamTableModel.hpp"
 
 class QQmlContext;
 
@@ -36,12 +37,12 @@ public:
     static constexpr bool   DefaultRisky = false;
 
     explicit Analysis(QObject *parent = nullptr);
-    bool init(SqlModel* financialsModel, bool autoReanalyse = true);
+    bool init(RamTableModel* financialsModel, bool autoReanalyse = true);
     bool registerProperties(QQmlContext *context);
     bool test();
-    SqlModel* model();
-    SqlModel* resultsModel();
-    SqlModel* magicModel();
+    RamTableModel* model();
+    RamTableModel* resultsModel();
+    RamTableModel* magicModel();
 
 signals:
     void logInfo(const QString& text);
@@ -103,11 +104,12 @@ private:
                           Change ebitMarginChange = Change::Constant);
 
 
-    bool initModel(SqlModel &model, const QString& table);
+    bool initModel(RamTableModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
-    double get(const QString& role, SqlModel *model = nullptr); //remember to run _financials.selectRow() before!
-    bool set(const QString& role, double val, SqlModel *model = nullptr);
+    double get(const QString& role, RamTableModel *model = nullptr); //remember to run _financials.selectRow() before!
+    bool set(const QString& role, double val, RamTableModel *model = nullptr);
+    bool setInt(const QString& role, int val, RamTableModel *model = nullptr);
 
 
     bool yearSet(const QString &role, double val);
@@ -135,7 +137,7 @@ private:
     SqlModel _magicModel;
 
     //not owned data; only lookup, dont share will set own filters,sort etc
-    SqlModel* _financials {nullptr};
+    RamTableModel* _financials {nullptr};
     bool _changeUpdates { true };
     bool _autoReAnalyse{ false };
 };
