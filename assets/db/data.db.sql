@@ -70,7 +70,8 @@ CREATE TABLE IF NOT EXISTS `magicFormula` (
 	`ebit`	NUMERIC,
 	`ev`	NUMERIC,
 	`capitalEmployed`	NUMERIC,
-	`score`	NUMERIC
+	`score`	NUMERIC,
+	`financialsMode`	INTEGER
 );
 CREATE TABLE IF NOT EXISTS `lists` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,

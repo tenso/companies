@@ -24,8 +24,8 @@ public:
     static constexpr int    SavePrecisionLarge = 1;
     static constexpr int    SavePrecisionHuge = 0;
 
-    enum class Change {None, Constant, Linear};
-    enum class CalcMode {None, Means, Last};
+    enum class Change {Constant, Linear};
+    enum class CalcMode {Means, Last};
     static constexpr double DoubleMin = std::numeric_limits<double>::min();
     static constexpr double DoubleMax = std::numeric_limits<double>::max();
     static constexpr double DefaultRiskFree = 0.025;
@@ -107,6 +107,7 @@ private:
     bool initModel(RamTableModel &model, const QString& table);
     void buildLookups();
     double fin(const QString& role); //remember to run _financials.selectRow() before!
+    double finCapEmployed();
     double get(const QString& role, RamTableModel *model = nullptr); //remember to run _financials.selectRow() before!
     bool set(const QString& role, double val, RamTableModel *model = nullptr);
     bool setInt(const QString& role, int val, RamTableModel *model = nullptr);

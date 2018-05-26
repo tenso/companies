@@ -88,6 +88,6 @@ APage {
         setColors: {"sales": tm.graph2, "ebit": tm.graph1, "dividend": tm.graph3}
 
         filterRole: "qId"
-        filterEqValue: 1
+        filterEqValue: 0
     }
 }

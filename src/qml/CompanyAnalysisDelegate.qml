@@ -50,7 +50,7 @@ AItem {
         itemRoles:  ["tax", "marketPremium", "riskFreeRate", "riskyCompany", "beta",
             "salesGrowthMode", "ebitMarginMode", "financialsMode"]
         itemCombos: {"salesGrowthMode": modesModel, "ebitMarginMode" : modesModel,
-                     "financialsMode": calcModesModel};
+                     "financialsMode": calcModesModel, "riskyCompany": yesnoModel };
         inputModes: {"tax": "%", "marketPremium": "%", "riskFreeRate": "%"}
         itemW: tm.wideW
         prevFocus: m3.lastFocusItem

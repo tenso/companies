@@ -21,7 +21,7 @@ bool Analysis::init(RamTableModel *financialsModel, bool autoReAnalyse)
     if (!initModel(_model, "analysis")) {
         return false;
     }
-
+    _model.addRelated("riskyCompany", GlobalData::getModel("yesno"), "id", "name");
     _model.addRelated("salesGrowthMode", GlobalData::getModel("modes"), "id", "name");
     _model.addRelated("ebitMarginMode", GlobalData::getModel("modes"), "id", "name");
     _model.addRelated("financialsMode", GlobalData::getModel("calcModes"), "id", "name");
@@ -33,6 +33,7 @@ bool Analysis::init(RamTableModel *financialsModel, bool autoReAnalyse)
     if (!initModel(_magicModel, "magicFormula")) {
         return false;
     }
+    _magicModel.addRelated("financialsMode", GlobalData::getModel("calcModes"), "id", "name");
 
     buildLookups();
 
@@ -168,22 +169,8 @@ int Analysis::newMagicAnalysis(int cId)
     else {
         aId = _magicModel.get("id").toInt();
 
-        //from means
-        QHash<QString, double> means = fetchMeans();
-
-        //FIXME: means or latest:
-        set("ebit", means["ebit"], &_magicModel);
-        set("capitalEmployed", means["capitalEmployed"], &_magicModel);
-
-        //from latest statement
-        double eV = 0;
-        if (_financials && _financials->rowCount() > 0) {
-            selectLatestYear();
-            double mCap = mcap(fin("shares"), fin("sharePrice"));
-            eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
-            logStatus() << mCap << eV;
-        }
-        set("ev", eV, &_magicModel);
+        //defaults
+        setInt("financialsMode", (int)CalcMode::Means, &_magicModel);
         analyseMagic(aId);
     }
     _changeUpdates = true;
@@ -351,6 +338,35 @@ bool Analysis::analyseMagic(int aId)
     }
     _changeUpdates = false;
 
+    selectLatestYear();
+
+    //get data
+    CalcMode mode = (CalcMode)get("financialsMode", &_magicModel);
+    if (mode == CalcMode::Means) {
+        QHash<QString, double> means = fetchMeans();
+        set("ebit", means["ebit"], &_magicModel);
+        set("capitalEmployed", means["capitalEmployed"], &_magicModel);
+
+        double eV = 0;
+        if (_financials && _financials->rowCount() > 0) {
+            double mCap = mcap(fin("shares"), fin("sharePrice"));
+            eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
+        }
+        set("ev", eV, &_magicModel);
+    }
+    else {
+        set("ebit", fin("ebit"), &_magicModel);
+        set("capitalEmployed", finCapEmployed(), &_magicModel);
+
+        double eV = 0;
+        if (_financials && _financials->rowCount() > 0) {
+            double mCap = mcap(fin("shares"), fin("sharePrice"));
+            eV = ev(mCap, fin("assetsCurrCash"), fin("liabCurrInt"), fin("liabLongInt"));
+        }
+        set("ev", eV, &_magicModel);
+    }
+
+    //analyse
     double ce = get("capitalEmployed", &_magicModel);
     double eV = get("ev", &_magicModel);
     double e = get("ebit", &_magicModel);
@@ -370,7 +386,7 @@ bool Analysis::selectCompany(int cId)
 {
     if (_financials) {
         _financials->filterColumn("cId", "=" + QString::number(cId));
-        _financials->filterColumn("qId", "=1"); //only want FY entries
+        _financials->filterColumn("qId", "=0"); //only want FY entries
     }
     return true;
 }
@@ -425,12 +441,8 @@ QHash<QString, double> Analysis::fetchMeans()
         means["liabLongInt"] += fin("liabLongInt");
         means["interestPayed"] += fin("interestPayed");
         means["assetsCurrCash"] += fin("assetsCurrCash");
-        double wc = workingCapital(fin("assetsCurr"), fin("assetsCurrCash"),
-                                   fin("liabCurr"), fin("liabCurrInt"));
-
-        double capEmployed = capitalEmployed(wc, fin("assetsFixedPpe"));
-        means["capitalEmployed"] += capEmployed;
-        means["salesPerCapital"] += salesPerCapital(newSale, capEmployed);
+        means["capitalEmployed"] += finCapEmployed();
+        means["salesPerCapital"] += salesPerCapital(newSale, finCapEmployed());
     }
 
     means["sales"] /= (double)entries;
@@ -714,6 +726,14 @@ double Analysis::fin(const QString &role)
         return _financials->get(role).toDouble();
     }
     return 0;
+}
+
+double Analysis::finCapEmployed()
+{
+    double wc = workingCapital(fin("assetsCurr"), fin("assetsCurrCash"),
+                               fin("liabCurr"), fin("liabCurrInt"));
+
+    return capitalEmployed(wc, fin("assetsFixedPpe"));
 }
 
 double Analysis::get(const QString &role, RamTableModel* model)

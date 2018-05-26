@@ -22,9 +22,12 @@ ApplicationWindow {
         console.log("USER " + text);
         addStatus("USER " + text);
     }
+    property bool useDebug: false
     function logDebug(text) {
-        console.log("DEBUG " + text);
-        addStatus("DEBUG " + text);
+        if (useDebug) {
+            console.log("DEBUG " + text);
+            addStatus("DEBUG " + text);
+        }
     }
     function logStatus(text) {
         console.log(text);

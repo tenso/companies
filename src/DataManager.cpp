@@ -127,23 +127,29 @@ bool DataManager::setupTableModels()
     if (!(idValue = addRamModel("quarters"))) {
         return false;
     }
-    idValue->addPair(1, "FY");
-    idValue->addPair(2, "Q1");
-    idValue->addPair(3, "Q2");
-    idValue->addPair(4, "Q3");
-    idValue->addPair(5, "Q4");
+    idValue->addPair(0, "FY");
+    idValue->addPair(1, "Q1");
+    idValue->addPair(2, "Q2");
+    idValue->addPair(3, "Q3");
+    idValue->addPair(4, "Q4");
 
     if (!(idValue = addRamModel("modes"))) {
         return false;
     }
-    idValue->addPair(1, "Constant");
-    idValue->addPair(2, "Linear");
+    idValue->addPair(0, "Constant");
+    idValue->addPair(1, "Linear");
 
     if (!(idValue = addRamModel("calcModes"))) {
         return false;
     }
-    idValue->addPair(1, "Means");
-    idValue->addPair(2, "Last");
+    idValue->addPair(0, "Means");
+    idValue->addPair(1, "Last");
+
+    if (!(idValue = addRamModel("yesno"))) {
+        return false;
+    }
+    idValue->addPair(0, "No");
+    idValue->addPair(1, "Yes");
 
     if (!(model = addSqlModel("types"))) {
         return false;

@@ -423,7 +423,7 @@ bool RamTableModel::set(const QString &role, const QVariant &value)
 bool RamTableModel::set(const int row, const QString &role, const QVariant &value)
 {
     if (!haveRole(role)) {
-        logError() << "RamTableModel::set failed" << row << role << value;
+        logError() << tableName() << "set failed row:" << row << role << "=" << value << "(no role)";
         return false;
     }
     return setData(createIndex(row, 0), value, _roleInt[role]);
