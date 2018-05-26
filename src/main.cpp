@@ -7,6 +7,7 @@
 #include "Log.hpp"
 #include "Analysis.hpp"
 #include "SqlModel.hpp"
+#include "GlobalData.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +19,7 @@ int main(int argc, char *argv[])
         logError() << "data.init failed";
         return -1;
     }
+    GlobalData::init(&data);
 
     Analysis analysis;
     if (!analysis.init(data.getModel("financials"))) {

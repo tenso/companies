@@ -85,7 +85,7 @@ APage {
                     view.positionViewAtIndex(view.currentIndex, ListView.Contain)
                 }
                 checked: {
-                    if (selectedData) {
+                    if (page.active && selectedData) {
                         var row = companiesModel.idToRow(selectedData.id);
                         return companiesModel.get(row, "maId") === itemData.id;
                     }
@@ -93,9 +93,9 @@ APage {
                 }
 
                 onSetAnalysis: {
-                    if (selectedData) {
+                    if (page.active && selectedData) {
                         var row = companiesModel.idToRow(selectedData.id);
-                        logDebug("set presented:" + selectedData.id + "=" + id);
+                        logDebug("set presented magic:" + selectedData.id + "=" + id);
                         companiesModel.set(row, "maId", id);
                     }
                 }

@@ -147,16 +147,16 @@ bool DataManager::setupTableModels()
     if (!(model = addModel("companies"))) {
         return false;
     }
-    model->addRelation("lId", QSqlRelation("lists", "id", "name"));
-    model->addRelation("tId", QSqlRelation("types", "id", "name"));
+    model->addRelated("lId", getModel("lists"), "id", "name");
+    model->addRelated("tId", getModel("types"), "id", "name");
 
     //FINANCIALS
     if (!(model = addModel("financials"))) {
         return false;
     }
     model->setSort("year", Qt::DescendingOrder);
-    model->addRelation("cId", QSqlRelation("companies", "id", "name"));
-    model->addRelation("qId", QSqlRelation("quarters", "id", "name"));
+    model->addRelated("cId", getModel("companies"), "id", "name");
+    model->addRelated("qId", getModel("quarters"), "id", "name");
 
     return true;
 }

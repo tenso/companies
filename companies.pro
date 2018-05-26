@@ -7,7 +7,10 @@ SOURCES += src/main.cpp \
     src/Analysis.cpp \
     src/AnalysisDebug.cpp \
     src/Log.cpp \
-    src/SqlModel.cpp
+    src/SqlModel.cpp \
+    src/IdValueModel.cpp \
+    src/RamTableModel.cpp \
+    src/GlobalData.cpp
 
 
 RESOURCES += src/qml.qrc \
@@ -31,7 +34,10 @@ HEADERS += \
     src/DataManager.hpp \
     src/Analysis.hpp \
     src/AnalysisDebug.hpp \
-    src/SqlModel.hpp
+    src/SqlModel.hpp \
+    src/IdValueModel.hpp \
+    src/RamTableModel.hpp \
+    src/GlobalData.hpp
 
 win32 {
 #I have bug where qml will not be repacked if sub modules are saved.

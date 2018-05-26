@@ -85,16 +85,16 @@ APage {
                     view.positionViewAtIndex(view.currentIndex, ListView.Contain)
                 }
                 checked: {
-                    if (selectedData) {
+                    if (page.active && selectedData) {
                         var row = companiesModel.idToRow(selectedData.id);
                         return companiesModel.get(row, "aId") === itemData.id;
                     }
                     return false;
                 }
                 onSetAnalysis: {
-                    if (selectedData) {
+                    if (page.active && selectedData) {
                         var row = companiesModel.idToRow(selectedData.id);
-                        logDebug("set presented:" + selectedData.id + "=" + id);
+                        logDebug("set presented dcf:" + selectedData.id + "=" + id);
                         companiesModel.set(row, "aId", id);
                     }
                 }

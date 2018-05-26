@@ -23,8 +23,8 @@ ApplicationWindow {
         addStatus("USER " + text);
     }
     function logDebug(text) {
-        //console.log("DEBUG " + text);
-        //addStatus("DEBUG " + text);
+        console.log("DEBUG " + text);
+        addStatus("DEBUG " + text);
     }
     function logStatus(text) {
         console.log(text);

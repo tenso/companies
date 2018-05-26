@@ -51,7 +51,7 @@ AItem {
         anchors.left: basics.left
         anchors.topMargin: 0
         groupName: "Assets"
-        headerModel: [qsTr("Fixed"), qsTr("PPE"), qsTr("Current"), qsTr("Cash")]
+        headerModel: [qsTr("Fixed"), qsTr("Fixed: PPE"), qsTr("Current"), qsTr("Current: Cash")]
         itemRoles:  ["assetsFixed", "assetsFixedPpe", "assetsCurr", "assetsCurrCash"]
         prevFocus: income.lastFocusItem
     }
@@ -75,7 +75,7 @@ AItem {
         anchors.left: assets.left
         anchors.topMargin: 0
         groupName: "Liabilities"
-        headerModel: [qsTr("Long"), qsTr("Long Intb."), qsTr("Current"), qsTr("Current Intb.")]
+        headerModel: [qsTr("Long"), qsTr("Long: Intb."), qsTr("Current"), qsTr("Current: Intb.")]
         itemRoles:  ["liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
         prevFocus: equity.lastFocusItem
     }

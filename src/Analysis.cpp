@@ -3,6 +3,8 @@
 #include "AnalysisDebug.hpp"
 #include <QQmlContext>
 
+#include "GlobalData.hpp"
+
 Analysis::Analysis(QObject *parent) : QObject(parent)
 {
 
@@ -19,9 +21,10 @@ bool Analysis::init(SqlModel *financialsModel, bool autoReAnalyse)
     if (!initModel(_model, "analysis")) {
         return false;
     }
-    _model.addRelation("salesGrowthMode", QSqlRelation("modes", "id", "name"));
-    _model.addRelation("ebitMarginMode", QSqlRelation("modes", "id", "name"));
-    _model.addRelation("financialsMode", QSqlRelation("calcModes", "id", "name"));
+
+    _model.addRelated("salesGrowthMode", GlobalData::getModel("modes"), "id", "name");
+    _model.addRelated("ebitMarginMode", GlobalData::getModel("modes"), "id", "name");
+    _model.addRelated("financialsMode", GlobalData::getModel("calcModes"), "id", "name");
 
     if (!initModel(_resultsModel, "analysisResults")) {
         return false;
@@ -168,6 +171,7 @@ int Analysis::newMagicAnalysis(int cId)
         //from means
         QHash<QString, double> means = fetchMeans();
 
+        //FIXME: means or latest:
         set("ebit", means["ebit"], &_magicModel);
         set("capitalEmployed", means["capitalEmployed"], &_magicModel);
 
@@ -226,7 +230,6 @@ bool Analysis::delAllAnalysis(int cId)
             toDelete.push_back(_model.rowToId(i));
         }
     }
-
     for(int i = 0; i < toDelete.size(); i++) {
         if (!delDCFAnalysis(toDelete.at(i))) {
             logError() << "failed to delete row";
@@ -285,6 +288,9 @@ bool Analysis::analyseDCF(int aId)
             totalDebt = fin("liabCurrInt") + fin("liabLongInt");
             defRate = defaultRate(interestCoverage(fin("ebit"), fin("interestPayed")));
             equity = fin("equity");
+        }
+        else {
+            logInfo("WARN: no last year for wacc calc!");
         }
     }
     else {
@@ -639,7 +645,7 @@ double Analysis::dcfEquityValue(double sales, double ebitMargin, double terminal
     saveYear("terminal", year, cSales, cSalesGrowth, cEbit, cEbitMargin, reinvest, fcf, dcf, cCapital);
 
     double terminalValue = fcf / (wacc - cSalesGrowth);
-    int discountYear = year -1;
+    int discountYear = year - 1;
     double terminalDiscounted = terminalValue / pow(1 + wacc, discountYear);
     AnalysisDebug::logTerminal(year, terminalEbitMargin, fcf, terminalGrowth, terminalValue, discountYear, terminalDiscounted);
     AnalysisDebug::logResult(terminalDiscounted);
