@@ -64,11 +64,19 @@ public slots:
 
     bool selectCompany(int cId);
     void selectLatestYear();
-    QHash<QString, double> fetchMeans();
+    QHash<QString, double> fetchData(CalcMode mode);
 
+public:
     //double bottomUpBeta();
     //double researchAsAssets();
-    //double leasesAsDebt();
+
+    class LeasesCapitalized {
+    public:
+        double ebitAdd;
+        double debtAdd;
+    };
+    LeasesCapitalized leasesAsDebt(double cod, double yThis, double y1, double y2to4, double y5);
+
 
     //defaultRate and rating
     double interestCoverage(double ebit, double interestExpenses);

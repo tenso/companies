@@ -46,7 +46,7 @@ AItem {
         itemData: root.itemData
         groupName: ""
         headerModel: [qsTr("Tax"), qsTr("Market premium"), qsTr("Riskfree"), qsTr("Risky"), qsTr("Beta"),
-            qsTr("Sales Mode"), qsTr("Margin mode"), qsTr("Financials year")]
+            qsTr("Sales Mode"), qsTr("Margin mode"), qsTr("WACC year")]
         itemRoles:  ["tax", "marketPremium", "riskFreeRate", "riskyCompany", "beta",
             "salesGrowthMode", "ebitMarginMode", "financialsMode"]
         itemCombos: {"salesGrowthMode": modesModel, "ebitMarginMode" : modesModel,

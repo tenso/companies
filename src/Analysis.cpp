@@ -131,24 +131,15 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     setInt("financialsMode", (int)CalcMode::Means);
     setInt("riskyCompany", DefaultRisky);
 
-    //from company latest data
-    if (_financials && _financials->rowCount() > 0) {
-        selectLatestYear();
-        set("shares", fin("shares"));
-        set("sharePrice", fin("sharePrice"));
-    }
-    else {
-        set("shares", 0);
-        set("sharePrice", 0);
-    }
-
-    //from company means
-    QHash<QString, double> means = fetchMeans();
-    set("sales", means["sales"]);
-    set("ebitMargin", means["ebitMargin"]);
-    set("terminalEbitMargin", means["ebitMargin"]);
-    set("salesGrowth", means["salesGrowth"]);
-    set("salesPerCapital", means["salesPerCapital"]);
+    //from financials:
+    QHash<QString, double> data = fetchData(CalcMode::Means);
+    set("shares", data["shares"]);
+    set("sharePrice", data["sharePrice"]);
+    set("sales", data["sales"]);
+    set("ebitMargin", data["ebitMargin"]);
+    set("terminalEbitMargin", data["ebitMargin"]);
+    set("salesGrowth", data["salesGrowth"]);
+    set("salesPerCapital", data["salesPerCapital"]);
 
     if (!analyseDCF(aId)) {
         logError() << "failed to analyse" << aId;
@@ -261,28 +252,11 @@ bool Analysis::analyseDCF(int aId)
     double totalDebt = 0;
     double defRate = 0;
     double equity = 0;
-    if (mode == CalcMode::Means) {
-        QHash<QString, double> means = fetchMeans();
-        logInfo("using means of all year for wacc calc");
-        totalDebt = means["liabCurrInt"] + means["liabLongInt"];
-        defRate = defaultRate(interestCoverage(means["ebit"], means["interestPayed"]));
-        equity = means["equity"];
-    }
-    else if (mode == CalcMode::Last) {
-        if (_financials && _financials->rowCount() > 0) {
-            logInfo("using last year for wacc calc");
-            selectLatestYear();
-            totalDebt = fin("liabCurrInt") + fin("liabLongInt");
-            defRate = defaultRate(interestCoverage(fin("ebit"), fin("interestPayed")));
-            equity = fin("equity");
-        }
-        else {
-            logInfo("WARN: no last year for wacc calc!");
-        }
-    }
-    else {
-        logError() << "unknown mode";
-    }
+    QHash<QString, double> data = fetchData(mode);
+    totalDebt = data["liabCurrInt"] + data["liabLongInt"];
+    defRate = defaultRate(interestCoverage(data["ebit"], data["interestPayed"]));
+    equity = data["equity"];
+
     double coe = coeCAPM(get("beta"), get("marketPremium"), get("riskFreeRate"));
     double cd = cod(defRate, get("riskFreeRate"));
     double r = wacc(equity, totalDebt, coe, cd);
@@ -338,35 +312,12 @@ bool Analysis::analyseMagic(int aId)
     }
     _changeUpdates = false;
 
-    selectLatestYear();
-
-    //get data
     CalcMode mode = (CalcMode)get("financialsMode", &_magicModel);
-    if (mode == CalcMode::Means) {
-        QHash<QString, double> means = fetchMeans();
-        set("ebit", means["ebit"], &_magicModel);
-        set("capitalEmployed", means["capitalEmployed"], &_magicModel);
+    QHash<QString, double> data = fetchData(mode);
+    set("ebit", data["ebit"], &_magicModel);
+    set("capitalEmployed", data["capitalEmployed"], &_magicModel);
+    set("ev", data["ev"], &_magicModel);
 
-        double eV = 0;
-        if (_financials && _financials->rowCount() > 0) {
-            double mCap = mcap(fin("shares"), fin("sharePrice"));
-            eV = ev(mCap, means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
-        }
-        set("ev", eV, &_magicModel);
-    }
-    else {
-        set("ebit", fin("ebit"), &_magicModel);
-        set("capitalEmployed", finCapEmployed(), &_magicModel);
-
-        double eV = 0;
-        if (_financials && _financials->rowCount() > 0) {
-            double mCap = mcap(fin("shares"), fin("sharePrice"));
-            eV = ev(mCap, fin("assetsCurrCash"), fin("liabCurrInt"), fin("liabLongInt"));
-        }
-        set("ev", eV, &_magicModel);
-    }
-
-    //analyse
     double ce = get("capitalEmployed", &_magicModel);
     double eV = get("ev", &_magicModel);
     double e = get("ebit", &_magicModel);
@@ -396,12 +347,15 @@ void Analysis::selectLatestYear()
     _financials->selectRow(0);
 }
 
-QHash<QString, double> Analysis::fetchMeans()
+QHash<QString, double> Analysis::fetchData(CalcMode mode)
 {
     QHash<QString, double> means;
     int entries = 0;
     if (_financials) {
         entries = _financials->rowCount();
+    }
+    if (mode == CalcMode::Last) {
+        entries = 1;
     }
     means["sales"] = 0;
     means["ebit"] = 0;
@@ -413,10 +367,19 @@ QHash<QString, double> Analysis::fetchMeans()
     means["liabLongInt"] = 0;
     means["capitalEmployed"] = 0;
     means["assetsCurrCash"] = 0;
-
+    means["mcap"] = 0;
+    means["ev"] = 0;
+    means["shares"] = 0;
+    means["sharePrice"] = 0;
     if (entries == 0) {
         return means;
     }
+
+     //single data:
+    _financials->selectRow(0);
+    means["shares"] = fin("shares");
+    means["sharePrice"] = fin("sharePrice");
+    means["mcap"] = mcap(means["shares"], means["sharePrice"]);
 
     double lastSale = 0;
     double salesGrowth = 1; //calc geometric-mean; FIXME: make option?
@@ -427,6 +390,9 @@ QHash<QString, double> Analysis::fetchMeans()
         if (_financials) {
             _financials->selectRow(i);
         }
+
+        //NOTE we calculated our COD without capitalized leases (def rate could chage)
+        //LeasesCapitalized leases = leasesAsDebt(cd, fin("leasingY"), fin("leasingY1"), fin("leasingY2Y5"), fin("leasingY5Up"));
 
         newSale = fin("sales");
         if (i > 0) {
@@ -459,7 +425,24 @@ QHash<QString, double> Analysis::fetchMeans()
         means["ebitMargin"] = means["ebit"] / means["sales"];
     }
     means["salesGrowth"] = pow(salesGrowth, 1/(double)(entries - 1));
+
+    means["ev"] = ev(means["mcap"], means["assetsCurrCash"], means["liabCurrInt"], means["liabLongInt"]);
+
     return means;
+}
+
+Analysis::LeasesCapitalized Analysis::leasesAsDebt(double cod, double yThis, double y1, double y2to4, double y5)
+{
+    LeasesCapitalized ret;
+
+    double yX = y2to4 / 4.0;
+    double asDebt = y1 / pow(1 + cod, 1) +
+            yX / pow(1 + cod, 2) + yX / pow(1 + cod, 3) + yX / pow(1 + cod, 4) +
+            y5 / pow(1 + cod, 5);
+    double depriciation = asDebt / 5.0;
+    ret.ebitAdd = yThis - depriciation;
+    ret.debtAdd = asDebt;
+    return ret;
 }
 
 double Analysis::interestCoverage(double ebit, double interestExpenses)
@@ -723,7 +706,8 @@ void Analysis::buildLookups()
 double Analysis::fin(const QString &role)
 {
     if (_financials) {
-        return _financials->get(role).toDouble();
+        double val = _financials->get(role).toDouble();
+        return val;
     }
     return 0;
 }
