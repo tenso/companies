@@ -10,12 +10,12 @@ bool IdValueModel::init(const QString &table)
 {
     setTable(table);
     addRole("id", true);
-    addRole("value", false);
+    addRole("name", false); //FIXME: change to "value"
     return true;
 }
 
 void IdValueModel::addPair(int id, const QVariant &value)
 {
     newRow("id", id);
-    set("value", value);
+    set("name", value);
 }

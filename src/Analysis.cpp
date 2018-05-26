@@ -122,13 +122,13 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     set("beta", DefaultBeta);
     set("marketPremium", DefaultMarketRiskPremium);
     set("riskFreeRate", DefaultRiskFree);
-    set("growthYears", DefaultGrowthYears);
+    setInt("growthYears", DefaultGrowthYears);
     double terminalGrowth = DefaultTerminalGrowth;
     set("terminalGrowth", terminalGrowth);
     setInt("salesGrowthMode", (int)Change::Linear);
     setInt("ebitMarginMode", (int)Change::Linear);
     setInt("financialsMode", (int)CalcMode::Means);
-    set("riskyCompany", DefaultRisky);
+    setInt("riskyCompany", DefaultRisky);
 
     //from company latest data
     if (_financials && _financials->rowCount() > 0) {

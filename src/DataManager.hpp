@@ -5,6 +5,7 @@
 #include <QVector>
 
 class RamTableModel;
+class IdValueModel;
 class QQmlContext;
 
 class DataManager : public QObject
@@ -22,6 +23,7 @@ protected:
     void loadFonts();
     bool setupTableModels();
     RamTableModel *addSqlModel(const QString& table);
+    IdValueModel *addRamModel(const QString& table);
     QVector<RamTableModel*> _tableModels;
 };
 

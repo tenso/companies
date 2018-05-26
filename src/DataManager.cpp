@@ -2,7 +2,7 @@
 #include "Log.hpp"
 #include "RamTableModel.hpp"
 #include "SqlModel.hpp"
-
+#include "IdValueModel.hpp"
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -122,17 +122,28 @@ void DataManager::loadFonts()
 bool DataManager::setupTableModels()
 {
     RamTableModel* model = nullptr;
-    if (!addSqlModel("quarters")) {
-        return false;
-    }
+    IdValueModel* idValue = nullptr;
 
-    if (!addSqlModel("modes")) {
+    if (!(idValue = addRamModel("quarters"))) {
         return false;
     }
+    idValue->addPair(1, "FY");
+    idValue->addPair(2, "Q1");
+    idValue->addPair(3, "Q2");
+    idValue->addPair(4, "Q3");
+    idValue->addPair(5, "Q4");
 
-    if (!addSqlModel("calcModes")) {
+    if (!(idValue = addRamModel("modes"))) {
         return false;
     }
+    idValue->addPair(1, "Constant");
+    idValue->addPair(2, "Linear");
+
+    if (!(idValue = addRamModel("calcModes"))) {
+        return false;
+    }
+    idValue->addPair(1, "Means");
+    idValue->addPair(2, "Last");
 
     if (!(model = addSqlModel("types"))) {
         return false;
@@ -165,6 +176,16 @@ bool DataManager::setupTableModels()
 RamTableModel* DataManager::addSqlModel(const QString &table)
 {
     RamTableModel* model = new SqlModel(this);
+    if (!model->init(table)) {
+        return nullptr;
+    }
+    _tableModels.push_back(model);
+    return model;
+}
+
+IdValueModel *DataManager::addRamModel(const QString &table)
+{
+    IdValueModel* model = new IdValueModel(this);
     if (!model->init(table)) {
         return nullptr;
     }
