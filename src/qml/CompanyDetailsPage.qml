@@ -55,7 +55,7 @@ APage {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: head.bottom
-        height: (tm.rowH * 10 + view.spacing) * 2
+        height: (tm.rowH * 10 + 1) * 2
         color: tm.inActive
 
         AList {

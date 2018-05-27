@@ -4,8 +4,11 @@
 
 ## Prio ##
 
+* dont use sales/capital based on capital-employed, qouata to high!
+  inwido: got 5 should have been about 3 (if using total book get .95 though!)
+  nobia got 3.9 should have been about 1.5
 * New analysis with two or more empty financials: NaN
-* sales/capital really on capital-employed: add dropdown mode.
+
 
 ## goals ##
 * re-work overview or add financialoverview with list of companies and their mcap/sales/.../metrics

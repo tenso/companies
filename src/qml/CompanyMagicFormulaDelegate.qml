@@ -9,7 +9,7 @@ AItem {
     property alias checked: checkButton.checked
     id: root
     width: tm.wideW
-    height: tm.rowH * 3
+    height: tm.rowH * 4 + separator.height + tm.margin
 
     signal setAnalysis(int id);
 
@@ -27,17 +27,24 @@ AItem {
             anchors.topMargin: tm.margin
             text: itemData ? "(" + itemData.id + ")" : ""
         }
-        RadioButton {
+        ARadioButton {
             id: checkButton
             anchors.left: idText.left
             anchors.top: idText.bottom
+            anchors.topMargin: tm.margin
             ButtonGroup.group: buttonGroup
             onCheckedChanged: {
                 setAnalysis(root.itemData.id)
             }
         }
+        Rectangle {
+            id: separator
+            color: tm.headBg
+            width: parent.width
+            height: 1
+            anchors.bottom: parent.bottom
+        }
     }
-
 
     CompanyDetailGroup {
         id: m1

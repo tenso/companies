@@ -77,7 +77,7 @@ APage {
             delegate: CompanyAnalysisDelegate {
                 width: view.width
                 myIndex: index
-                height: 874 //bugg? cant use page.height - head.height?
+                //height: 874 //bugg? cant use page.height - head.height?
                 itemData: model
                 buttonGroup: presentedGroup
                 //FIXME: move to AItem?

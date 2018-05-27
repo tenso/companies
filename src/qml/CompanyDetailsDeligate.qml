@@ -4,7 +4,7 @@ AItem {
     Theme {id:tm}
 
     id: dataRow
-    height: tm.rowH * 10
+    height: tm.rowH * 10 + separator.height
 
     Rectangle {
         id: bg
@@ -18,6 +18,14 @@ AItem {
             anchors.leftMargin: tm.margin * 2
             anchors.topMargin: tm.margin
             text: itemData ? "(" + itemData.id + ")" : ""
+        }
+        Rectangle {
+            id: separator
+            color: tm.headBg
+            width: parent.width
+            height: 1
+            anchors.bottomMargin: tm.margin / 2
+            anchors.bottom: parent.bottom
         }
     }
 
@@ -88,7 +96,7 @@ AItem {
         groupName: "Leasing"
         headerModel: [qsTr("This y."), qsTr("+1"), qsTr("+2-5"), qsTr("+5")]
         itemRoles:  ["leasingY", "leasingY1", "leasingY2Y5", "leasingY5Up"]
-        prevFocus: leasing.lastFocusItem
+        prevFocus: liabilities.lastFocusItem
     }
 
 }

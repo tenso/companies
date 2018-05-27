@@ -33,5 +33,6 @@
         <file>qml/CompanyMagicFormulaPage.qml</file>
         <file>qml/CompanyMagicFormulaDelegate.qml</file>
         <file>qml/ACheckBox.qml</file>
+        <file>qml/ARadioButton.qml</file>
     </qresource>
 </RCC>
