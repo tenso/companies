@@ -50,8 +50,8 @@ signals:
 public slots:
     //returns id of new analysis or -1 on error
     //autofills from available data of not empty=true
-    int newDCFAnalysis(int cId, bool empty = false);
-    int newMagicAnalysis(int cId);
+    int newDCFAnalysis(bool empty = false);
+    int newMagicAnalysis();
     bool submitAll();
     void revertAll();
     //removes all results:
@@ -62,7 +62,7 @@ public slots:
     bool analyseDCF(int aId);
     bool analyseMagic(int aId);
 
-    bool selectCompany(int cId);
+    bool selectCompany(int cId); //remember: this must be run before any other operation!
     void selectLatestYear();
     QHash<QString, double> fetchData(CalcMode mode);
 
@@ -148,6 +148,7 @@ private:
     RamTableModel* _financials {nullptr};
     bool _changeUpdates { true };
     bool _autoReAnalyse{ false };
+    int _cId { -1 };
 };
 
 #endif // ANALYSIS_HPP

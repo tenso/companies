@@ -126,16 +126,21 @@ ApplicationWindow {
         y: parent.height - height
 
         Flickable {
+            id: textFlick
             anchors.fill: parent
             contentHeight: logTextArea.height
             contentWidth: logTextArea.width
             boundsBehavior: Flickable.StopAtBounds
             clip:true
+            //FIXME: fix max length?
             TextArea {
                 id: logTextArea
                 font: tm.font
                 readOnly: true
                 text: window.statusLog
+                onTextChanged: {
+                    textFlick.contentY = height - textFlick.height
+                }
             }
             ScrollBar.vertical: ScrollBar {}
             ScrollBar.horizontal: ScrollBar {}

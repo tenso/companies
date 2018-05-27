@@ -95,11 +95,16 @@ RamTableModel *Analysis::magicModel()
     return &_magicModel;
 }
 
-int Analysis::newDCFAnalysis(int cId, bool empty)
+int Analysis::newDCFAnalysis(bool empty)
 {
+    if (_cId < 0) {
+        logError() << "no company selected, abort";
+        return -1;
+    }
+
     _changeUpdates = false;
     //DCF
-    if (!_model.newRow("cId", cId)) {
+    if (!_model.newRow("cId", _cId)) {
         logError() << "new analysis failed";
         _changeUpdates = true;
         return -1;
@@ -107,16 +112,12 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     int aId = _model.get("id").toInt();
 
     if (empty) {
-        logStatus() << "new analys (empty) for" << cId;
+        logStatus() << "new analys (empty) for" << _cId;
         _changeUpdates = true;
         return aId;
     }
 
-    if (!selectCompany(cId)) {
-        _changeUpdates = true;
-        return -1;
-    }
-    logStatus() << "new analys (defaults) for" << cId << "id" << aId;
+    logStatus() << "new analys (defaults) for" << _cId << "id" << aId;
 
     //defaults:
     set("tax", DefaultTaxRate);
@@ -149,12 +150,15 @@ int Analysis::newDCFAnalysis(int cId, bool empty)
     return aId;
 }
 
-int Analysis::newMagicAnalysis(int cId)
+int Analysis::newMagicAnalysis()
 {
-    //MAGIC FORMULA
+    if (_cId < 0) {
+        logError() << "no company selected, abort";
+        return -1;
+    }
     int aId = -1;
     _changeUpdates = false;
-    if (!_magicModel.newRow("cId", cId)) {
+    if (!_magicModel.newRow("cId", _cId)) {
         logError() << "new magicforumla";
     }
     else {
@@ -333,6 +337,7 @@ bool Analysis::analyseMagic(int aId)
 
 bool Analysis::selectCompany(int cId)
 {
+    _cId = cId;
     if (_financials) {
         _financials->filterColumn("cId", "=" + QString::number(cId));
         _financials->filterColumn("qId", "=0"); //only want FY entries
@@ -543,10 +548,10 @@ void Analysis::dcfDataChanged(const QModelIndex &topLeft, const QModelIndex &bot
         _changeUpdates = false; //precautionary
         int row = topLeft.row();
         int aId = _model.rowToId(row);
-        logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
+        //logStatus() << "auto reAnalyse:" << aId; //FIXME: remove but keep this a while, want to track when it happens
         analyseDCF(aId);
         _changeUpdates = true; //precautionary
-        logStatus() << "auto reAnalyse done";
+        //logStatus() << "auto reAnalyse done";
     }
 }
 

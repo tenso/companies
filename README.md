@@ -28,3 +28,4 @@
 * proper data-dirs
 * disable multiple same year entries
 * dont dataChanged on all rows in model if related value changes
+* set max length of status-text-scroll

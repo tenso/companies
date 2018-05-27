@@ -8,6 +8,7 @@ APage {
         if (page.active) {
             if (selectedData) {
                 analysisModel.filterColumn("cId", "=" + selectedData.id);
+                analysisEngine.selectCompany(selectedData.id);
             }
         }
     }
@@ -32,7 +33,7 @@ APage {
                 logError("no selection");
                 return;
             }
-            var aId = analysisEngine.newDCFAnalysis(selectedData.id);
+            var aId = analysisEngine.newDCFAnalysis();
             if (aId < 0) {
                 logError("failed to create new analysis");
             }

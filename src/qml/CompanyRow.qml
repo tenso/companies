@@ -14,5 +14,5 @@ AListRow {
         "aId": tm.inActive,
         "maId": tm.inActive
     }
-    colEdit: {"aId": false, "maId": false}
+    colEdit: {"id": false, "aId": false, "maId": false}
 }

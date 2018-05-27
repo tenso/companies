@@ -9,6 +9,7 @@ APage {
         if (page.active) {
             if (selectedData) {
                 magicModel.filterColumn("cId", "=" + selectedData.id);
+                analysisEngine.selectCompany(selectedData.id);
             }
         }
     }
@@ -33,7 +34,7 @@ APage {
                 logError("no selection");
                 return;
             }
-            var aId = analysisEngine.newMagicAnalysis(selectedData.id);
+            var aId = analysisEngine.newMagicAnalysis();
             if (aId < 0) {
                 logError("failed to magic analyse " + aId);
             }
