@@ -108,6 +108,7 @@ bool RamTableModel::setData(const QModelIndex &index, const QVariant &value, int
                     _ramData[aRow][columnIdx] = value;
                     _ramDataChanged[aRow][columnIdx] = RowChange::Update;
                     emit dataChanged(index, index, QVector<int>() << role);
+                    emit dataSet(this, row, columnRole(columnIdx), value);
                     return true;
                 }
             }

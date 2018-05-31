@@ -110,7 +110,10 @@ CREATE TABLE IF NOT EXISTS `financials` (
 	`leasingY`	NUMERIC,
 	`leasingY1`	NUMERIC,
 	`leasingY2Y5`	NUMERIC,
-	`leasingY5Up`	NUMERIC
+	`leasingY5Up`	NUMERIC,
+        `sharesInsider`	NUMERIC,
+        `sharesInst`	NUMERIC,
+	`insidersOwn`	NUMERIC
 );
 CREATE TABLE IF NOT EXISTS `companyTags` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,

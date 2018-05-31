@@ -29,6 +29,7 @@ AItem {
         }
     }
 
+    //row 1
     CompanyDetailGroup {
         id: basics
         itemData: dataRow.itemData
@@ -43,15 +44,30 @@ AItem {
         id: income
         itemData: dataRow.itemData
         anchors.top: basics.top
-        anchors.left: equity.left
+        anchors.left: equityAndLiab.left
 
-        groupName: "Income & expenses"
-        headerModel: [qsTr("Sales"), qsTr("Ebit"), qsTr("Dividend"), qsTr("Remuneration"),
-            qsTr("Interest payed"), qsTr("Debt maturity")]
-        itemRoles:  ["sales", "ebit", "dividend", "managRemun",  "interestPayed", "debtMaturity"]
+        groupName: "Income"
+        headerModel: [qsTr("Sales"), qsTr("Ebit")]
+        itemRoles:  ["sales", "ebit"]
         prevFocus: basics.lastFocusItem
     }
 
+    CompanyDetailGroup {
+        id: insiders
+        itemData: dataRow.itemData
+        anchors.top: basics.top
+        anchors.left: income.right
+        anchors.leftMargin: tm.rowH * 2
+
+        groupName: "Shares owned by"
+        headerModel: [qsTr("Insiders"), qsTr(""), qsTr("Institutions")]
+        itemRoles:  ["sharesInsider", "insidersOwn", "sharesInst"]
+        inputModes: {"insidersOwn": "%"}
+        colEdit: {"insidersOwn": false}
+        prevFocus: income.lastFocusItem
+    }
+
+    //row2
     CompanyDetailGroup {
         id: assets
         itemData: dataRow.itemData
@@ -61,42 +77,43 @@ AItem {
         groupName: "Assets"
         headerModel: [qsTr("Fixed"), qsTr("Fixed: PPE"), qsTr("Current"), qsTr("Current: Cash")]
         itemRoles:  ["assetsFixed", "assetsFixedPpe", "assetsCurr", "assetsCurrCash"]
-        prevFocus: income.lastFocusItem
+        prevFocus: insiders.lastFocusItem
     }
 
     CompanyDetailGroup {
-        id: equity
+        id: equityAndLiab
         itemData: dataRow.itemData
         anchors.top: assets.top
         anchors.left: assets.right
         anchors.leftMargin: tm.rowH * 2
-        groupName: "Equity"
-        headerModel: [qsTr("Equity")]
-        itemRoles:  ["equity"]
+        groupName: "Equity & Liab"
+        headerModel: [qsTr("Equity"), qsTr("Long debt"), qsTr("Long debt: Intb."), qsTr("Current debt"), qsTr("Current debt: Intb.")]
+        itemRoles:  ["equity", "liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
         prevFocus: assets.lastFocusItem
     }
 
+    //row3
     CompanyDetailGroup {
-        id: liabilities
+        id: expenses
         itemData: dataRow.itemData
         anchors.top: assets.bottom
         anchors.left: assets.left
         anchors.topMargin: 0
-        groupName: "Liabilities"
-        headerModel: [qsTr("Long"), qsTr("Long: Intb."), qsTr("Current"), qsTr("Current: Intb.")]
-        itemRoles:  ["liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
-        prevFocus: equity.lastFocusItem
+        groupName: "Expenses"
+        headerModel: [qsTr("Dividend"), qsTr("Remuneration"), qsTr("Interest payed"), qsTr("Debt maturity")]
+        itemRoles:  ["dividend", "managRemun",  "interestPayed", "debtMaturity"]
+        prevFocus: equityAndLiab.lastFocusItem
     }
 
     CompanyDetailGroup {
         id: leasing
         itemData: dataRow.itemData
-        anchors.top: liabilities.top
-        anchors.left: equity.left
+        anchors.top: expenses.top
+        anchors.left: equityAndLiab.left
         groupName: "Leasing"
         headerModel: [qsTr("This y."), qsTr("+1"), qsTr("+2-5"), qsTr("+5")]
         itemRoles:  ["leasingY", "leasingY1", "leasingY2Y5", "leasingY5Up"]
-        prevFocus: liabilities.lastFocusItem
+        prevFocus: expenses.lastFocusItem
     }
 
 }

@@ -175,7 +175,8 @@ bool DataManager::setupTableModels()
     model->setSort("year", Qt::DescendingOrder);
     model->addRelated("cId", getModel("companies"), "id", "name");
     model->addRelated("qId", getModel("quarters"), "id", "name");
-
+    connect(model, SIGNAL(dataSet(RamTableModel*,int,QString,QVariant)),
+            this, SLOT(financialsDataSet(RamTableModel*,int,QString,QVariant)));
     return true;
 }
 
@@ -219,4 +220,16 @@ RamTableModel *DataManager::getModel(const QString &name)
     }
     logError() << "failed to find model" << name;
     return nullptr;
+}
+
+void DataManager::financialsDataSet(RamTableModel *model, const int row, const QString &role, const QVariant &value)
+{
+    if (role == "sharesInsider") {
+        int shares = model->get(row, "shares").toDouble();
+        double insiderPercent = 0;
+        if (shares != 0) {
+            insiderPercent = value.toDouble() / shares;
+        }
+        model->set(row, "insidersOwn", QString::number(insiderPercent, 'f', 2));
+    }
 }

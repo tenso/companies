@@ -49,6 +49,9 @@ public:
 
     void addRole(const QString& role, bool isId);
 
+signals:
+    void dataSet(RamTableModel* model, const int row, const QString& role, const QVariant &value);
+
 public slots:
     //implement if model fetches submits and reverts:
     virtual bool select();

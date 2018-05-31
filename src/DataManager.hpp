@@ -17,6 +17,10 @@ public:
     bool init(const QString& dataPath);
     bool registerTableModels(QQmlContext* context);
     RamTableModel* getModel(const QString& name);
+
+private slots:
+    void financialsDataSet(RamTableModel* model, const int row, const QString& role, const QVariant &value);
+
 protected:
     bool setupDataStore(const QString &path);
     bool loadDB(const QString &file);

@@ -55,6 +55,8 @@ AItem {
                 height: root.height
                 sourceComponent:  comboModels[modelData] ? dropDown : text
                 onLoaded: {
+                    var canFocus = true;
+
                     item.role = modelData;
 
                     if (comboModels[modelData]) {
@@ -69,19 +71,22 @@ AItem {
                     if (fontColors[modelData]) {
                         item.fontColor = fontColors[modelData];
                     }
+
                     if (typeof(colEdit[modelData]) !== "undefined") {
                         item.showEdit = colEdit[modelData];
+                        canFocus = item.showEdit;
                     }
 
+                    if (canFocus) {
+                        if (root.lastChild) {
+                            item.prevFocus = root.lastChild;
+                        }
+                        else {
+                            root.firstChild = item;
+                        }
 
-                    if (root.lastChild) {
-                        item.prevFocus = root.lastChild;
+                        root.lastChild = item;
                     }
-                    else {
-                        root.firstChild = item;
-                    }
-
-                    root.lastChild = item;
                 }
             }
         }
