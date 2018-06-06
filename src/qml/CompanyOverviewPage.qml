@@ -7,6 +7,11 @@ APage {
     rowCount: view.count
     selectedData: view.currentItem ? view.currentItem.itemData : null
 
+    readonly property int sortNone: 0
+    readonly property int sortMagicDcf: 1
+    readonly property int sortDcfMagic: 2
+    property int sortOrder: sortNone
+
     function savePos() {
         view.savePos();
     }
@@ -14,8 +19,29 @@ APage {
         view.resetPos();
     }
 
+    function reSort() {
+        companiesModel.clearSort();
+        if (sortOrder == sortDcfMagic) {
+            companiesModel.setSort("aId", Qt.DescendingOrder);
+            companiesModel.setSort("maId", Qt.DescendingOrder);
+        }
+        else if (sortOrder == sortMagicDcf) {
+            companiesModel.setSort("maId", Qt.DescendingOrder);
+            companiesModel.setSort("aId", Qt.DescendingOrder);
+        }
+        companiesModel.applySort();
+    }
+
+    onSortOrderChanged: {
+        reSort();
+    }
+
+    onActiveChanged: {
+        reSort();
+    }
+
     DataMenu {
-        id: controls
+        id: dataMenu
         model: companiesModel
         view: view
         x: pageMenuX
@@ -30,6 +56,36 @@ APage {
             }
             if (!analysisEngine.delAllAnalysis(id)) {
                 logError("del analysises for " + id + " failed");
+            }
+        }
+    }
+
+    AButton {
+        id: sort
+        height: tm.rowH
+        width: tm.colW
+        text: qsTr("Sort")
+        onClicked: sortMenu.open()
+        font: tm.font
+        anchors.leftMargin: tm.margin
+        anchors.left: dataMenu.right
+        anchors.top: dataMenu.top
+        Menu {
+            id: sortMenu
+            MenuItem {
+                font: tm.font
+                text: qsTr("None")
+                onTriggered: sortOrder = sortNone
+            }
+            MenuItem {
+                font: tm.font
+                text: qsTr("Dcf->Magic")
+                onTriggered: sortOrder = sortDcfMagic
+            }
+            MenuItem {
+                font: tm.font
+                text: qsTr("Magic->Dcf")
+                onTriggered: sortOrder = sortMagicDcf
             }
         }
     }

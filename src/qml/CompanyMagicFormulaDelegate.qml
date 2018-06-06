@@ -56,7 +56,7 @@ AItem {
         headerModel: [qsTr("Financials year"), qsTr("Ebit"), qsTr("EV"), qsTr("Cap. Employed"), qsTr("Score")]
         itemRoles:  ["financialsMode", "ebit", "ev", "capitalEmployed", "score"]
         colorModes: {
-            "score": { "limits": [0.1, 0.25], "colors": [tm.fail, tm.warn, tm.ok] }
+            "score": { "limits": [0.15, 0.3], "colors": [tm.fail, tm.warn, tm.ok] }
         }
         fontColors: {
             "score": tm.inActive

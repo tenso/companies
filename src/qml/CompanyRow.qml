@@ -8,7 +8,7 @@ AListRow {
     inputModes: {"aId": "%"}
     colorModes: {
         "aId": { "limits": [-0.1, 0.1], "colors": [tm.fail, tm.warn, tm.ok] },
-        "maId": { "limits": [0.1, 0.25], "colors": [tm.fail, tm.warn, tm.ok] }
+        "maId": { "limits": [0.15, 0.3], "colors": [tm.fail, tm.warn, tm.ok] }
     }
     fontColors: {
         "aId": tm.inActive,

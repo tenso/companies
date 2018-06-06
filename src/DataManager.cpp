@@ -155,11 +155,13 @@ bool DataManager::setupTableModels()
         return false;
     }
     model->setSort("name", Qt::AscendingOrder);
+    model->applySort();
 
     if (!(model = addSqlModel("lists"))) {
         return false;
     }
     model->setSort("name", Qt::AscendingOrder);
+    model->applySort();
 
     //COMPANIES
     if (!(model = addSqlModel("companies"))) {
@@ -173,6 +175,7 @@ bool DataManager::setupTableModels()
         return false;
     }
     model->setSort("year", Qt::DescendingOrder);
+    model->applySort();
     model->addRelated("cId", getModel("companies"), "id", "name");
     model->addRelated("qId", getModel("quarters"), "id", "name");
     connect(model, SIGNAL(dataSet(RamTableModel*,int,QString,QVariant)),

@@ -3,11 +3,12 @@
 # TODO
 
 ## Prio ##
-* sort by dcf/magic
-* move list and description to details page add insider ownage to company overview
-* cant change ebit in magic: re-written.
+* reorder companies (viewOrder in table)
 * New analysis with two or more empty financials: NaN
-* <Unknown File>: QML VisualDataModel: Error creating delegate
+* <Unknown File>: QML VisualDataModel: Error creating delegate on startup
+* DelegateModel::cancel: index out range 2 1 when moving to Magic page.
+* cant change ebit in magic: re-written.
+* move list and description to details page add insider ownage to company overview
 
 ## goals ##
 * show insider trend in graph
@@ -39,3 +40,4 @@
 * disable multiple same year entries
 * dont dataChanged on all rows in model if related value changes
 * set max length of status-text-scroll
+* slow and awkward applySort implementation

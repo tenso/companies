@@ -53,6 +53,15 @@ QVariant RamTableModel::data(const QModelIndex &index, int role) const
     return value;
 }
 
+QVariant RamTableModel::data(const int row, const int col) const
+{
+    if (row < rowCount()) {
+        int aRow = actualRow(row);
+        return dataNoFilter(aRow, col);
+    }
+    return "";
+}
+
 QVariant RamTableModel::dataNoFilter(int row, int col) const
 {
     QVariant value;
@@ -308,7 +317,7 @@ int RamTableModel::idToRow(int id)
 
     //FIXME: better way?
     for(int i = 0; i < rowCount(); i++) {
-        if (get(i, "id").toInt() == id) {
+        if (get(i, _idColumn).toInt() == id) {
             return i;
         }
     }
@@ -476,21 +485,28 @@ int RamTableModel::findRow(const QString &role, const QVariant &value)
     return -1;
 }
 
-void RamTableModel::removeSort(int col)
+void RamTableModel::clearSort()
 {
-    _sorts.remove(col);
-    applySort();
-}
-
-void RamTableModel::removeSort(const QString &role)
-{
-    removeSort(roleColumn(role));
+    _sorts.clear();
+    _sortOrder.clear();
 }
 
 void RamTableModel::setSort(int col, Qt::SortOrder order)
 {
+    if (_sorts.contains(col))  {
+        return;
+    }
     _sorts[col] = order;
-    applySort();
+    _sortOrder.push_back(col);
+}
+
+Qt::SortOrder RamTableModel::sortOrder(int col) const
+{
+    if (_sorts.contains(col)) {
+        return _sorts[col];
+    }
+    logError() << "no such sort col:" << col;
+    return Qt::AscendingOrder;
 }
 
 void RamTableModel::setSort(const QString &role, Qt::SortOrder order)
@@ -636,27 +652,48 @@ void RamTableModel::relatedDataChanged(const QModelIndex &topLeft, const QModelI
 
 void RamTableModel::applySort()
 {
-    QHash<int, Qt::SortOrder> sorts = _sorts;
-
-    auto lessThan = [&sorts](const QVector<QVariant>& l, const QVector<QVariant>& r) {
-        QHash<int, Qt::SortOrder>::const_iterator it = sorts.begin();
-        bool same = l.at(it.key()) == r.at(it.key());
-        while (same && (it != sorts.end())) {
-            it++;
-            same = l.at(it.key()) == r.at(it.key());
-        }
-        if (it == sorts.end()) {
+    beginResetModel();
+    //FIXME: not good implementation
+    QList<int> order = _sortOrder;
+    QList<QVector<QVariant>> ramData = _ramData;
+    auto lessThan = [&order, this](const QVector<QVariant>& l, const QVector<QVariant>& r) {
+        QList<int>::const_iterator it = order.begin();
+        int lRow = idToRow(l.at(idColumn()).toInt());
+        int rRow = idToRow(r.at(idColumn()).toInt());
+        if (lRow < 0 || rRow < 0) {
+            logError() << "sort failed";
             return false;
         }
-        if (it.value() == Qt::AscendingOrder) {
-            return l.at(it.key()) < r.at(it.key());
+        int col = idColumn(); //fallback to id when sort is empty
+        if (order.size()) {
+            col = *it;
+        }
+        QVariant lData = data(lRow, col);
+        QVariant rData = data(rRow, col);
+
+        bool same = lData == rData;
+        while (same && (it != order.end())) {
+            it++;
+            if (it == order.end()) {
+                break;
+            }
+            col = *it;
+            lData = data(lRow, col);
+            rData = data(rRow, col);
+
+            same = lData == rData;
+        }
+        if (!order.size() || sortOrder(col) == Qt::AscendingOrder) {
+            return lData < rData;
         }
         else {
-            return l.at(it.key()) > r.at(it.key());
+            return lData > rData;
         }
     };
 
-    std::sort(_ramData.begin(), _ramData.end(), lessThan);
+    std::sort(ramData.begin(), ramData.end(), lessThan);
+    _ramData = ramData;
+    endResetModel();
 }
 
 

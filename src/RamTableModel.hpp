@@ -38,6 +38,7 @@ public:
     QModelIndex parent(const QModelIndex &index) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant data(const int row, const int col) const;
     QVariant dataNoFilter(int row, int col) const;
 
     bool setData(const QModelIndex &index, const QVariant &value,
@@ -90,10 +91,11 @@ public slots:
     QVariant get(const int row, const int col) const;
     int findRow(const QString& role, const QVariant& value);
 
-    void removeSort(int col);
-    void removeSort(const QString& role);
+    void applySort();
+    void clearSort();
     void setSort(const QString& role, Qt::SortOrder order); //will re-select
     void setSort(int col, Qt::SortOrder order);
+    Qt::SortOrder sortOrder(int col) const;
 
     //will add 'role' as virtual if it does not exist as a real db-column
     bool addRelated(const QString& role, RamTableModel* model, const QString& relatedRole, const QString& displayRole);
@@ -124,6 +126,7 @@ protected:
     QList<QVector<RowChange>> _ramDataChanged;
     QList<QString> _ramDataRemoved;
     QHash<int, Qt::SortOrder> _sorts;
+    QList<int> _sortOrder;
 
 private:
 
@@ -136,7 +139,6 @@ private:
     };
     QHash<int, RamTableModelRelation> _related;
 
-    void applySort();
     void applyFilters();
 
     QHash<int, QByteArray> _roles;
