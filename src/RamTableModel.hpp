@@ -90,6 +90,8 @@ public slots:
     QVariant get(const int row, const int col) const;
     int findRow(const QString& role, const QVariant& value);
 
+    void removeSort(int col);
+    void removeSort(const QString& role);
     void setSort(const QString& role, Qt::SortOrder order); //will re-select
     void setSort(int col, Qt::SortOrder order);
 
@@ -134,6 +136,7 @@ private:
     };
     QHash<int, RamTableModelRelation> _related;
 
+    void applySort();
     void applyFilters();
 
     QHash<int, QByteArray> _roles;

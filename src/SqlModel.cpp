@@ -64,16 +64,7 @@ bool SqlModel::select()
     _ramDataChanged.clear();
     _ramDataRemoved.clear();
 
-    QString sortString;
-    if (_sorts.count()) {
-        sortString = " ORDER BY ";
-        foreach(int col, _sorts.keys()) {
-            sortString += columnRole(col) +  (_sorts[col] == Qt::SortOrder::AscendingOrder ? " ASC" : " DESC") + ",";
-        }
-        sortString.chop(1); //remove last ','
-    }
-
-    QString s = "SELECT * FROM " + tableName() + sortString;
+    QString s = "SELECT * FROM " + tableName();
     if (_printSql) {
         logStatus() << s;
     }

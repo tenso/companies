@@ -3,12 +3,14 @@
 # TODO
 
 ## Prio ##
+* sort by dcf/magic
+* move list and description to details page add insider ownage to company overview
 * cant change ebit in magic: re-written.
 * New analysis with two or more empty financials: NaN
 * <Unknown File>: QML VisualDataModel: Error creating delegate
-* move list and description to details page
 
 ## goals ##
+* show insider trend in graph
 * capitalize r&d
 * re-work overview or add financialoverview with list of companies and their mcap/sales/.../metrics
 * re-order companies

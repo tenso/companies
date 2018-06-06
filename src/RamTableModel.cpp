@@ -476,10 +476,21 @@ int RamTableModel::findRow(const QString &role, const QVariant &value)
     return -1;
 }
 
+void RamTableModel::removeSort(int col)
+{
+    _sorts.remove(col);
+    applySort();
+}
+
+void RamTableModel::removeSort(const QString &role)
+{
+    removeSort(roleColumn(role));
+}
+
 void RamTableModel::setSort(int col, Qt::SortOrder order)
 {
     _sorts[col] = order;
-    select();
+    applySort();
 }
 
 void RamTableModel::setSort(const QString &role, Qt::SortOrder order)
@@ -621,6 +632,33 @@ void RamTableModel::relatedDataChanged(const QModelIndex &topLeft, const QModelI
         }
     }
 }
+
+
+void RamTableModel::applySort()
+{
+    QHash<int, Qt::SortOrder> sorts = _sorts;
+
+    auto lessThan = [&sorts](const QVector<QVariant>& l, const QVector<QVariant>& r) {
+        QHash<int, Qt::SortOrder>::const_iterator it = sorts.begin();
+        bool same = l.at(it.key()) == r.at(it.key());
+        while (same && (it != sorts.end())) {
+            it++;
+            same = l.at(it.key()) == r.at(it.key());
+        }
+        if (it == sorts.end()) {
+            return false;
+        }
+        if (it.value() == Qt::AscendingOrder) {
+            return l.at(it.key()) < r.at(it.key());
+        }
+        else {
+            return l.at(it.key()) > r.at(it.key());
+        }
+    };
+
+    std::sort(_ramData.begin(), _ramData.end(), lessThan);
+}
+
 
 void RamTableModel::applyFilters()
 {

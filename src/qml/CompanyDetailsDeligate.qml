@@ -87,7 +87,7 @@ AItem {
         anchors.left: assets.right
         anchors.leftMargin: tm.rowH * 2
         groupName: "Equity & Liab"
-        headerModel: [qsTr("Equity"), qsTr("Long debt"), qsTr("Long debt: Intb."), qsTr("Current debt"), qsTr("Current debt: Intb.")]
+        headerModel: [qsTr("Equity"), qsTr("N.C. liab."), qsTr("N.C. liab.: Intb."), qsTr("Current liab."), qsTr("Current liab: Intb.")]
         itemRoles:  ["equity", "liabLong", "liabLongInt", "liabCurr", "liabCurrInt"]
         prevFocus: assets.lastFocusItem
     }
