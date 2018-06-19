@@ -33,7 +33,7 @@ bool Analysis::init(RamTableModel *financialsModel, bool autoReAnalyse)
     if (!initModel(_magicModel, "magicFormula")) {
         return false;
     }
-    _magicModel.addRelated("financialsMode", GlobalData::getModel("calcModes"), "id", "name");
+    _magicModel.addRelated("financialsMode", GlobalData::getModel("calcModesMan"), "id", "name");
 
     buildLookups();
 
@@ -315,10 +315,12 @@ bool Analysis::analyseMagic(int aId)
     _changeUpdates = false;
 
     CalcMode mode = (CalcMode)get("financialsMode", &_magicModel);
-    QHash<QString, double> data = fetchData(mode);
-    set("ebit", data["ebit"], &_magicModel);
-    set("capitalEmployed", data["capitalEmployed"], &_magicModel);
-    set("ev", data["ev"], &_magicModel);
+    if (mode != CalcMode::Manual) {
+        QHash<QString, double> data = fetchData(mode);
+        set("ebit", data["ebit"], &_magicModel);
+        set("capitalEmployed", data["capitalEmployed"], &_magicModel);
+        set("ev", data["ev"], &_magicModel);
+    }
 
     double ce = get("capitalEmployed", &_magicModel);
     double eV = get("ev", &_magicModel);

@@ -145,6 +145,13 @@ bool DataManager::setupTableModels()
     idValue->addPair(0, "Means");
     idValue->addPair(1, "Last");
 
+    if (!(idValue = addRamModel("calcModesMan"))) {
+        return false;
+    }
+    idValue->addPair(0, "Means");
+    idValue->addPair(1, "Last");
+    idValue->addPair(2, "Manual");
+
     if (!(idValue = addRamModel("yesno"))) {
         return false;
     }

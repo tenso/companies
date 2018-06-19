@@ -62,7 +62,7 @@ AItem {
             "score": tm.inActive
         }
         colEdit: {"score": false}
-        itemCombos: {"financialsMode": calcModesModel };
+        itemCombos: {"financialsMode": calcModesManModel };
     }
 }
 
