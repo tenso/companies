@@ -25,6 +25,7 @@ bool Analysis::init(RamTableModel *financialsModel, bool autoReAnalyse)
     _model.addRelated("salesGrowthMode", GlobalData::getModel("modes"), "id", "name");
     _model.addRelated("ebitMarginMode", GlobalData::getModel("modes"), "id", "name");
     _model.addRelated("financialsMode", GlobalData::getModel("calcModes"), "id", "name");
+    _model.addRelated("qId", GlobalData::getModel("quarters"), "id", "name");
 
     if (!initModel(_resultsModel, "analysisResults")) {
         return false;
@@ -34,6 +35,7 @@ bool Analysis::init(RamTableModel *financialsModel, bool autoReAnalyse)
         return false;
     }
     _magicModel.addRelated("financialsMode", GlobalData::getModel("calcModesMan"), "id", "name");
+    _magicModel.addRelated("qId", GlobalData::getModel("quarters"), "id", "name");
 
     buildLookups();
 

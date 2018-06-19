@@ -29,6 +29,7 @@
   nobia got 3.9 should have been about 1.5
 
 # issues
+* fix spelling on Deligate->Delegate
 * remove DataMenu new/delete; put in respective page; keep willDelete etc
 * CompanyAnalysisDeligate and MagicFormulaDeligate shares base
 * overview loses item focus on leave!

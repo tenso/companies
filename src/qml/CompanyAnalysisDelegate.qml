@@ -80,8 +80,9 @@ AItem {
         anchors.left: m2.left
 
         groupName: ""
-        headerModel: [qsTr("Shares"), qsTr("Share price")]
-        itemRoles:  ["shares", "sharePrice"]
+        headerModel: [qsTr("Shares"), qsTr("Share price"), qsTr("Year"), qsTr("Quarter")]
+        itemRoles:  ["shares", "sharePrice", "year", "qId"]
+        itemCombos: {"qId": quartersModel}
         itemW: tm.wideW
         prevFocus: m2.lastFocusItem
     }

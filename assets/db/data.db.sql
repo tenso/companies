@@ -71,7 +71,9 @@ CREATE TABLE IF NOT EXISTS `magicFormula` (
 	`ev`	NUMERIC,
 	`capitalEmployed`	NUMERIC,
 	`score`	NUMERIC,
-	`financialsMode`	INTEGER
+	`financialsMode`	INTEGER,
+	`year`	INTEGER,
+	`qId`	INTEGER
 );
 CREATE TABLE IF NOT EXISTS `lists` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,8 +113,8 @@ CREATE TABLE IF NOT EXISTS `financials` (
 	`leasingY1`	NUMERIC,
 	`leasingY2Y5`	NUMERIC,
 	`leasingY5Up`	NUMERIC,
-        `sharesInsider`	NUMERIC,
-        `sharesInst`	NUMERIC,
+	`sharesInsider`	NUMERIC,
+	`sharesInst`	NUMERIC,
 	`insidersOwn`	NUMERIC
 );
 CREATE TABLE IF NOT EXISTS `companyTags` (
@@ -170,6 +172,8 @@ CREATE TABLE IF NOT EXISTS `analysis` (
 	`shares`	NUMERIC,
 	`sharePrice`	NUMERIC,
 	`shareValue`	NUMERIC,
-	`rebate`	NUMERIC
+	`rebate`	NUMERIC,
+	`year`	INTEGER,
+	`qId`	INTEGER
 );
 COMMIT;

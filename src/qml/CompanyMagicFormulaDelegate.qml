@@ -53,8 +53,8 @@ AItem {
         itemData: root.itemData
         itemW: tm.wideW
         groupName: ""
-        headerModel: [qsTr("Financials year"), qsTr("Ebit"), qsTr("EV"), qsTr("Cap. Employed"), qsTr("Score")]
-        itemRoles:  ["financialsMode", "ebit", "ev", "capitalEmployed", "score"]
+        headerModel: [qsTr("Financials from"), qsTr("Year"), qsTr("Quarter"), qsTr("Ebit"), qsTr("EV"), qsTr("Cap. Employed"), qsTr("Score")]
+        itemRoles:  ["financialsMode", "year", "qId", "ebit", "ev", "capitalEmployed", "score"]
         colorModes: {
             "score": { "limits": [0.15, 0.3], "colors": [tm.fail, tm.warn, tm.ok] }
         }
@@ -62,7 +62,7 @@ AItem {
             "score": tm.inActive
         }
         colEdit: {"score": false}
-        itemCombos: {"financialsMode": calcModesManModel };
+        itemCombos: {"financialsMode": calcModesManModel, "qId": quartersModel };
     }
 }
 
