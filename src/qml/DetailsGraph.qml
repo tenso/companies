@@ -29,7 +29,8 @@ Rectangle {
     }
 
     function redraw() {
-        chartView.fillAll();
+        //chartView.fillAll();
+        redrawTimer.restart();
     }
 
     Timer {
@@ -165,10 +166,6 @@ Rectangle {
                     }
                 }
             }
-        }
-
-        Component.onCompleted: {
-            fillAll();
         }
     }
     Row {

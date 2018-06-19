@@ -104,6 +104,12 @@ ApplicationWindow {
             selectedData: overview.selectedData
             active: pages.currentIndex == 3
         }
+        FeedbackPage {
+            id: feedback
+            colW: pages.colW
+            selectedData: overview.selectedData
+            active: pages.currentIndex == 4
+        }
     }
 
     footer: MainStatusBar {

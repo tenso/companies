@@ -136,6 +136,8 @@ int Analysis::newDCFAnalysis(bool empty)
 
     //from financials:
     QHash<QString, double> data = fetchData(CalcMode::Means);
+    set("year", data["lastYear"]);
+    setInt("qId", 0);
     set("shares", data["shares"]);
     set("sharePrice", data["sharePrice"]);
     set("sales", data["sales"]);
@@ -166,8 +168,11 @@ int Analysis::newMagicAnalysis()
     else {
         aId = _magicModel.get("id").toInt();
 
-        //defaults
+        QHash<QString, double> data = fetchData(CalcMode::Means);
+        set("year", data["lastYear"], &_magicModel);
+        setInt("qId", 0, &_magicModel);
         setInt("financialsMode", (int)CalcMode::Means, &_magicModel);
+
         analyseMagic(aId);
     }
     _changeUpdates = true;
@@ -387,6 +392,7 @@ QHash<QString, double> Analysis::fetchData(CalcMode mode)
     means["shares"] = fin("shares");
     means["sharePrice"] = fin("sharePrice");
     means["mcap"] = mcap(means["shares"], means["sharePrice"]);
+    means["lastYear"] = fin("year");
 
     double lastSale = 0;
     double salesGrowth = 1; //calc geometric-mean; FIXME: make option?

@@ -6,14 +6,17 @@ APage {
     Theme {id:tm}
     rowCount: view.count
 
-    onActiveChanged: {
-        if (active) {
+    function refresh() {
+        if (page.active) {
             financialsModel.filterColumn("qId", "");
             if (selectedData) {
                 financialsModel.filterColumn("cId", "=" + selectedData.id);
             }
-            graph.redraw();
         }
+    }
+
+    onActiveChanged: {
+        refresh();
     }
 
     function savePos() {
@@ -41,12 +44,7 @@ APage {
         colW: page.colW
 
         onSelectionChanged: {
-            if (page.active) {
-                if (selectedData) {
-                    financialsModel.filterColumn("cId", "=" + selectedData.id);
-                }
-                graph.redraw();
-            }
+            refresh();
         }
     }
 
@@ -55,7 +53,7 @@ APage {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: head.bottom
-        height: (tm.rowH * 10 + 1) * 2
+        anchors.bottom: parent.bottom
         color: tm.inActive
 
         AList {
@@ -74,20 +72,5 @@ APage {
                 }
             }
         }
-    }
-    DetailsGraph {
-        id: graph
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: financials.bottom
-        anchors.bottom: parent.bottom
-
-        model: financialsModel
-        categoryRole: "year"
-        showOrder: ["sales", "ebit", "dividend"]
-        setColors: {"sales": tm.graph2, "ebit": tm.graph1, "dividend": tm.graph3}
-
-        filterRole: "qId"
-        filterEqValue: 0
     }
 }

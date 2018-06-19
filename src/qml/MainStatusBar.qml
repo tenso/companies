@@ -29,6 +29,9 @@ Rectangle {
         ATabButton {
             text: qsTr("Magic formula")
         }
+        ATabButton {
+            text: qsTr("Feedback")
+        }
     }
     Text {
         id: countBar

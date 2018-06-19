@@ -4,6 +4,7 @@
 * feedback on analysis and stock price!
 
 # Prio 2
+* select company and filter more central (not in specifi qml pages)?
 * reorder companies (viewOrder in table)
 * New analysis with two or more empty financials: NaN
 * <Unknown File>: QML VisualDataModel: Error creating delegate on startup
@@ -12,6 +13,7 @@
 * break-up Analysis to own classes
 
 # goals
+* enable quarter data.
 * show insider trend in graph
 * capitalize r&d
 * re-work overview or add financialoverview with list of companies and their mcap/sales/.../metrics

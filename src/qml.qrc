@@ -34,5 +34,7 @@
         <file>qml/CompanyMagicFormulaDelegate.qml</file>
         <file>qml/ACheckBox.qml</file>
         <file>qml/ARadioButton.qml</file>
+        <file>qml/FeedbackPage.qml</file>
+        <file>qml/PriceGraph.qml</file>
     </qresource>
 </RCC>

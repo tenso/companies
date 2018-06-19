@@ -128,10 +128,10 @@ bool DataManager::setupTableModels()
         return false;
     }
     idValue->addPair(0, "FY");
-    idValue->addPair(1, "Q1");
+    /*idValue->addPair(1, "Q1");
     idValue->addPair(2, "Q2");
     idValue->addPair(3, "Q3");
-    idValue->addPair(4, "Q4");
+    idValue->addPair(4, "Q4");*/
 
     if (!(idValue = addRamModel("modes"))) {
         return false;
