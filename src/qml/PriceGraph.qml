@@ -109,7 +109,7 @@ Rectangle {
                 }
 
                 set = chart.insert(i, year + q, y);
-                logStatus((year + q) + ":" + y);
+                //logStatus((year + q) + ":" + y);
             }
 
             if (model.rowCount() === 1) {

@@ -2,7 +2,7 @@
 
 # Prio
 * segfault when changing DCF years: dont know more...
-* feedback on analysis and stock price!
+* feedback on analysis and stock price! (FeedbackPage).
 
 # Prio 2
 * select company and filter more central (not in specifi qml pages)?
