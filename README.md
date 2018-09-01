@@ -1,6 +1,7 @@
 # companies
 
 # Prio
+* segfault when changing DCF years: dont know more...
 * feedback on analysis and stock price!
 
 # Prio 2
@@ -18,11 +19,10 @@
 * capitalize r&d
 * re-work overview or add financialoverview with list of companies and their mcap/sales/.../metrics
 * re-order companies
-* sort on rebate etc
 * assumptions sensitivity analysis (margins etc)
 * Calculate bottom up beta: levered/delevered beta
-* add stats like return-on-capital-employed in financials view
-* a way to set marketpremiu and riskfree globaly as a setting (change current and default)
+* add stats like return-on-capital-employed, coe, roe
+* a way to set marketpremium and riskfree globaly as a setting (change current and default)
 * sector(rename type) + sub-sector dropdowns
 
 # questions

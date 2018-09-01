@@ -6,7 +6,7 @@ APage {
     Theme {id:tm}
     rowCount: view.count
 
-    function refresh() {
+    function doRefresh() {
         if (page.active) {
             financialsModel.filterColumn("qId", "");
             if (selectedData) {

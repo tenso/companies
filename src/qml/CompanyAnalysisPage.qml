@@ -5,6 +5,10 @@ APage {
     id: page
 
     onActiveChanged: {
+        refresh();
+    }
+
+    function doRefresh() {
         if (page.active) {
             if (selectedData) {
                 analysisModel.filterColumn("cId", "=" + selectedData.id);

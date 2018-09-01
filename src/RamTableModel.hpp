@@ -157,6 +157,7 @@ private:
 
     QList<int> _removedByFilter;
     bool _filtersEnabled { true };
+    bool _filtersChanged { true};
 };
 
 #endif // RAMTABLEMODEL_HPP

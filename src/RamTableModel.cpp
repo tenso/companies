@@ -560,6 +560,7 @@ bool RamTableModel::filtersEnabled() const
 void RamTableModel::clearFilters()
 {
     beginResetModel();
+    _filtersChanged = true;
     _filters.clear();
     _removedByFilter.clear();
     endResetModel();
@@ -573,10 +574,16 @@ void RamTableModel::filterColumn(const QString &role, const QString &filter)
 void RamTableModel::filterColumn(int column, const QString &filter)
 {
     if (filter.count()) {
-        _filters[column] = filter;
+        if (_filters[column] != filter) {
+            _filters[column] = filter;
+            _filtersChanged = true;
+        }
     }
     else {
-        _filters.remove(column);
+        if (_filters.contains(column)) {
+            _filters.remove(column);
+            _filtersChanged = true;
+        }
     }
     applyFilters();
 }
@@ -699,6 +706,9 @@ void RamTableModel::applySort()
 
 void RamTableModel::applyFilters()
 {
+    if (!_filtersChanged) {
+        return;
+    }
     beginResetModel();
     _removedByFilter.clear();
 
@@ -757,6 +767,7 @@ void RamTableModel::applyFilters()
     //logStatus() << "actual rows removed by filter:" << _removedByFilter;
 
     endResetModel();
+    _filtersChanged = false;
 }
 
 int RamTableModel::actualRowCount() const

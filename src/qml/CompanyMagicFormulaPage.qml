@@ -6,6 +6,10 @@ APage {
     Theme {id:tm}
 
     onActiveChanged: {
+        refresh();
+    }
+
+    function doRefresh() {
         if (page.active) {
             if (selectedData) {
                 magicModel.filterColumn("cId", "=" + selectedData.id);
