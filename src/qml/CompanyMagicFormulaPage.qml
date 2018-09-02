@@ -11,6 +11,9 @@ APage {
 
     function doRefresh() {
         if (page.active) {
+            if (!view.model) {
+                view.model = magicModel;
+            }
             if (selectedData) {
                 magicModel.filterColumn("cId", "=" + selectedData.id);
                 analysisEngine.selectCompany(selectedData.id);
@@ -73,7 +76,7 @@ APage {
 
         AList {
             id: view
-            model: magicModel
+            //model: magicModel //when set on main load, there a create-deligate error, loaded to early??
             anchors.fill: parent
             snapMode: ListView.SnapToItem
             ButtonGroup {

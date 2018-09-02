@@ -85,13 +85,16 @@ Rectangle {
             var y;
             var set;
             var q;
+            var added = false;
 
             for (i = 0; i < model.rowCount(); i++) {
                 year = model.get(i, modelYear);
                 if (year === "")  continue;
                 year = parseInt(year);
-                q = parseFloat(model.get(i, "qId")) / 4.0;
+                q = model.get(i, "qId");
+                if (q === "") continue;
 
+                q = parseFloat(q) / 4.0;
 
                 if (year < minYear) {
                     minYear = year;
@@ -109,10 +112,11 @@ Rectangle {
                 }
 
                 set = chart.insert(i, year + q, y);
+                added = true;
                 //logStatus((year + q) + ":" + y);
             }
 
-            if (model.rowCount() === 1) {
+            if (added && model.rowCount() === 1) {
                 set = chart.insert(i, year - 1, y);
             }
 

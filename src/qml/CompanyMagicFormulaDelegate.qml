@@ -54,7 +54,7 @@ AItem {
         itemW: tm.wideW
         groupName: ""
         headerModel: [qsTr("Financials from"), qsTr("Year"), qsTr("Quarter"), qsTr("Ebit"), qsTr("EV"), qsTr("Cap. Employed"), qsTr("Score")]
-        itemRoles:  ["financialsMode", "year", "qId", "ebit", "ev", "capitalEmployed", "score"]
+        itemRoles: ["financialsMode", "year", "qId", "ebit", "ev", "capitalEmployed", "score"]
         colorModes: {
             "score": { "limits": [0.15, 0.3], "colors": [tm.fail, tm.warn, tm.ok] }
         }
