@@ -5,11 +5,10 @@
 * feedback on analysis and stock price! (FeedbackPage).
 
 # Prio 2
+* when having sorted list and change DCF value it will not re-sort list
 * select company and filter more central (not in specifi qml pages)?
 * reorder companies (viewOrder in table)
 * New analysis with two or more empty financials: NaN
-* <Unknown File>: QML VisualDataModel: Error creating delegate on startup
-* DelegateModel::cancel: index out range 2 1 when moving to Magic page.
 * move list and description to details page add insider ownage to company overview
 * break-up Analysis to own classes
 
