@@ -1,6 +1,9 @@
 # companies
 
 # Prio
+* Make a View class into table model so many can exist to same underlying data.
+  qml pages can then use own views.
+* make a central model for save/load etc.
 * segfault when changing DCF years: dont know more...
 * feedback on analysis and stock price! (FeedbackPage).
 
